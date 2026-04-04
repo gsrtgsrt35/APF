@@ -21867,7 +21867,7 @@ function init(options2) {
   setContext$1("react", { version: reactExports.version });
   return init$1(opts);
 }
-var define_RWJS_ENV_default = { RWJS_API_GRAPHQL_URL: "https://api.landingsite.ai/graphql", RWJS_API_URL: "https://api.landingsite.ai", __REDWOOD__APP_TITLE: "Landingsite", RWJS_EXP_STREAMING_SSR: false, RWJS_EXP_RSC: false };
+var define_RWJS_ENV_default = { RWJS_API_GRAPHQL_URL: "https://api.landingsite.ai/graphql", RWJS_API_URL: "https://api.landingsite.ai", __REDWOOD__APP_TITLE: "APF MX", RWJS_EXP_STREAMING_SSR: false, RWJS_EXP_RSC: false };
 globalThis.RWJS_API_GRAPHQL_URL = define_RWJS_ENV_default.RWJS_API_GRAPHQL_URL;
 globalThis.RWJS_API_URL = define_RWJS_ENV_default.RWJS_API_URL;
 globalThis.__REDWOOD__APP_TITLE = define_RWJS_ENV_default.__REDWOOD__APP_TITLE;
@@ -66078,8 +66078,8 @@ const AppNavBarLayout = ({
   return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-h-full", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-full min-w-full bg-white", children: /* @__PURE__ */ jsxRuntimeExports.jsx("header", { id: "main-header", className: "py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 sm:px-6 lg:px-8", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("a", { href: "/", className: "flex items-center text-xl font-bold tracking-tight text-gray-800 sm:text-2xl", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "/logo-paper-plane.png", className: "mr-2 inline h-5", alt: "Landingsite" }),
-        "Landingsite.ai"
+        /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "/logo-paper-plane.png", className: "mr-2 inline h-5", alt: "APF MX" }),
+        "APF MX"
       ] }),
       !loading && !isAuthenticated && /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "flex items-center gap-x-8 text-sm text-black", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("a", { className: "hover:underline", href: "/login", onClick: onClickLogin, children: "Log In" }) }),
