@@ -1,0 +1,32 @@
+/* APF PATRIMONIAL MX — Design Tokens */
+:root {
+  --accent-color: #d9534f;
+  --accent2-color: #f0ad4e;
+  --accent3-color: #5bc0de;
+  --accent4-color: #5cb85c;
+  --primary-color: #0076a8;
+  --dark-text-color: #333333;
+  --gray-text-color: #8f98a3;
+  --button-padding-x: 12px;
+  --button-padding-y: 8px;
+  --font-family-body: 'Lato', sans-serif;
+  --light-text-color: #f8f9fa;
+  --dark-border-color: #6c757d;
+  --light-border-color: #e3e7ea;
+  --font-family-heading: 'Montserrat', sans-serif;
+  --button-rounded-radius: 4px;
+  --dark-background-color: #222831;
+  --light-background-color: #d9edf7;
+  --medium-background-color: #b6e0f2;
+  --primary-button-text-color: #ffffff;
+  --secondary-button-bg-color: #f3f4f8;
+  --secondary-button-text-color: #0076a8;
+  --primary-button-hover-bg-color: #005f86;
+  --primary-button-hover-text-color: #ffffff;
+  --secondary-button-hover-bg-color: #dae0e6;
+  --secondary-button-hover-text-color: #005f86;
+  --azul-confianza: #1e88e5;
+  --verde-opt: #3e7d32;
+  --dorado-pat: #d4af37;
+  --naranja-fin: #f57c00;
+}
