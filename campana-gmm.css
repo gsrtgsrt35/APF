@@ -13,6 +13,7 @@
   --red-alert: #C0392B;
   --teal: #1A6B72;
   --gray: #8A8F9E;
+  --accent3-color: #5bc0de;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
