@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protege Tu Patrimonio — Seguro de Auto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- URGENCY STRIP -->
+<div class="urgency-strip">
+  <span class="live-dot"></span>
+  <strong>¿Ya cotizaste hoy?</strong> &nbsp;·&nbsp;
+  Oferta especial expira en <strong><span id="urgencyTimer">23:47</span></strong>
+  &nbsp;·&nbsp; Protégete ahora sin costo.
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-brand">Protege<span> tu patrimonio</span></a>
+  <a href="#cotizar" class="btn-primary open-modal" style="padding:10px 24px;font-size:13px;clip-path:none;">
+    Cotizar Gratis →
+  </a>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     HERO
+════════════════════════════════════════ -->
+<section class="hero" id="inicio">
+  <div class="hero-left">
+    <div class="tag">Protección Financiera Integral</div>
+    <h1 class="hero-headline">
+      Un accidente no debería<br>
+      <em>destruir tu patrimonio.</em>
+    </h1>
+    <p class="hero-sub">
+      Un choque puede costarte <strong>desde $30,000 hasta $500,000 pesos</strong> en
+      reparaciones, gastos médicos y responsabilidades legales. Tu seguro de auto no
+      es un gasto — <strong>es el escudo de tu estabilidad económica.</strong>
+    </p>
+    <div class="cta-group">
+      <a href="#cotizar" class="btn-primary open-modal">Cotizar sin costo →</a>
+      <a href="#riesgos" class="btn-secondary">Ver los riesgos reales</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="risk-card">
+      <div class="risk-card-title">
+        <span>⚠</span> Costos reales sin seguro
+      </div>
+      <div class="risk-item">
+        <div class="risk-amount">$85K</div>
+        <div class="risk-desc">
+          <strong>Choque a tercero</strong>
+          Daños a vehículo ajeno de gama media
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-amount">$220K</div>
+        <div class="risk-desc">
+          <strong>Lesiones a personas</strong>
+          Gastos médicos mínimos por hospitalización
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-amount">$180K</div>
+        <div class="risk-desc">
+          <strong>Responsabilidad civil</strong>
+          Demanda promedio por daños y perjuicios
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-amount">$485K</div>
+        <div class="risk-desc">
+          <strong>Pérdida total estimada</strong>
+          Un solo evento sin protección
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     STATS BAR
+════════════════════════════════════════ -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">
+      <span>1 de </span><span data-target="4" data-suffix="">4</span>
+    </div>
+    <div class="stat-label">autos sin seguro en México</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-item">
+    <div class="stat-num">
+      +<span data-target="340" data-suffix="%">340%</span>
+    </div>
+    <div class="stat-label">aumento en costos de reparación (5 años)</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-item">
+    <div class="stat-num">
+      <span data-target="72" data-suffix="%">72%</span>
+    </div>
+    <div class="stat-label">de accidentes ocurren a menos de 5 km de casa</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-item">
+    <div class="stat-num">$0</div>
+    <div class="stat-label">de tu bolsillo con la cobertura correcta</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     ESCENARIOS DE RIESGO
+════════════════════════════════════════ -->
+<section class="scenarios-section" id="riesgos">
+  <div class="section" style="padding-bottom:0;">
+    <div class="section-label">Escenarios de riesgo real</div>
+    <h2 class="section-title">Lo que puede costarte<br><em>no estar asegurado</em></h2>
+    <p class="section-sub">
+      Estos no son números teóricos. Son los costos reales que enfrentan miles de familias
+      mexicanas cada año por no contar con protección financiera.
+    </p>
+  </div>
+
+  <div class="scenarios-grid">
+    <div class="scenario-card">
+      <span class="scenario-icon">🚗</span>
+      <span class="scenario-num">01</span>
+      <div class="scenario-loss">$95K–$300K</div>
+      <div class="scenario-name">Daños a terceros</div>
+      <p class="scenario-desc">
+        Chocas el auto de otra persona. Sin seguro, pagas de tu bolsillo la reparación,
+        además de posibles consecuencias legales y retención del vehículo.
+      </p>
+    </div>
+    <div class="scenario-card">
+      <span class="scenario-icon">🏥</span>
+      <span class="scenario-num">02</span>
+      <div class="scenario-loss">$150K–$2M</div>
+      <div class="scenario-name">Gastos médicos</div>
+      <p class="scenario-desc">
+        Una persona resulta herida en el accidente. Los costos de hospitalización,
+        cirugías y rehabilitación pueden consumir el patrimonio de tu familia entera.
+      </p>
+    </div>
+    <div class="scenario-card">
+      <span class="scenario-icon">⚖️</span>
+      <span class="scenario-num">03</span>
+      <div class="scenario-loss">$200K–$1.5M</div>
+      <div class="scenario-name">Demandas legales</div>
+      <p class="scenario-desc">
+        Responsabilidad civil por daños y perjuicios. El proceso legal puede extenderse
+        años y resultar en embargos de propiedades o cuentas bancarias.
+      </p>
+    </div>
+    <div class="scenario-card">
+      <span class="scenario-icon">🔥</span>
+      <span class="scenario-num">04</span>
+      <div class="scenario-loss">$80K–$450K</div>
+      <div class="scenario-name">Pérdida total de tu auto</div>
+      <p class="scenario-desc">
+        Robo, incendio o daño irreparable. Sin cobertura, pierdes el valor completo del
+        vehículo y además debes seguir pagando el crédito automotriz si tienes uno.
+      </p>
+    </div>
+    <div class="scenario-card">
+      <span class="scenario-icon">🌊</span>
+      <span class="scenario-num">05</span>
+      <div class="scenario-loss">$40K–$200K</div>
+      <div class="scenario-name">Fenómenos naturales</div>
+      <p class="scenario-desc">
+        Inundación, granizo, deslizamiento. Eventos climáticos que no dependen de ti pero
+        cuya reparación caerá completamente sobre tus finanzas.
+      </p>
+    </div>
+    <div class="scenario-card">
+      <span class="scenario-icon">💼</span>
+      <span class="scenario-num">06</span>
+      <div class="scenario-loss">$20K–$80K</div>
+      <div class="scenario-name">Gastos de defensa legal</div>
+      <p class="scenario-desc">
+        Honorarios de abogados, trámites, fianzas y peritos. Incluso si no eres culpable,
+        defenderte legalmente tiene un costo que pocas familias pueden absorber.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     CALCULADORA COMPARATIVA
+════════════════════════════════════════ -->
+<section class="calc-section" id="comparativo">
+  <div style="max-width:1200px;margin:0 auto;position:relative;z-index:2;">
+    <div class="section-label">Análisis financiero</div>
+    <h2 class="section-title">Tener seguro vs.<br><em>no tenerlo</em></h2>
+    <p class="section-sub">
+      El costo de un siniestro sin protección puede superar 30 años de primas pagadas.
+      Esta es la matemática real de la protección financiera.
+    </p>
+
+    <div class="calc-box">
+      <div class="calc-header">
+        ◆ &nbsp; Comparativo financiero — Accidente tipo con vehículo mediano
+      </div>
+
+      <div class="calc-body">
+        <!-- SIN SEGURO -->
+        <div>
+          <div class="calc-col-title red">⚠ Sin seguro — Exposición total</div>
+          <div class="calc-row">
+            <span class="label">Daños a vehículo propio</span>
+            <span class="value red">$85,000</span>
+          </div>
+          <div class="calc-row">
+            <span class="label">Daños a tercero</span>
+            <span class="value red">$95,000</span>
+          </div>
+          <div class="calc-row">
+            <span class="label">Gastos médicos</span>
+            <span class="value red">$180,000</span>
+          </div>
+          <div class="calc-row">
+            <span class="label">Honorarios legales</span>
+            <span class="value red">$45,000</span>
+          </div>
+          <div class="calc-row">
+            <span class="label">Pérdida de ingreso</span>
+            <span class="value red">$30,000</span>
+          </div>
+          <div class="calc-total">
+            <span class="label">Pérdida total</span>
+            <span class="value red">$435,000</span>
+          </div>
+        </div>
+
+        <!-- VS -->
+        <div class="vs-divider">
+          <div class="vs-line"></div>
+          <div class="vs-text">VS</div>
+          <div class="vs-line"></div>
+        </div>
+
+        <!-- CON SEGURO -->
+        <div>
+          <div class="calc-col-title green">✓ Con seguro — Tu costo real</div>
+          <div class="calc-row">
+            <span class="label">Prima anual</span>
+            <span class="value">$9,500</span>
+          </div>
+          <div class="calc-row">
+            <span class="label">Deducible aplicado</span>
+            <span class="value">$7,500</span>
+          </div>
+          <div class="calc-row">
+            <span class="label">Daños a tercero</span>
+            <span class="value green">$0 (cubierto)</span>
+          </div>
+          <div class="calc-row">
+            <span class="label">Gastos médicos</span>
+            <span class="value green">$0 (cubierto)</span>
+          </div>
+          <div class="calc-row">
+            <span class="label">Defensa legal</span>
+            <span class="value green">$0 (cubierto)</span>
+          </div>
+          <div class="calc-total">
+            <span class="label">Tu desembolso</span>
+            <span class="value green">$17,000</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="savings-banner">
+        <div class="savings-text">
+          Con seguro, tu familia estaría protegida de una pérdida de
+          <strong>$418,000</strong> pagando solo la prima y el deducible.
+        </div>
+        <div style="text-align:right;">
+          <div class="savings-amount-label">Ahorro real</div>
+          <div class="savings-amount-value">$418K</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     BENEFICIOS
+════════════════════════════════════════ -->
+<section class="benefits-section" id="coberturas">
+  <div class="section">
+    <div class="section-label">Coberturas que importan</div>
+    <h2 class="section-title">Tu seguro como<br><em>instrumento financiero</em></h2>
+    <p class="section-sub">Más que reparar un auto — tu póliza es una herramienta de gestión de riesgo patrimonial.</p>
+
+    <div class="benefits-grid">
+      <div class="benefit-list">
+        <div class="benefit-item">
+          <div class="benefit-icon-wrap">🛡️</div>
+          <div>
+            <div class="benefit-title">Responsabilidad Civil Amplia</div>
+            <p class="benefit-desc">Protege tu patrimonio ante demandas de terceros por daños a personas o propiedades. Sin límite de cobertura en planes premium.</p>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon-wrap">💊</div>
+          <div>
+            <div class="benefit-title">Gastos Médicos Ilimitados</div>
+            <p class="benefit-desc">Accidentes dentro del vehículo cubiertos hasta por $500K por persona. Tu familia está protegida en cada trayecto.</p>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon-wrap">⚖️</div>
+          <div>
+            <div class="benefit-title">Defensa Legal Incluida</div>
+            <p class="benefit-desc">Abogados especializados asignados de inmediato ante cualquier acción legal derivada del siniestro. Sin costo adicional.</p>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon-wrap">🔒</div>
+          <div>
+            <div class="benefit-title">Robo Total con Reemplazo</div>
+            <p class="benefit-desc">Valor comercial del vehículo garantizado + opción de auto de reemplazo inmediato para no interrumpir tu actividad económica.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="reasons-box">
+        <div class="section-label" style="margin-bottom:24px;">¿Por qué contratarlo hoy?</div>
+        <div class="reason-item">
+          <div class="reason-diamond">◆</div>
+          <div>
+            <div class="reason-title">El riesgo no avisa</div>
+            <p class="reason-desc">72% de los accidentes ocurren en trayectos cotidianos de menos de 15 minutos.</p>
+          </div>
+        </div>
+        <div class="reason-item">
+          <div class="reason-diamond">◆</div>
+          <div>
+            <div class="reason-title">Tu crédito hipotecario en riesgo</div>
+            <p class="reason-desc">Una demanda civil puede resultar en embargo de bienes inmuebles si no tienes cobertura de RC.</p>
+          </div>
+        </div>
+        <div class="reason-item">
+          <div class="reason-diamond">◆</div>
+          <div>
+            <div class="reason-title">Primas más bajas ahora</div>
+            <p class="reason-desc">La inflación en seguros ha aumentado 18% anual. Bloquear tu prima hoy te protege del alza futura.</p>
+          </div>
+        </div>
+        <div class="reason-item">
+          <div class="reason-diamond">◆</div>
+          <div>
+            <div class="reason-title">Inversión, no gasto</div>
+            <p class="reason-desc">Una prima de $800/mes protege un patrimonio que tardaste años en construir. La ecuación siempre es positiva.</p>
+          </div>
+        </div>
+        <a href="#cotizar" class="btn-primary open-modal" style="margin-top:36px;">Ver mi cotización →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     TESTIMONIOS
+════════════════════════════════════════ -->
+<section class="testimonials-section" id="testimonios">
+  <div class="section" style="padding-bottom:0;">
+    <div class="section-label">Historias reales</div>
+    <h2 class="section-title">Cuando el seguro<br><em>salvó el patrimonio</em></h2>
+  </div>
+
+  <div class="testimonials-grid">
+    <div class="testimonial-card">
+      <div class="quote-mark">"</div>
+      <p class="quote-text">
+        Choqué en el periférico y el daño al otro auto fue de casi $120,000. Mi seguro lo cubrió todo.
+        Sin él, <span class="quote-highlight">habría tenido que vender mi casa</span> para pagar la demanda.
+      </p>
+      <div class="quote-author">
+        <div class="author-avatar">RM</div>
+        <div>
+          <div class="author-name">Roberto M.</div>
+          <div class="author-detail">Empresario · CDMX · Siniestro 2023</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonial-card">
+      <div class="quote-mark">"</div>
+      <p class="quote-text">
+        Me robaron el carro en el estacionamiento. Gracias a la cobertura de robo total,
+        <span class="quote-highlight">recibí el valor comercial en 15 días</span> y pude seguir
+        pagando mi crédito automotriz sin problemas.
+      </p>
+      <div class="quote-author">
+        <div class="author-avatar">LC</div>
+        <div>
+          <div class="author-name">Laura C.</div>
+          <div class="author-detail">Médico · Guadalajara · Siniestro 2024</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonial-card">
+      <div class="quote-mark">"</div>
+      <p class="quote-text">
+        Atropellé a un peatón por accidente. Fue horrible. Pero el seguro se hizo cargo de todo:
+        <span class="quote-highlight">los gastos médicos, el abogado y la indemnización</span>.
+        Me protegió de la quiebra total.
+      </p>
+      <div class="quote-author">
+        <div class="author-avatar">AV</div>
+        <div>
+          <div class="author-name">Andrés V.</div>
+          <div class="author-detail">Contador · Monterrey · Siniestro 2022</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     FINAL CTA
+════════════════════════════════════════ -->
+<section class="final-cta" id="cotizar">
+  <h2 class="final-cta-title">
+    Tu patrimonio merece<br>la misma protección<br>
+    <em>que tu familia.</em>
+  </h2>
+  <p class="final-cta-sub">
+    Desde $650 pesos al mes puedes tener cobertura amplia.
+    El costo de no asegurarte puede ser irreversible.
+  </p>
+  <div class="final-cta-group">
+    <a href="#" class="btn-primary open-modal" style="font-size:16px;padding:20px 48px;">
+      Cotizar gratis ahora →
+    </a>
+    <a href="tel:8001234567" class="btn-secondary" style="font-size:16px;padding:20px 32px;">
+      📞 Hablar con un asesor
+    </a>
+  </div>
+  <div class="guarantee">
+    <span>✓ Sin compromiso de compra</span>
+    <span>✓ Resultado inmediato</span>
+    <span>✓ Comparamos 10+ aseguradoras</span>
+    <span>✓ Asesoría gratuita incluida</span>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     FOOTER
+════════════════════════════════════════ -->
+<footer>
+  <div class="footer-brand">Protege tu patrimonio</div>
+  <div class="footer-legal">
+    Los montos presentados son ejemplos ilustrativos basados en estadísticas del mercado mexicano.
+    Los costos reales pueden variar según la situación específica. Consulta con tu asesor para obtener
+    información personalizada y actualizada sobre coberturas disponibles.
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════
+     MODAL COTIZADOR
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-inner">
+      <button class="modal-close" id="modalClose" aria-label="Cerrar">×</button>
+      <div class="section-label" style="margin-bottom:8px;">Cotización gratuita</div>
+      <h3 class="modal-title">Protege tu patrimonio hoy</h3>
+      <p class="modal-sub">
+        Un asesor especializado te contactará en menos de 2 horas con opciones
+        comparadas de las mejores aseguradoras del mercado.
+      </p>
+
+      <form id="cotizarForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="nombre">Nombre completo</label>
+          <input
+            class="form-input"
+            type="text"
+            id="nombre"
+            name="nombre"
+            placeholder="Ej. María González López"
+            autocomplete="name"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="telefono">Teléfono</label>
+          <input
+            class="form-input"
+            type="tel"
+            id="telefono"
+            name="telefono"
+            placeholder="55 1234 5678"
+            autocomplete="tel"
+            maxlength="12"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="auto">Tipo de vehículo</label>
+          <select class="form-select" id="auto" name="auto">
+            <option value="" disabled selected>Selecciona una opción</option>
+            <option value="sedan">Sedán / Hatchback</option>
+            <option value="suv">SUV / Crossover</option>
+            <option value="pickup">Pickup / Camioneta</option>
+            <option value="van">Van / Minivan</option>
+            <option value="lujo">Auto de lujo</option>
+            <option value="electrico">Eléctrico / Híbrido</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;font-size:15px;clip-path:none;">
+          Quiero mi cotización →
+        </button>
+
+        <p style="font-size:12px;color:rgba(245,240,232,0.35);text-align:center;margin-top:16px;line-height:1.5;">
+          Al enviar aceptas ser contactado por un asesor. Sin spam. Sin compromisos.
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div class="toast" id="toast"></div>
+
+<!-- SCRIPTS -->
+<script src="main.js"></script>
+</body>
+</html>
