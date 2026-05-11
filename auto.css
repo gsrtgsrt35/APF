@@ -12,6 +12,8 @@
   --verde: #5cb85c;
   --gris: #8a8a9a;
   --blanco: #ffffff;
+  --blancol: #d9edf7;
+  --azulosc: #222831;
 }
 
 *, *::before, *::after {
@@ -23,8 +25,8 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--negro);
-  color: var(--marfil);
+  background: var(--blancol);
+  color: var(--azulosc);
   font-family: 'DM Sans', sans-serif;
   overflow-x: hidden;
 }
