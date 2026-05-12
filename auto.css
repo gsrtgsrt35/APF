@@ -14,6 +14,7 @@
   --blanco: #ffffff;
   --blancol: #f4f9fc;
   --azulosc: #222831;
+  --azul-cielo: #5bc0de;
 }
 
 *, *::before, *::after {
@@ -245,7 +246,7 @@ nav.scrolled {
 }
 .hero-headline em {
   font-style: italic;
-  color: var(--dorado);
+  color: var(--azul-cielo);
   display: block;
 }
 
