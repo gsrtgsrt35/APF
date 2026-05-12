@@ -15,6 +15,7 @@
   --blancol: #f4f9fc;
   --azulosc: #222831;
   --azul-cielo: #5bc0de;
+  --azul-o: #020b26b3
 }
 
 *, *::before, *::after {
@@ -136,7 +137,7 @@ nav.scrolled {
 
 /* ── BUTTONS ── */
 .btn-primary {
-  background: var(--dorado);
+  background: var(--azul-cielo);
   color: var(--negro);
   padding: 16px 36px;
   font-family: 'DM Sans', sans-serif;
@@ -153,7 +154,8 @@ nav.scrolled {
   clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
 }
 .btn-primary:hover {
-  background: var(--dorado-claro);
+  background: var(--azul-o);
+  color: var(--marfil);
   transform: translateY(-2px);
   box-shadow: 0 12px 40px rgba(201,168,76,0.35);
 }
@@ -260,7 +262,7 @@ nav.scrolled {
   animation: fadeUp 0.8s 0.2s ease both;
 }
 .hero-sub strong {
-  color: var(--marfil);
+  color: var(--azul-o);
   font-weight: 500;
 }
 
@@ -288,7 +290,7 @@ nav.scrolled {
   font-weight: 600;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--rojo);
+  color: var(--azul-cielo);
   margin-bottom: 24px;
   display: flex;
   align-items: center;
@@ -308,7 +310,7 @@ nav.scrolled {
   font-family: 'Playfair Display', serif;
   font-size: 26px;
   font-weight: 700;
-  color: var(--rojo);
+  color: var(--azul-cielo);
   line-height: 1;
   min-width: 100px;
 }
