@@ -107,11 +107,11 @@ nav.scrolled {
   font-family: 'Playfair Display', serif;
   font-size: 22px;
   font-weight: 700;
-  color: var(--dorado);
+  color: var(--azul-o);
   text-decoration: none;
 }
 .nav-brand span {
-  color: var(--marfil);
+  color: var(--azul-cielo);
   font-weight: 400;
   font-size: 16px;
   font-style: italic;
@@ -225,7 +225,7 @@ nav.scrolled {
   gap: 8px;
   background: rgba(201,168,76,0.12);
   border: 1px solid rgba(201,168,76,0.3);
-  color: var(--dorado);
+  color: var(--azulosc);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 2.5px;
@@ -277,7 +277,7 @@ nav.scrolled {
 .risk-card {
   background: rgba(245,240,232,0.04);
   border: 1px solid rgba(245,240,232,0.1);
-  border-top: 3px solid var(--rojo);
+  border-top: 3px solid var(--azul-cielo);
   padding: 40px;
   max-width: 380px;
   width: 100%;
@@ -320,7 +320,7 @@ nav.scrolled {
 
 /* ── STATS BAR ── */
 .stats-bar {
-  background: var(--dorado);
+  background: var(--azulosc);
   padding: 20px 80px;
   display: flex;
   justify-content: space-between;
@@ -329,7 +329,7 @@ nav.scrolled {
   flex-wrap: wrap;
 }
 
-.stat-item { text-align: center; color: var(--negro); flex: 1; min-width: 180px; }
+.stat-item { text-align: center; color: var(--marfil); flex: 1; min-width: 180px; }
 .stat-num {
   font-family: 'Playfair Display', serif;
   font-size: 36px;
@@ -338,7 +338,7 @@ nav.scrolled {
   margin-bottom: 4px;
 }
 .stat-label { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; opacity: 0.75; }
-.stat-divider { width: 1px; height: 50px; background: rgba(10,10,15,0.2); }
+.stat-divider { width: 1px; height: 50px; background: rgba(245, 245, 247, 0.2); }
 
 /* ── SECTION SHARED ── */
 .section { padding: 100px 80px; max-width: 1200px; margin: 0 auto; }
