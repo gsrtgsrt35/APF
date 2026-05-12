@@ -348,7 +348,7 @@ nav.scrolled {
   font-weight: 600;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: var(--dorado);
+  color: var(--azul-cielo);
   margin-bottom: 16px;
 }
 
@@ -358,8 +358,9 @@ nav.scrolled {
   font-weight: 700;
   line-height: 1.15;
   margin-bottom: 20px;
+  color: var(--marfil);
 }
-.section-title em { font-style: italic; color: var(--dorado); }
+.section-title em { font-style: italic; color: var(--azul-cielo); }
 
 .section-sub {
   font-size: 16px;
@@ -409,10 +410,10 @@ nav.scrolled {
 .scenario-card:hover { background: #16161f; }
 
 .scenario-icon { font-size: 42px; margin-bottom: 24px; display: block; }
-.scenario-loss { font-family: 'Playfair Display', serif; font-size: 42px; font-weight: 900; color: var(--rojo); line-height: 1; margin-bottom: 8px; }
+.scenario-loss { font-family: 'Playfair Display', serif; font-size: 42px; font-weight: 900; color: var(--azul-cielo); line-height: 1; margin-bottom: 8px; }
 .scenario-name { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: var(--marfil); }
 .scenario-desc { font-size: 14px; color: rgba(245,240,232,0.5); line-height: 1.6; }
-.scenario-num { position: absolute; top: 32px; right: 32px; font-family: 'Playfair Display', serif; font-size: 72px; font-weight: 900; color: rgba(245,240,232,0.03); line-height: 1; }
+.scenario-num { position: absolute; top: 32px; right: 32px; font-family: 'Playfair Display', serif; font-size: 72px; font-weight: 900; color: var(--marfil); line-height: 1; }
 
 /* ── BENEFITS ── */
 .benefits-section { background: #0a0a0f; padding: 100px 0; }
