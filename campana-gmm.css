@@ -98,8 +98,8 @@ body {
 
 .badge {
   display: inline-block;
-  border: 1px solid var(--gold);
-  color: var(--gold);
+  border: 1px solid var(--azul-cielo);
+  color: var(--azul-cielo);
   font-size: 0.7rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
@@ -122,7 +122,7 @@ body {
 
 .hero h1 em {
   font-style: normal;
-  color: var(--gold);
+  color: var(--azul-cielo);
 }
 
 .hero p.lead {
@@ -183,7 +183,7 @@ body {
 
 /* ── STAT STRIP ── */
 .stat-strip {
-  background: var(--gold);
+  background: var(--azul-cielo);
   padding: 1.2rem 2rem;
   display: flex;
   justify-content: center;
