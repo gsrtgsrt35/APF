@@ -13,6 +13,9 @@
   --red-alert: #C0392B;
   --teal: #1A6B72;
   --gray: #8A8F9E;
+  --azulosc: #222831;
+  --azul-cielo: #5bc0de;
+  --azul-o: #020b26b3
 
   --accent-color: #d9534f;
   --accent2-color: #f0ad4e;
@@ -51,7 +54,7 @@
 
 body {
   font-family: 'DM Sans', sans-serif;
-  background: var(--navy);
+  background: var(--cream);
   color: var(--white);
   overflow-x: hidden;
 }
@@ -59,7 +62,7 @@ body {
 /* ── HERO ── */
 .hero {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0A1628 0%, #0D2545 50%, #0A1628 100%);
+  background: var(--navy);
   position: relative;
   display: flex;
   align-items: center;
@@ -144,7 +147,7 @@ body {
 
 /* ── BOTONES ── */
 .btn-primary {
-  background: var(--gold);
+  background: var(--azul-cielo);
   color: var(--navy);
   padding: 1rem 2.5rem;
   font-family: 'DM Sans', sans-serif;
