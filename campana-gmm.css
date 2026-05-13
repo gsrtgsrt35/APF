@@ -15,7 +15,9 @@
   --gray: #8A8F9E;
   --azulosc: #222831;
   --azul-cielo: #5bc0de;
-  --azul-o: #020b26b3
+  --azul-o: #020b26b3;
+  --blanco: #ffffff;
+  --blancol: #f4f9fc;
 
   --accent-color: #d9534f;
   --accent2-color: #f0ad4e;
@@ -193,7 +195,7 @@ body {
 
 .stat-item {
   text-align: center;
-  color: var(--navy);
+  color: var(--blanco);
 }
 
 .stat-item strong {
@@ -221,7 +223,7 @@ section {
   font-size: 0.7rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--azul-cielo);
   margin-bottom: 1rem;
 }
 
@@ -266,13 +268,13 @@ section {
   position: absolute;
   top: 0; left: 0;
   width: 100%; height: 3px;
-  background: var(--red-alert);
+  background: var(--azul-cielo);
 }
 
 .risk-amount {
   font-family: 'Playfair Display', serif;
   font-size: 2.5rem;
-  color: var(--red-alert);
+  color: var(--azul-cielo);
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
@@ -318,14 +320,14 @@ section {
 .shield-bg {
   width: 280px;
   height: 320px;
-  background: linear-gradient(145deg, rgba(201,168,76,0.15), rgba(26,107,114,0.1));
+  background: linear-gradient(145deg, rgba(75, 113, 209, 0.15), rgba(26,107,114,0.1));
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 5rem;
   animation: pulse 3s ease-in-out infinite;
-  border: 2px solid rgba(201,168,76,0.3);
+  border: 2px solid rgba(52, 125, 184, 0.3);
 }
 
 @keyframes pulse {
@@ -337,7 +339,7 @@ section {
   position: absolute;
   width: 360px;
   height: 360px;
-  border: 1px dashed rgba(201,168,76,0.2);
+  border: 1px dashed rgba(84, 113, 218, 0.2);
   border-radius: 50%;
   animation: spin 20s linear infinite;
 }
@@ -348,7 +350,7 @@ section {
   left: 50%;
   transform: translateX(-50%);
   width: 12px; height: 12px;
-  background: var(--gold);
+  background: var(--azul-cielo);
   border-radius: 50%;
 }
 
@@ -374,13 +376,13 @@ section {
   flex-shrink: 0;
   width: 22px; height: 22px;
   background: rgba(201,168,76,0.15);
-  border: 1px solid var(--gold);
+  border: 1px solid var(--azul-cielo);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.65rem;
-  color: var(--gold);
+  color: var(--azul-cielo);
   margin-top: 2px;
 }
 
@@ -415,7 +417,7 @@ section {
 }
 .compare-table th:nth-child(3) {
   background: rgba(201,168,76,0.15);
-  color: var(--gold);
+  color: var(--azul-cielo);
   border-radius: 8px 8px 0 0;
   text-align: center;
 }
@@ -434,7 +436,7 @@ section {
 .compare-table td:nth-child(3) {
   background: rgba(201,168,76,0.08);
   text-align: center;
-  color: var(--gold-light);
+  color: var(--azul-cielo);
   font-weight: 500;
 }
 
