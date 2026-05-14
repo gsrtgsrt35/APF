@@ -195,7 +195,7 @@ body {
 
 .stat-item {
   text-align: center;
-  color: var(--blanco);
+  color: var(--navy);
 }
 
 .stat-item strong {
@@ -502,8 +502,8 @@ section {
 .calc-result {
   margin-top: 2rem;
   padding: 1.5rem;
-  background: rgba(201,168,76,0.1);
-  border: 1px solid rgba(201,168,76,0.3);
+  background: rgba(101, 182, 233, 0.1);
+  border: 1px solid rgba(46, 160, 231, 0.3);
   border-radius: 8px;
   text-align: center;
 }
@@ -512,7 +512,7 @@ section {
   font-size: 0.75rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--azul-cielo);
   margin-bottom: 0.5rem;
 }
 
@@ -574,7 +574,7 @@ section {
   margin-bottom: 1.5rem;
 }
 
-.testi-author { font-size: 0.8rem; color: var(--gold); font-weight: 500; }
+.testi-author { font-size: 0.8rem; color: var(--azul-cielo); font-weight: 500; }
 .testi-role { font-size: 0.75rem; color: var(--gray); margin-top: 0.2rem; }
 
 /* ── URGENCY BANNER ── */
@@ -659,7 +659,7 @@ section {
   font-size: 0.8rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--azul-cielo);
   margin-bottom: 0.4rem;
 }
 
