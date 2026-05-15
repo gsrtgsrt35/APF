@@ -71,8 +71,12 @@ body {
   min-height: 10vh;
   background: var(--navy);
   position: relative;
-  display: flex;
   overflow: hidden;
+  padding: 1.2rem 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  flex-wrap: wrap;
 }
 
 /* ── HERO ── */
