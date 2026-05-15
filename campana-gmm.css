@@ -61,6 +61,11 @@ body {
   overflow-x: hidden;
 }
 
+.flotar-izquierda {
+    float: left;
+    margin-right: 15px; /* Espacio opcional para separar la imagen del texto */
+}
+
 /* ── HERO ── */
 .hero {
   min-height: 100vh;
