@@ -68,6 +68,7 @@ body {
 
 /* --- LOGO --- */
 .logo {
+  min-height: 10vh;
   background: var(--navy);
   position: relative;
   display: flex;
