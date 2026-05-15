@@ -1,5 +1,5 @@
 /* ============================================================
-   CAMPAÑA GMM – TU ESCUDO FINANCIERO
+   GMM – TU ESCUDO FINANCIERO
    Hoja de estilos principal
    ============================================================ */
 
@@ -74,7 +74,6 @@ body {
   overflow: hidden;
   padding: 1.2rem 2rem;
   display: flex;
-  justify-content: center;
   gap: 4rem;
   flex-wrap: wrap;
 }
