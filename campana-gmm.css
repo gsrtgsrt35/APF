@@ -66,6 +66,14 @@ body {
     margin-right: 15px; /* Espacio opcional para separar la imagen del texto */
 }
 
+/* --- LOGO --- */
+.logo {
+  background: var(--navy);
+  position: relative;
+  display: flex;
+  overflow: hidden;
+}
+
 /* ── HERO ── */
 .hero {
   min-height: 100vh;
