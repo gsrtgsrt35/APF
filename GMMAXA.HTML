@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Retención Predictiva - Seguros</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para gráficos sencillos e interactivos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons para un diseño moderno -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+    <!-- BARRA DE NAVEGACIÓN -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 text-white p-2 rounded-lg">
+                    <i data-lucide="shield-alert" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-900 leading-tight">AseguraKeep</h1>
+                    <p class="text-xs text-slate-500">Modelo de Retención Predictiva</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500"></span>
+                    Modelo Activo
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- SECCIÓN DE INTRODUCCIÓN Y MÉTRICAS RÁPIDAS -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Total Clientes Analizados</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-1" id="stat-total">150</h3>
+                </div>
+                <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                    <i data-lucide="users" class="w-6 h-6"></i>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between border-l-4 border-l-emerald-500">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Riesgo Bajo (Verde)</p>
+                    <h3 class="text-3xl font-bold text-emerald-600 mt-1" id="stat-verde">92</h3>
+                </div>
+                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                    <i data-lucide="smile" class="w-6 h-6"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between border-l-4 border-l-amber-500">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Riesgo Medio (Amarillo)</p>
+                    <h3 class="text-3xl font-bold text-amber-600 mt-1" id="stat-amarillo">38</h3>
+                </div>
+                <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                    <i data-lucide="meh" class="w-6 h-6"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between border-l-4 border-l-rose-500">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Riesgo Alto (Rojo)</p>
+                    <h3 class="text-3xl font-bold text-rose-600 mt-1" id="stat-rojo">20</h3>
+                </div>
+                <div class="p-3 bg-rose-50 text-rose-600 rounded-xl">
+                    <i data-lucide="frown" class="w-6 h-6"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILA PRINCIPAL: SIMULADOR INDIVIDUAL Y GRÁFICO GENERAL -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
+            
+            <!-- SIMULADOR INDIVIDUAL (IZQUIERDA) -->
+            <section class="lg:col-span-7 bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex items-center gap-2 pb-4 mb-6 border-b border-slate-100">
+                    <i data-lucide="sliders" class="text-blue-600 w-5 h-5"></i>
+                    <h2 class="text-xl font-bold text-slate-900">Simulador de Riesgo Individual</h2>
+                </div>
+                
+                <p class="text-sm text-slate-500 mb-6">Ajusta los parámetros observables del asegurado para calcular su puntuación de riesgo en tiempo real y obtener la receta de acción sugerida.</p>
+
+                <div class="space-y-5">
+                    <!-- Variable 1 -->
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                Renovación Próxima ($X_1$ - Peso: 30%)
+                            </label>
+                            <span class="text-xs font-semibold text-blue-600" id="val-x1">Lejana (> 90 días)</span>
+                        </div>
+                        <input type="range" id="input-x1" min="1" max="3" value="1" step="1"
+                               class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                        <div class="flex justify-between text-[10px] text-slate-400 mt-1 px-1">
+                            <span>Bajo (>90d)</span>
+                            <span>Medio (30-90d)</span>
+                            <span>Alto (<30d)</span>
+                        </div>
+                    </div>
+
+                    <!-- Variable 2 -->
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                Tiempo sin Contacto ($X_2$ - Peso: 15%)
+                            </label>
+                            <span class="text-xs font-semibold text-blue-600" id="val-x2">Frecuente (< 3 meses)</span>
+                        </div>
+                        <input type="range" id="input-x2" min="1" max="3" value="1" step="1"
+                               class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                        <div class="flex justify-between text-[10px] text-slate-400 mt-1 px-1">
+                            <span>Reciente (<3m)</span>
+                            <span>Medio (3-6m)</span>
+                            <span>Distante (>6m)</span>
+                        </div>
+                    </div>
+
+                    <!-- Variable 3 -->
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                Consultas/Dudas Recientes ($X_3$ - Peso: 25%)
+                            </label>
+                            <span class="text-xs font-semibold text-blue-600" id="val-x3">Ninguna</span>
+                        </div>
+                        <input type="range" id="input-x3" min="1" max="3" value="1" step="1"
+                               class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                        <div class="flex justify-between text-[10px] text-slate-400 mt-1 px-1">
+                            <span>Ninguna</span>
+                            <span>Administrativas</span>
+                            <span>Críticas (Competencia/Quejas)</span>
+                        </div>
+                    </div>
+
+                    <!-- Variable 4 -->
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                Nivel de Satisfacción ($X_4$ - Peso: 20%)
+                            </label>
+                            <span class="text-xs font-semibold text-blue-600" id="val-x4">Excelente (NPS/CSAT >= 9)</span>
+                        </div>
+                        <input type="range" id="input-x4" min="1" max="3" value="1" step="1"
+                               class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                        <div class="flex justify-between text-[10px] text-slate-400 mt-1 px-1">
+                            <span>Satisfecho (>=9)</span>
+                            <span>Regular (6-8)</span>
+                            <span>Insatisfecho (<6 o Sin Resp.)</span>
+                        </div>
+                    </div>
+
+                    <!-- Variable 5 -->
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                Cobertura / Vinculación ($X_5$ - Peso: 10%)
+                            </label>
+                            <span class="text-xs font-semibold text-blue-600" id="val-x5">Multi-póliza</span>
+                        </div>
+                        <input type="range" id="input-x5" min="1" max="3" value="1" step="1"
+                               class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                        <div class="flex justify-between text-[10px] text-slate-400 mt-1 px-1">
+                            <span>Multipóliza</span>
+                            <span>Estándar (1-2 pólizas)</span>
+                            <span>Básica / Monopóliza</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RESULTADO EN TIEMPO REAL (DERECHA) -->
+            <section class="lg:col-span-5 flex flex-col gap-6">
+                <!-- PANEL DE SCORE CARD -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex-1 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Diagnóstico de Cliente</h3>
+                        <div class="flex items-baseline gap-2">
+                            <span id="score-num" class="text-5xl font-extrabold text-emerald-600">1.00</span>
+                            <span class="text-slate-400 text-lg">/ 3.00</span>
+                        </div>
+                        
+                        <!-- Barra visual del Score -->
+                        <div class="w-full bg-slate-100 h-3 rounded-full mt-4 overflow-hidden relative">
+                            <div id="score-bar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                            <!-- Separadores de rango -->
+                            <div class="absolute left-[40%] top-0 h-full w-0.5 bg-white opacity-50"></div>
+                            <div class="absolute left-[75%] top-0 h-full w-0.5 bg-white opacity-50"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                            <span>Verde (< 1.8)</span>
+                            <span>Amarillo (1.8 - 2.5)</span>
+                            <span>Rojo (>= 2.5)</span>
+                        </div>
+                    </div>
+
+                    <div id="badge-container" class="my-6">
+                        <div id="risk-badge" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <i data-lucide="shield-check" class="w-5 h-5"></i>
+                            Riesgo de Fuga: BAJO (Verde)
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <div class="flex items-start gap-3">
+                            <div id="action-icon-bg" class="p-2 bg-emerald-100 text-emerald-700 rounded-lg shrink-0">
+                                <i data-lucide="sparkles" id="action-icon" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900" id="action-title">Acción: Campaña de Recompensas</h4>
+                                <p class="text-xs text-slate-600 mt-1 leading-relaxed" id="action-desc">Fidelización activa. Ofrecer programa de referidos o beneficios por renovación anticipada y productos cruzados.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MINI GRÁFICO DE CARTERA -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <i data-lucide="pie-chart" class="w-4 h-4 text-blue-600"></i>
+                        Estructura de Riesgo de la Cartera
+                    </h3>
+                    <div class="h-44 flex items-center justify-center relative">
+                        <canvas id="portfolioChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- LISTADO DE CLIENTES EN RIESGO (ACCIONABLE) -->
+        <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+            <div class="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="list-checks" class="text-blue-600 w-5 h-5"></i>
+                        Cartera Bajo Alerta de Retención
+                    </h2>
+                    <p class="text-sm text-slate-500 mt-0.5">Usa los filtros rápidos para priorizar las llamadas del equipo de retención hoy.</p>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="filterClients('todos')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white shadow-sm transition">
+                        Todos
+                    </button>
+                    <button onclick="filterClients('rojo')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                        Rojos (Urgentes)
+                    </button>
+                    <button onclick="filterClients('amarillo')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                        Amarillos (Seguimiento)
+                    </button>
+                    <button onclick="filterClients('verde')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                        Verdes (Fieles)
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                    </span>
+                    <input type="text" id="search-input" onkeyup="searchClient()" placeholder="Buscar cliente por nombre o ID de póliza..." 
+                           class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="openNewClientModal()" class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition flex items-center gap-1.5 shadow-sm">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        Nuevo Asegurado
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla de Clientes -->
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 tracking-wider">
+                            <th class="p-4 pl-6">Cliente / Póliza</th>
+                            <th class="p-4">Días a Renovación ($X_1$)</th>
+                            <th class="p-4">Último Contacto ($X_2$)</th>
+                            <th class="p-4">Consultas ($X_3$)</th>
+                            <th class="p-4">NPS / Sat. ($X_4$)</th>
+                            <th class="p-4 text-center">Score / Semáforo</th>
+                            <th class="p-4">Acción Recomendada</th>
+                            <th class="p-4 pr-6 text-right">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="client-table-body" class="divide-y divide-slate-100 text-sm">
+                        <!-- Clientes dinámicos -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="no-results" class="hidden p-8 text-center text-slate-400">
+                <i data-lucide="search-code" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
+                No se encontraron clientes que coincidan con los filtros aplicados.
+            </div>
+        </section>
+        
+        <!-- EXPLICACIÓN DINÁMICA DEL MODELO -->
+        <section class="bg-blue-900 text-blue-100 rounded-2xl p-6 sm:p-8 shadow-md">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                <div class="lg:col-span-8">
+                    <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                        <i data-lucide="info" class="w-5 h-5"></i>
+                        ¿Cómo funciona la asignación de pesos en este algoritmo?
+                    </h3>
+                    <p class="text-sm text-blue-200 leading-relaxed">
+                        El índice de riesgo (IRA) pondera las variables observables según su impacto real observado. 
+                        La fórmula matemática implementada es:
+                    </p>
+                    <div class="my-4 p-3 bg-blue-950/50 rounded-xl font-mono text-xs text-white inline-block">
+                        IRA = (0.30 × Renovación) + (0.15 × Contacto) + (0.25 × Dudas) + (0.20 × NPS) + (0.10 × Cobertura)
+                    </div>
+                    <p class="text-xs text-blue-200">
+                        Cada factor se normaliza de 1 (Bajo riesgo) a 3 (Alto riesgo), generando una métrica única accionable que automatiza el sistema de alertas de tu agencia.
+                    </p>
+                </div>
+                <div class="lg:col-span-4 flex justify-end">
+                    <div class="bg-blue-800/50 p-4 rounded-xl border border-blue-700 text-xs w-full">
+                        <h4 class="font-bold text-white mb-2 flex items-center gap-1">
+                            <i data-lucide="trending-up" class="w-4 h-4"></i>
+                            Pesos Configurados:
+                        </h4>
+                        <ul class="space-y-1 text-blue-200">
+                            <li>⏱️ Renovación ($X_1$): <strong>30%</strong></li>
+                            <li>💬 Últimas Dudas ($X_3$): <strong>25%</strong></li>
+                            <li>⭐ Satisfacción/NPS ($X_4$): <strong>20%</strong></li>
+                            <li>📞 Sin Contacto ($X_2$): <strong>15%</strong></li>
+                            <li>🛡️ Cobertura ($X_5$): <strong>10%</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL DE DETALLE DE ACCIÓN / GESTIÓN -->
+    <div id="action-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in duration-150">
+            <div class="p-6 border-b border-slate-200 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="phone-call" class="text-blue-600 w-5 h-5"></i>
+                    Ficha de Gestión de Retención
+                </h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex items-center gap-3">
+                    <div id="modal-client-risk" class="w-3.5 h-3.5 rounded-full bg-slate-300"></div>
+                    <div>
+                        <h4 id="modal-client-name" class="font-bold text-slate-900 text-base">Cliente Ejemplo</h4>
+                        <p id="modal-client-policy" class="text-xs text-slate-500">Póliza: POL-0000</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl space-y-2">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Plan de Acción Recomendado</p>
+                    <p id="modal-action-title" class="font-bold text-slate-900 text-sm">Título de la acción</p>
+                    <p id="modal-action-desc" class="text-xs text-slate-600 leading-relaxed">Descripción paso a paso.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Plantilla de Guion de Llamada sugerido</p>
+                    <div class="bg-blue-50/50 border border-blue-100 p-3 rounded-xl text-xs text-slate-700 italic leading-relaxed" id="modal-script">
+                        "Hola [Nombre], te llamo de manera exclusiva..."
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex justify-between gap-3">
+                    <button onclick="closeModal()" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm font-semibold hover:bg-slate-50 transition">
+                        Volver
+                    </button>
+                    <button onclick="markActionCompleted()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-semibold hover:bg-emerald-700 transition flex items-center gap-1.5 shadow-sm">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                        Registrar como Gestionado
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO CLIENTE -->
+    <div id="new-client-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white rounded-2xl w-full max-w-xl shadow-xl overflow-hidden">
+            <div class="p-6 border-b border-slate-200 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="user-plus" class="text-blue-600 w-5 h-5"></i>
+                    Agregar Asegurado al Modelo
+                </h3>
+                <button onclick="closeNewClientModal()" class="text-slate-400 hover:text-slate-600 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form onsubmit="saveNewClient(event)" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Nombre Completo *</label>
+                        <input type="text" id="new-name" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Nº Póliza *</label>
+                        <input type="text" id="new-policy" required placeholder="AUT-2026-XXXX" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Renovación Próxima *</label>
+                        <select id="new-x1" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none bg-white">
+                            <option value="1">Bajo (Falta más de 90 días)</option>
+                            <option value="2">Medio (Falta de 30 a 90 días)</option>
+                            <option value="3">Alto (Falta menos de 30 días)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Tiempo sin Contacto *</label>
+                        <select id="new-x2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none bg-white">
+                            <option value="1">Bajo (< 3 meses)</option>
+                            <option value="2">Medio (Entre 3 y 6 meses)</option>
+                            <option value="3">Alto (Más de 6 meses)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Dudas/Quejas Recientes *</label>
+                        <select id="new-x3" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none bg-white">
+                            <option value="1">Ninguna relevante</option>
+                            <option value="2">Administrativas / Trámites comunes</option>
+                            <option value="3">Críticas / Cotizando competencia / Queja abierta</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Satisfacción CSAT/NPS *</label>
+                        <select id="new-x4" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none bg-white">
+                            <option value="1">Alta (Puntuación >= 9)</option>
+                            <option value="2">Media (Puntuación 6 - 8)</option>
+                            <option value="3">Baja (Puntuación < 6 o sin respuesta)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Coberturas / Ramos Contratados *</label>
+                    <select id="new-x5" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none bg-white">
+                        <option value="1">Multipóliza (Múltiples seguros familiares)</option>
+                        <option value="2">Estándar (1-2 pólizas activas)</option>
+                        <option value="3">Básica / Monopóliza (Alto riesgo de pérdida total)</option>
+                    </select>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+                    <button type="button" onclick="closeNewClientModal()" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm font-semibold hover:bg-slate-50 transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-sm">
+                        Guardar Asegurado
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE CONTROL DEL DASHBOARD -->
+    <script>
+        // Pesos del Algoritmo
+        const pesos = { w1: 0.30, w2: 0.15, w3: 0.25, w4: 0.20, w5: 0.10 };
+
+        // Banco de datos inicial para demostración de cartera accionable
+        let clientes = [
+            { id: 1, nombre: "Alberto García Pérez", poliza: "AUT-2026-9041", x1: 3, x2: 2, x3: 3, x4: 3, x5: 3, gestionado: false },
+            { id: 2, nombre: "Sofía Martínez López", poliza: "HOG-2025-0128", x1: 2, x2: 3, x3: 2, x4: 2, x5: 2, gestionado: false },
+            { id: 3, nombre: "Mariana Rivas Ortega", poliza: "VID-2026-5590", x1: 1, x2: 1, x3: 1, x4: 1, x5: 1, gestionado: false },
+            { id: 4, nombre: "Carlos Mendoza Solís", poliza: "AUT-2026-1188", x1: 3, x2: 1, x3: 3, x4: 2, x5: 2, gestionado: false },
+            { id: 5, nombre: "Laura Ruiz Domínguez", poliza: "MED-2025-3420", x1: 2, x2: 2, x3: 1, x4: 2, x5: 1, gestionado: false },
+            { id: 6, nombre: "Guillermo Ortiz Silva", poliza: "HOG-2026-9932", x1: 1, x2: 1, x3: 2, x4: 1, x5: 1, gestionado: false },
+            { id: 7, nombre: "Elena Castro Vázquez", poliza: "AUT-2026-8801", x1: 3, x2: 3, x3: 3, x4: 3, x5: 2, gestionado: false },
+            { id: 8, nombre: "Javier Hernández Cruz", poliza: "EMPRE-2026-12", x1: 1, x2: 2, x3: 1, x4: 1, x5: 1, gestionado: false }
+        ];
+
+        let selectedFilter = 'todos';
+        let chartInstance = null;
+        let selectedClientIdForAction = null;
+
+        // Inicialización
+        window.onload = function() {
+            lucide.createIcons();
+            
+            // Eventos del Simulador
+            const inputs = ['input-x1', 'input-x2', 'input-x3', 'input-x4', 'input-x5'];
+            inputs.forEach(id => {
+                document.getElementById(id).addEventListener('input', updateSimulator);
+            });
+
+            updateSimulator();
+            renderClientTable();
+            renderChart();
+            updateStats();
+        }
+
+        // FÓRMULA DE SCORING PREDICTIVO
+        function calcularIRA(x1, x2, x3, x4, x5) {
+            return (x1 * pesos.w1) + (x2 * pesos.w2) + (x3 * pesos.w3) + (x4 * pesos.w4) + (x5 * pesos.w5);
+        }
+
+        // Clasificar Nivel de Riesgo
+        function clasificarRiesgo(ira) {
+            if (ira < 1.8) return { label: 'VERDE', color: 'emerald', text: 'Bajo' };
+            if (ira >= 2.5) return { label: 'ROJO', color: 'rose', text: 'Alto' };
+            return { label: 'AMARILLO', color: 'amber', text: 'Medio' };
+        }
+
+        // Retorna estrategia y guion dinámico
+        function obtenerEstrategia(riesgo, nombre = "el asegurado") {
+            if (riesgo === 'ROJO') {
+                return {
+                    titulo: 'Oferta de Rescate Urgente (Por Comercial Sénior)',
+                    desc: 'Llamar en menos de 24 horas. Escuchar la queja de forma empática y ofrecer reajuste de prima o ampliación de coberturas sin coste temporal.',
+                    script: `"Hola ${nombre.split(' ')[0]}, le habla el Director de Cuentas de la agencia. Hemos revisado sus excelentes años con nosotros y veo que tiene pendiente su renovación. Para agradecer su fidelidad, queremos proponerle de forma exclusiva mantener su tarifa extendiendo su paquete de protección..."`
+                };
+            } else if (riesgo === 'AMARILLO') {
+                return {
+                    titulo: 'Auditoría Preventiva de Coberturas',
+                    desc: 'Llamada proactiva del gestor. Validar si los riesgos asegurados han cambiado para abaratar la póliza de forma inteligente antes de que cotice en el mercado externo.',
+                    script: `"Hola ${nombre.split(' ')[0]}, le saluda su agente de confianza. Le llamamos preventivamente para revisar si sus necesidades de seguro han cambiado. Nos interesa optimizar su póliza actual para que siempre pague lo justo con nosotros..."`
+                };
+            } else {
+                return {
+                    titulo: 'Fidelización y Venta Cruzada (Cross-selling)',
+                    desc: 'Enviar un detalle de fidelidad o descuento cruzado. Aprovechar el excelente nivel de satisfacción para solicitar referencias directas.',
+                    script: `"Hola ${nombre.split(' ')[0]}, queríamos agradecer su confianza constante en nuestra agencia. Le enviamos un cupón de 15% de descuento directo aplicable en su próxima contratación familiar o para obsequiar a un amigo..."`
+                };
+            }
+        }
+
+        // LÓGICA DEL SIMULADOR INDIVIDUAL
+        function updateSimulator() {
+            const x1 = parseInt(document.getElementById('input-x1').value);
+            const x2 = parseInt(document.getElementById('input-x2').value);
+            const x3 = parseInt(document.getElementById('input-x3').value);
+            const x4 = parseInt(document.getElementById('input-x4').value);
+            const x5 = parseInt(document.getElementById('input-x5').value);
+
+            // Textos de las etiquetas del simulador
+            const desc_x1 = ["Lejana (> 90 días)", "Próxima (30 a 90 días)", "Crítica (< 30 días)"];
+            const desc_x2 = ["Frecuente (< 3 meses)", "Medio (3 a 6 meses)", "Distante (> 6 meses)"];
+            const desc_x3 = ["Ninguna", "Administrativas de rutina", "Críticas (Competencia o Quejas)"];
+            const desc_x4 = ["Excelente (NPS/CSAT >= 9)", "Regular (NPS/CSAT 6 - 8)", "Baja (NPS/CSAT < 6)"];
+            const desc_x5 = ["Multi-póliza (Familiar)", "Estándar (1-2 pólizas)", "Básica / Monopóliza"];
+
+            document.getElementById('val-x1').textContent = desc_x1[x1 - 1];
+            document.getElementById('val-x2').textContent = desc_x2[x2 - 1];
+            document.getElementById('val-x3').textContent = desc_x3[x3 - 1];
+            document.getElementById('val-x4').textContent = desc_x4[x4 - 1];
+            document.getElementById('val-x5').textContent = desc_x5[x5 - 1];
+
+            const ira = calcularIRA(x1, x2, x3, x4, x5);
+            const diagnostico = clasificarRiesgo(ira);
+            const estrategia = obtenerEstrategia(diagnostico.label);
+
+            // Actualizar Tarjeta de Score
+            const numElement = document.getElementById('score-num');
+            numElement.textContent = ira.toFixed(2);
+            numElement.className = `text-5xl font-extrabold text-${diagnostico.color}-600`;
+
+            // Actualizar Barra de Score
+            const barElement = document.getElementById('score-bar');
+            barElement.className = `h-full bg-${diagnostico.color}-500 transition-all duration-300`;
+            // Normalizar el score (1 a 3) en porcentaje (0 a 100)
+            const pct = ((ira - 1) / 2) * 100;
+            barElement.style.width = `${pct}%`;
+
+            // Actualizar Badge
+            const badgeContainer = document.getElementById('badge-container');
+            let iconBadge = 'shield-check';
+            if (diagnostico.label === 'ROJO') iconBadge = 'shield-alert';
+            if (diagnostico.label === 'AMARILLO') iconBadge = 'alert-triangle';
+
+            badgeContainer.innerHTML = `
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-${diagnostico.color}-50 text-${diagnostico.color}-700 border border-${diagnostico.color}-200">
+                    <i data-lucide="${iconBadge}" class="w-5 h-5"></i>
+                    Riesgo de Fuga: ${diagnostico.text.toUpperCase()} (${diagnostico.label})
+                </div>
+            `;
+
+            // Actualizar Información de la Acción sugerida en simulador
+            const bgElement = document.getElementById('action-icon-bg');
+            bgElement.className = `p-2 bg-${diagnostico.color}-100 text-${diagnostico.color}-700 rounded-lg shrink-0`;
+            
+            let actionIcon = 'sparkles';
+            if (diagnostico.label === 'ROJO') actionIcon = 'phone-call';
+            if (diagnostico.label === 'AMARILLO') actionIcon = 'clock-3';
+            
+            document.getElementById('action-icon').setAttribute('data-lucide', actionIcon);
+            document.getElementById('action-title').textContent = `Acción: ${estrategia.titulo}`;
+            document.getElementById('action-desc').textContent = estrategia.desc;
+
+            lucide.createIcons();
+        }
+
+        // SECCIÓN LISTADO: TABLA DE CLIENTES
+        function renderClientTable() {
+            const tbody = document.getElementById('client-table-body');
+            tbody.innerHTML = '';
+            
+            const query = document.getElementById('search-input').value.toLowerCase();
+            let matches = 0;
+
+            clientes.forEach(cliente => {
+                const ira = calcularIRA(cliente.x1, cliente.x2, cliente.x3, cliente.x4, cliente.x5);
+                const clasif = clasificarRiesgo(ira);
+                const estrategia = obtenerEstrategia(clasif.label, cliente.nombre);
+
+                // Filtrado por Semáforo
+                if (selectedFilter !== 'todos' && clasif.label.toLowerCase() !== selectedFilter) {
+                    return;
+                }
+
+                // Filtrado por Búsqueda (Nombre o Póliza)
+                if (query && !cliente.nombre.toLowerCase().includes(query) && !cliente.poliza.toLowerCase().includes(query)) {
+                    return;
+                }
+
+                matches++;
+
+                // Clases de color para la fila y badge
+                let semaforoBadge = '';
+                if (clasif.label === 'ROJO') {
+                    semaforoBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">Rojo (${ira.toFixed(2)})</span>`;
+                } else if (clasif.label === 'AMARILLO') {
+                    semaforoBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">Amarillo (${ira.toFixed(2)})</span>`;
+                } else {
+                    semaforoBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Verde (${ira.toFixed(2)})</span>`;
+                }
+
+                const fila = document.createElement('tr');
+                fila.className = `hover:bg-slate-50 transition ${cliente.gestionado ? 'opacity-60 bg-slate-50/50' : ''}`;
+                fila.innerHTML = `
+                    <td class="p-4 pl-6">
+                        <div class="font-bold text-slate-900">${cliente.nombre}</div>
+                        <div class="text-xs text-slate-400 font-mono">${cliente.poliza}</div>
+                    </td>
+                    <td class="p-4 font-semibold text-slate-700">${cliente.x1 === 3 ? '🔴 Próxima (<30d)' : cliente.x1 === 2 ? '🟡 Media (30-90d)' : '🟢 Lejana (>90d)'}</td>
+                    <td class="p-4 text-slate-500">${cliente.x2 === 3 ? '> 6 meses' : cliente.x2 === 2 ? '3 a 6 meses' : '< 3 meses'}</td>
+                    <td class="p-4 text-slate-500">${cliente.x3 === 3 ? '🚨 Crítica/Queja' : cliente.x3 === 2 ? 'Trámites' : 'Ninguna'}</td>
+                    <td class="p-4">
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-bold">${cliente.x4 === 3 ? 'Mala (<6)' : cliente.x4 === 2 ? 'Regular (6-8)' : 'Alta (>=9)'}</span>
+                        </div>
+                    </td>
+                    <td class="p-4 text-center">${semaforoBadge}</td>
+                    <td class="p-4">
+                        <div class="text-xs text-slate-700 max-w-xs truncate font-medium">${estrategia.titulo}</div>
+                        <div class="text-[10px] text-slate-400 max-w-xs truncate">${estrategia.desc}</div>
+                    </td>
+                    <td class="p-4 pr-6 text-right">
+                        ${cliente.gestionado 
+                            ? `<span class="inline-flex items-center gap-1 text-emerald-600 font-semibold text-xs"><i data-lucide="check" class="w-4 h-4"></i> Listo</span>`
+                            : `<button onclick="openActionModal(${cliente.id})" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-bold transition">Gestionar</button>`
+                        }
+                    </td>
+                `;
+                tbody.appendChild(fila);
+            });
+
+            // Control de mensaje sin resultados
+            const noResults = document.getElementById('no-results');
+            if (matches === 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
+
+            lucide.createIcons();
+        }
+
+        // FILTRADO DE LA TABLA
+        function filterClients(type) {
+            selectedFilter = type;
+            
+            // Actualizar botones de filtro
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-slate-900', 'text-white', 'shadow-sm');
+                btn.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+            });
+
+            const activeBtn = event.currentTarget || event.target;
+            activeBtn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
+            activeBtn.classList.add('bg-slate-900', 'text-white', 'shadow-sm');
+
+            renderClientTable();
+        }
+
+        // BÚSQUEDA DE CLIENTES
+        function searchClient() {
+            renderClientTable();
+        }
+
+        // ACTUALIZACIÓN DE ESTADÍSTICAS GENERALES
+        function updateStats() {
+            let total = clientes.length;
+            let verdes = 0;
+            let amarillos = 0;
+            let rojos = 0;
+
+            clientes.forEach(c => {
+                const ira = calcularIRA(c.x1, c.x2, c.x3, c.x4, c.x5);
+                const clasif = clasificarRiesgo(ira);
+                if (clasif.label === 'VERDE') verdes++;
+                if (clasif.label === 'AMARILLO') amarillos++;
+                if (clasif.label === 'ROJO') rojos++;
+            });
+
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-verde').textContent = verdes;
+            document.getElementById('stat-amarillo').textContent = amarillos;
+            document.getElementById('stat-rojo').textContent = rojos;
+        }
+
+        // GRÁFICO DINÁMICO DE CARTERA (CHART.JS)
+        function renderChart() {
+            const ctx = document.getElementById('portfolioChart').getContext('2d');
+            
+            let verdes = 0;
+            let amarillos = 0;
+            let rojos = 0;
+
+            clientes.forEach(c => {
+                const ira = calcularIRA(c.x1, c.x2, c.x3, c.x4, c.x5);
+                const clasif = clasificarRiesgo(ira);
+                if (clasif.label === 'VERDE') verdes++;
+                if (clasif.label === 'AMARILLO') amarillos++;
+                if (clasif.label === 'ROJO') rojos++;
+            });
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Riesgo Bajo (Verde)', 'Riesgo Medio (Amarillo)', 'Riesgo Alto (Rojo)'],
+                    datasets: [{
+                        data: [verdes, amarillos, rojos],
+                        backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'],
+                        borderWidth: 3,
+                        borderColor: '#ffffff',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'right',
+                            labels: {
+                                font: {
+                                    family: 'Plus Jakarta Sans',
+                                    size: 11
+                                },
+                                boxWidth: 12
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // LÓGICA DE MODAL DE ACCIONES (LLAMADAS)
+        function openActionModal(id) {
+            const cliente = clientes.find(c => c.id === id);
+            if (!cliente) return;
+
+            selectedClientIdForAction = id;
+            const ira = calcularIRA(cliente.x1, cliente.x2, cliente.x3, cliente.x4, cliente.x5);
+            const clasif = clasificarRiesgo(ira);
+            const estrategia = obtenerEstrategia(clasif.label, cliente.nombre);
+
+            document.getElementById('modal-client-name').textContent = cliente.nombre;
+            document.getElementById('modal-client-policy').textContent = `Póliza: ${cliente.poliza} • Score IRA: ${ira.toFixed(2)}`;
+            document.getElementById('modal-action-title').textContent = estrategia.titulo;
+            document.getElementById('modal-action-desc').textContent = estrategia.desc;
+            document.getElementById('modal-script').textContent = estrategia.script;
+
+            const indicator = document.getElementById('modal-client-risk');
+            indicator.className = `w-4 h-4 rounded-full bg-${clasif.color}-500 shadow-sm`;
+
+            document.getElementById('action-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('action-modal').classList.add('hidden');
+        }
+
+        function markActionCompleted() {
+            if (selectedClientIdForAction !== null) {
+                const cliente = clientes.find(c => c.id === selectedClientIdForAction);
+                if (cliente) {
+                    cliente.gestionado = true;
+                }
+            }
+            closeModal();
+            renderClientTable();
+            updateStats();
+            renderChart();
+        }
+
+        // LÓGICA DE ALTA DE NUEVO CLIENTE
+        function openNewClientModal() {
+            document.getElementById('new-client-modal').classList.remove('hidden');
+        }
+
+        function closeNewClientModal() {
+            document.getElementById('new-client-modal').classList.add('hidden');
+        }
+
+        function saveNewClient(e) {
+            e.preventDefault();
+
+            const nuevoCliente = {
+                id: clientes.length + 1,
+                nombre: document.getElementById('new-name').value,
+                poliza: document.getElementById('new-policy').value,
+                x1: parseInt(document.getElementById('new-x1').value),
+                x2: parseInt(document.getElementById('new-x2').value),
+                x3: parseInt(document.getElementById('new-x3').value),
+                x4: parseInt(document.getElementById('new-x4').value),
+                x5: parseInt(document.getElementById('new-x5').value),
+                gestionado: false
+            };
+
+            clientes.unshift(nuevoCliente); // Agregar al principio de la lista
+
+            // Resetear formulario
+            document.getElementById('new-name').value = '';
+            document.getElementById('new-policy').value = '';
+            document.getElementById('new-x1').value = "1";
+            document.getElementById('new-x2').value = "1";
+            document.getElementById('new-x3').value = "1";
+            document.getElementById('new-x4').value = "1";
+            document.getElementById('new-x5').value = "1";
+
+            closeNewClientModal();
+            renderClientTable();
+            updateStats();
+            renderChart();
+        }
+    </script>
+</body>
+</html>
