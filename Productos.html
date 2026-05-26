@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brochure de Servicios Financieros y Seguros</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0A1628;
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-pale: #F5EDD6;
+    --cream: #FAF7F2;
+    --white: #FFFFFF;
+    --slate: #4A5568;
+    --mist: #8A9BB0;
+    --accent: #1B3A6B;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: var(--cream);
+    color: var(--navy);
+    line-height: 1.6;
+  }
+
+  /* ── PAGE ── */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    background: var(--white);
+    box-shadow: 0 0 60px rgba(0,0,0,.15);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    background: var(--navy);
+    min-height: 297mm;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover-geo {
+    position: absolute;
+    top: 0; right: 0;
+    width: 55%;
+    height: 100%;
+    background: linear-gradient(135deg, #1B3A6B 0%, #0D2040 100%);
+    clip-path: polygon(20% 0, 100% 0, 100% 100%, 0% 100%);
+  }
+
+  .cover-geo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 30px,
+      rgba(201,168,76,.04) 30px,
+      rgba(201,168,76,.04) 31px
+    );
+  }
+
+  .cover-gold-bar {
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--gold) 0%, transparent 100%);
+  }
+
+  .cover-gold-bar-h {
+    position: absolute;
+    bottom: 80px; left: 0;
+    height: 1px;
+    width: 55%;
+    background: linear-gradient(90deg, var(--gold) 0%, transparent 100%);
+  }
+
+  .cover-content {
+    position: relative;
+    z-index: 2;
+    padding: 60px 50px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-mark {
+    width: 48px;
+    height: 48px;
+    border: 1.5px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(45deg);
+  }
+
+  .logo-mark span {
+    transform: rotate(-45deg);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .logo-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: 2px;
+  }
+
+  .logo-sub {
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .cover-hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 0 40px;
+  }
+
+  .cover-tag {
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 20px;
+  }
+
+  .cover-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 58px;
+    line-height: 1.05;
+    color: var(--white);
+    font-weight: 300;
+    margin-bottom: 8px;
+  }
+
+  .cover-title em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  .cover-subtitle {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--mist);
+    text-transform: uppercase;
+    font-weight: 400;
+    margin-top: 20px;
+    max-width: 320px;
+    line-height: 1.8;
+  }
+
+  .cover-pillars {
+    display: flex;
+    gap: 24px;
+    margin-top: 50px;
+  }
+
+  .cover-pillar {
+    border-top: 1px solid rgba(201,168,76,.4);
+    padding-top: 14px;
+    flex: 1;
+  }
+
+  .cover-pillar-num {
+    font-size: 9px;
+    color: var(--gold);
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .cover-pillar-text {
+    font-size: 10px;
+    color: rgba(255,255,255,.7);
+    font-weight: 300;
+    line-height: 1.5;
+  }
+
+  .cover-footer {
+    border-top: 1px solid rgba(255,255,255,.08);
+    padding-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cover-footer-text {
+    font-size: 9px;
+    color: var(--mist);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .cover-footer-line {
+    height: 1px;
+    flex: 1;
+    margin: 0 20px;
+    background: rgba(255,255,255,.08);
+  }
+
+  /* ── INNER PAGES ── */
+  .inner-page {
+    min-height: 297mm;
+    display: flex;
+    flex-direction: column;
+    background: var(--white);
+    page-break-before: always;
+    position: relative;
+  }
+
+  .inner-header {
+    background: var(--navy);
+    padding: 28px 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .inner-header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    color: var(--white);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  .inner-header-right {
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .inner-header-line {
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold) 0%, transparent 80%);
+  }
+
+  /* ── SECTION HEADING ── */
+  .section-wrap {
+    padding: 50px 50px 40px;
+  }
+
+  .section-eyebrow {
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 300;
+    color: var(--navy);
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+
+  .section-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .section-desc {
+    font-size: 10.5px;
+    color: var(--slate);
+    max-width: 480px;
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .gold-divider {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin: 16px 0;
+  }
+
+  /* ── CARDS ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: #E8E0D0;
+    margin: 0 50px;
+    border: 1px solid #E8E0D0;
+  }
+
+  .card {
+    background: var(--white);
+    padding: 30px 28px;
+    transition: background .2s;
+    position: relative;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 0;
+    background: var(--gold);
+    transition: height .3s;
+  }
+
+  .card:hover::before { height: 100%; }
+  .card:hover { background: #FDFAF5; }
+
+  .card-icon {
+    width: 38px;
+    height: 38px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card-icon svg { width: 100%; height: 100%; }
+
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+
+  .card-body {
+    font-size: 9.5px;
+    color: var(--slate);
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .card-tag {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+    font-weight: 600;
+    border-bottom: 1px solid var(--gold-light);
+    padding-bottom: 2px;
+  }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    margin: 30px 50px 0;
+    background: var(--navy);
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .highlight-box::before {
+    content: '';
+    position: absolute;
+    right: -30px; top: -30px;
+    width: 120px; height: 120px;
+    border: 1px solid rgba(201,168,76,.15);
+    transform: rotate(45deg);
+  }
+
+  .highlight-box::after {
+    content: '';
+    position: absolute;
+    right: -50px; top: -50px;
+    width: 160px; height: 160px;
+    border: 1px solid rgba(201,168,76,.07);
+    transform: rotate(45deg);
+  }
+
+  .highlight-icon {
+    width: 48px;
+    height: 48px;
+    border: 1px solid rgba(201,168,76,.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .highlight-text-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    color: var(--gold-light);
+    font-weight: 400;
+    margin-bottom: 4px;
+  }
+
+  .highlight-text-body {
+    font-size: 9px;
+    color: rgba(255,255,255,.65);
+    line-height: 1.8;
+    font-weight: 300;
+    max-width: 460px;
+  }
+
+  /* ── FULL-WIDTH CARD ── */
+  .full-card {
+    background: var(--white);
+    border: 1px solid #E8E0D0;
+    margin: 0 50px;
+    padding: 28px 32px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  .full-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold) 0%, transparent 70%);
+  }
+
+  .full-card + .full-card { margin-top: 12px; }
+
+  .full-card-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 300;
+    color: var(--gold-pale);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 50px;
+    text-align: center;
+    margin-top: -6px;
+  }
+
+  .full-card-content {}
+
+  .full-card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+
+  .full-card-body {
+    font-size: 9.5px;
+    color: var(--slate);
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .full-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .tag-pill {
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    background: rgba(27,58,107,.07);
+    border: 1px solid rgba(27,58,107,.15);
+    padding: 3px 10px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* ── BANNER ── */
+  .page-banner {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--accent) 100%);
+    padding: 40px 50px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page-banner::before {
+    content: '';
+    position: absolute;
+    right: 50px; top: 50%;
+    transform: translateY(-50%);
+    width: 140px; height: 140px;
+    border: 1px solid rgba(201,168,76,.12);
+    border-radius: 50%;
+  }
+
+  .page-banner::after {
+    content: '';
+    position: absolute;
+    right: 20px; top: 50%;
+    transform: translateY(-50%);
+    width: 200px; height: 200px;
+    border: 1px solid rgba(201,168,76,.06);
+    border-radius: 50%;
+  }
+
+  .banner-eyebrow {
+    font-size: 8px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .banner-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 34px;
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .banner-title em { font-style: italic; color: var(--gold-light); }
+
+  .banner-desc {
+    font-size: 10px;
+    color: rgba(255,255,255,.65);
+    max-width: 380px;
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  /* ── COLUMNS LAYOUT ── */
+  .cols-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: #E8E0D0;
+    margin: 0 50px;
+    border: 1px solid #E8E0D0;
+  }
+
+  .col-block {
+    background: var(--white);
+    padding: 28px 26px;
+  }
+
+  .col-block-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #E8E0D0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .col-block-title svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .feature-list { list-style: none; }
+
+  .feature-list li {
+    font-size: 9.5px;
+    color: var(--slate);
+    padding: 5px 0;
+    border-bottom: 1px dotted #EBE5D9;
+    font-weight: 300;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .feature-list li::before {
+    content: '◆';
+    color: var(--gold);
+    font-size: 5px;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+
+  /* ── CONTACT PAGE ── */
+  .contact-page {
+    background: var(--navy);
+    min-height: 297mm;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-geo {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 50%;
+    height: 40%;
+    background: linear-gradient(135deg, #1B3A6B 0%, rgba(27,58,107,0) 100%);
+    clip-path: polygon(0 100%, 100% 100%, 0 0);
+  }
+
+  .contact-content {
+    position: relative;
+    z-index: 2;
+    padding: 60px 50px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .contact-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 50px;
+  }
+
+  .contact-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1.1;
+    max-width: 280px;
+  }
+
+  .contact-headline em { font-style: italic; color: var(--gold-light); }
+
+  .contact-tagline {
+    font-size: 9.5px;
+    color: rgba(255,255,255,.55);
+    max-width: 200px;
+    line-height: 1.8;
+    font-weight: 300;
+    text-align: right;
+  }
+
+  .contact-divider {
+    height: 1px;
+    background: rgba(255,255,255,.1);
+    margin-bottom: 40px;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px;
+    flex: 1;
+  }
+
+  .contact-item-label {
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .contact-item-val {
+    font-size: 11px;
+    color: var(--white);
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .contact-promise {
+    margin-top: auto;
+    padding-top: 40px;
+    border-top: 1px solid rgba(255,255,255,.08);
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .promise-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    font-style: italic;
+    color: rgba(255,255,255,.5);
+    max-width: 340px;
+    line-height: 1.6;
+  }
+
+  .promise-seal {
+    margin-left: auto;
+    width: 70px;
+    height: 70px;
+    border: 1px solid rgba(201,168,76,.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+
+  .promise-seal-inner {
+    transform: rotate(-45deg);
+    text-align: center;
+  }
+
+  .promise-seal-main {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    color: var(--gold-light);
+    font-weight: 600;
+    display: block;
+  }
+
+  .promise-seal-sub {
+    font-size: 7px;
+    color: var(--mist);
+    letter-spacing: 1px;
+  }
+
+  /* ── INSTITUTIONS ── */
+  .inst-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .inst-badge {
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: var(--navy);
+    background: var(--gold-pale);
+    border: 1px solid var(--gold-light);
+    padding: 4px 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  /* ── SPACERS ── */
+  .spacer-sm { height: 20px; }
+  .spacer-md { height: 36px; }
+
+  /* ── PRINT ── */
+  @media print {
+    body { background: none; }
+    .page { box-shadow: none; margin: 0; width: 100%; }
+    .inner-page { page-break-before: always; }
+    .cover { page-break-after: always; }
+  }
+
+  @media screen {
+    body { padding: 40px 20px; background: #D0C9BC; }
+    .page + .page { margin-top: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     PÁGINA 1 — PORTADA
+══════════════════════════════════════ -->
+<div class="page">
+  <div class="cover">
+    <div class="cover-geo"></div>
+    <div class="cover-gold-bar"></div>
+    <div class="cover-gold-bar-h"></div>
+
+    <div class="cover-content">
+
+      <!-- Logo -->
+      <div class="logo-area">
+        <div class="logo-mark"><span>A</span></div>
+        <div class="logo-text">
+          <span class="logo-name">ADVISORS GROUP</span>
+          <span class="logo-sub">Consultoría Financiera &amp; Seguros</span>
+        </div>
+      </div>
+
+      <!-- Hero -->
+      <div class="cover-hero">
+        <div class="cover-tag">Servicios integrales · México</div>
+        <div class="cover-title">
+          Tu patrimonio,<br><em>protegido</em><br>e invertido.
+        </div>
+        <div class="cover-subtitle">
+          Soluciones financieras y de seguros personalizadas, respaldadas por las instituciones más sólidas del sistema financiero mexicano.
+        </div>
+
+        <div class="cover-pillars">
+          <div class="cover-pillar">
+            <div class="cover-pillar-num">01</div>
+            <div class="cover-pillar-text">Inversiones con disponibilidad inmediata</div>
+          </div>
+          <div class="cover-pillar">
+            <div class="cover-pillar-num">02</div>
+            <div class="cover-pillar-text">Seguros personales completos</div>
+          </div>
+          <div class="cover-pillar">
+            <div class="cover-pillar-num">03</div>
+            <div class="cover-pillar-text">Soluciones empresariales</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="cover-footer">
+        <span class="cover-footer-text">Asesoría Independiente</span>
+        <div class="cover-footer-line"></div>
+        <span class="cover-footer-text">Confidencial · 2025</span>
+      </div>
+
+    </div>
+  </div>
+</div><!-- /page cover -->
+
+
+<!-- ══════════════════════════════════════
+     PÁGINA 2 — INVERSIONES
+══════════════════════════════════════ -->
+<div class="page">
+  <div class="inner-page">
+
+    <!-- Header -->
+    <div class="inner-header" style="position:relative;">
+      <span class="inner-header-title">Inversiones</span>
+      <span class="inner-header-right">Disponibilidad Inmediata</span>
+      <div class="inner-header-line"></div>
+    </div>
+
+    <!-- Section intro -->
+    <div class="section-wrap">
+      <div class="section-eyebrow">01 — Soluciones de inversión</div>
+      <div class="section-title">Haz trabajar tu dinero<br><em>con total liquidez.</em></div>
+      <div class="gold-divider"></div>
+      <div class="section-desc">
+        Accede a instrumentos de inversión regulados, seguros y rentables dentro del sistema financiero formal de México, con la posibilidad de disponer de tu capital cuando lo necesites. Sin permanencias forzosas, sin letra chica.
+      </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="cards-grid">
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="36" height="36" stroke="#C9A84C" stroke-width="1"/>
+            <path d="M10 27 L10 19 M19 27 L19 13 M28 27 L28 9" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="10" cy="19" r="2" fill="#C9A84C"/>
+            <circle cx="19" cy="13" r="2" fill="#C9A84C"/>
+            <circle cx="28" cy="9" r="2" fill="#C9A84C"/>
+          </svg>
+        </div>
+        <div class="card-title">Cuentas de Alta Rentabilidad (SOFIPO / SOFICOM)</div>
+        <div class="card-body">
+          Rendimientos superiores a la inflación, con cobertura del PROSOFIPO hasta $25,000 UDIs por institución. Disposición inmediata sin penalización. Plataformas 100% digitales con acceso 24/7.
+        </div>
+        <div class="inst-row">
+          <span class="inst-badge">Klar</span>
+          <span class="inst-badge">Hey Banco</span>
+          <span class="inst-badge">Nvio</span>
+          <span class="inst-badge">Finsus</span>
+        </div>
+        <span class="card-tag">Rendimiento hasta 13% anual</span>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="36" height="36" stroke="#C9A84C" stroke-width="1"/>
+            <path d="M7 19 H31 M19 7 V31" stroke="#C9A84C" stroke-width="1"/>
+            <circle cx="19" cy="19" r="8" stroke="#C9A84C" stroke-width="1.5"/>
+            <path d="M19 14 L19 19 L23 23" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="card-title">CETES &amp; Bonos Gubernamentales</div>
+        <div class="card-body">
+          Instrumentos de deuda respaldados por el Gobierno Federal Mexicano. La inversión más segura del mercado con plazos desde 28 días. Accesibles desde $100 pesos a través de cetesdirecto.com.mx.
+        </div>
+        <div class="inst-row">
+          <span class="inst-badge">Cetesdirecto</span>
+          <span class="inst-badge">BONDES</span>
+          <span class="inst-badge">UDIBONOS</span>
+        </div>
+        <span class="card-tag">Plazo desde 28 días</span>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="36" height="36" stroke="#C9A84C" stroke-width="1"/>
+            <rect x="9" y="16" width="6" height="13" stroke="#C9A84C" stroke-width="1.5"/>
+            <rect x="16" y="11" width="6" height="18" stroke="#C9A84C" stroke-width="1.5"/>
+            <rect x="23" y="7" width="6" height="22" stroke="#C9A84C" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="card-title">Fondos de Inversión (SIEFORES / Fondos Banca)</div>
+        <div class="card-body">
+          Portafolios diversificados con diferentes perfiles de riesgo gestionados por casas de bolsa reguladas por la CNBV. Liquidez en T+1. Desde inversiones en renta fija hasta renta variable.
+        </div>
+        <div class="inst-row">
+          <span class="inst-badge">GBM</span>
+          <span class="inst-badge">Actinver</span>
+          <span class="inst-badge">Banamex</span>
+          <span class="inst-badge">BBVA Asset</span>
+        </div>
+        <span class="card-tag">Liquidez en 24 horas</span>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="36" height="36" stroke="#C9A84C" stroke-width="1"/>
+            <path d="M12 26 C12 20 26 20 26 14" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="12" cy="26" r="3" stroke="#C9A84C" stroke-width="1.5"/>
+            <circle cx="26" cy="14" r="3" stroke="#C9A84C" stroke-width="1.5"/>
+            <path d="M22 12 L26 14 L28 10" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="card-title">Pagarés Bancarios con Rendimiento</div>
+        <div class="card-body">
+          Instrumentos de captación bancaria con tasa fija o revisable, protegidos por el IPAB hasta por 400,000 UDIs. Ideal para capital de reserva con horizontes de 7 a 180 días y acceso al vencimiento.
+        </div>
+        <div class="inst-row">
+          <span class="inst-badge">HSBC</span>
+          <span class="inst-badge">Santander</span>
+          <span class="inst-badge">Banorte</span>
+          <span class="inst-badge">Scotiabank</span>
+        </div>
+        <span class="card-tag">Protección IPAB incluida</span>
+      </div>
+
+    </div>
+
+    <div class="spacer-sm"></div>
+
+    <!-- Highlight -->
+    <div class="highlight-box">
+      <div class="highlight-icon">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+          <path d="M13 3 L15.5 10H23L17 14.5L19.5 21.5L13 17L6.5 21.5L9 14.5L3 10H10.5Z" stroke="#C9A84C" stroke-width="1.2" fill="none"/>
+        </svg>
+      </div>
+      <div>
+        <div class="highlight-text-title">Instituciones reguladas por CNBV, CONDUSEF e IPAB</div>
+        <div class="highlight-text-body">
+          Trabajamos exclusivamente con instituciones del sistema financiero formal. Tu dinero siempre estará en manos supervisadas por las autoridades mexicanas competentes, brindándote la máxima seguridad jurídica y patrimonial disponible en el mercado.
+        </div>
+      </div>
+    </div>
+
+    <div class="spacer-md"></div>
+
+  </div>
+</div><!-- /page inversiones -->
+
+
+<!-- ══════════════════════════════════════
+     PÁGINA 3 — SEGUROS PERSONALES
+══════════════════════════════════════ -->
+<div class="page">
+  <div class="inner-page">
+
+    <div class="inner-header" style="position:relative;">
+      <span class="inner-header-title">Seguros Personales</span>
+      <span class="inner-header-right">Protección Individual &amp; Familiar</span>
+      <div class="inner-header-line"></div>
+    </div>
+
+    <div class="section-wrap">
+      <div class="section-eyebrow">02 — Protección personal</div>
+      <div class="section-title">Cuida lo que más importa:<br><em>tu vida y la de los tuyos.</em></div>
+      <div class="gold-divider"></div>
+      <div class="section-desc">
+        Diseñamos un esquema de protección a tu medida, combinando coberturas de vida, salud y bienes, con las mejores aseguradoras del mercado mexicano supervisadas por la CNSF.
+      </div>
+    </div>
+
+    <!-- Full cards -->
+    <div class="full-card">
+      <div class="full-card-num">01</div>
+      <div class="full-card-content">
+        <div class="full-card-title">Seguro de Vida Individual</div>
+        <div class="full-card-body">
+          Protege el patrimonio y el futuro de tu familia ante cualquier eventualidad. Suma asegurada desde $500,000 hasta cifras millonarias. Incluye beneficios adicionales como enfermedades graves, invalidez total y permanente, y renta por incapacidad temporal. Planes temporales, ordinarios de vida y de vida completa con valor en efectivo.
+        </div>
+        <div class="full-card-tags">
+          <span class="tag-pill">MetLife</span>
+          <span class="tag-pill">GNP Seguros</span>
+          <span class="tag-pill">Seguros Monterrey</span>
+          <span class="tag-pill">AXA México</span>
+          <span class="tag-pill">Allianz</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="spacer-sm"></div>
+
+    <div class="cols-2">
+      <div class="col-block">
+        <div class="col-block-title">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M10 2 C10 2 3 6 3 11 C3 15.4 6.6 18 10 18 C13.4 18 17 15.4 17 11 C17 6 10 2 10 2Z" stroke="#C9A84C" stroke-width="1.3"/>
+            <path d="M7 11 L9 13 L13 9" stroke="#C9A84C" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Gastos Médicos Mayores
+        </div>
+        <ul class="feature-list">
+          <li>Cobertura nacional e internacional</li>
+          <li>Suma asegurada ilimitada o millonaria</li>
+          <li>Red de hospitales de primer nivel</li>
+          <li>Reembolso de gastos médicos</li>
+          <li>Servicio de urgencias 24/7</li>
+          <li>Maternidad y recién nacido</li>
+          <li>Enfermedades crónico-degenerativas</li>
+          <li>Oncología especializada</li>
+          <li>Deducibles flexibles</li>
+        </ul>
+      </div>
+      <div class="col-block">
+        <div class="col-block-title">
+          <svg viewBox="0 0 20 20" fill="none">
+            <rect x="3" y="4" width="14" height="12" rx="1" stroke="#C9A84C" stroke-width="1.3"/>
+            <path d="M7 10H13 M10 7V13" stroke="#C9A84C" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          Gastos Médicos Menores
+        </div>
+        <ul class="feature-list">
+          <li>Consultas con médico general y especialistas</li>
+          <li>Medicamentos incluidos</li>
+          <li>Análisis clínicos y laboratorios</li>
+          <li>Rayos X y estudios de imagen</li>
+          <li>Urgencias menores</li>
+          <li>Telemedicina disponible</li>
+          <li>Sin periodo de espera en muchos planes</li>
+          <li>Odontología básica opcional</li>
+          <li>Complementario al seguro de GMM</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="spacer-sm"></div>
+
+    <div class="cols-2">
+      <div class="col-block">
+        <div class="col-block-title">
+          <svg viewBox="0 0 20 20" fill="none">
+            <rect x="2" y="9" width="16" height="7" rx="1" stroke="#C9A84C" stroke-width="1.3"/>
+            <circle cx="6" cy="16" r="2" stroke="#C9A84C" stroke-width="1.3"/>
+            <circle cx="14" cy="16" r="2" stroke="#C9A84C" stroke-width="1.3"/>
+            <path d="M2 12 L5 9 L10 9 L14 5 L18 9 L18 12" stroke="#C9A84C" stroke-width="1.3" stroke-linejoin="round"/>
+          </svg>
+          Seguro de Auto Personal
+        </div>
+        <ul class="feature-list">
+          <li>Cobertura amplia: robo total, daños propios</li>
+          <li>Responsabilidad civil ampliada</li>
+          <li>Asistencia vial 24/7 en toda la república</li>
+          <li>Gastos médicos a ocupantes</li>
+          <li>Auto sustituto durante reparación</li>
+          <li>Daños a terceros en bienes y personas</li>
+          <li>Coberturas opcionales: gap, accesorios</li>
+          <li>Pago fraccionado sin intereses</li>
+        </ul>
+      </div>
+      <div class="col-block">
+        <div class="col-block-title">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M3 14 L3 8 L10 3 L17 8 L17 14" stroke="#C9A84C" stroke-width="1.3" stroke-linejoin="round"/>
+            <rect x="7" y="11" width="6" height="7" stroke="#C9A84C" stroke-width="1.3"/>
+            <path d="M3 14 H17" stroke="#C9A84C" stroke-width="1.3"/>
+          </svg>
+          Seguro de Hogar
+        </div>
+        <ul class="feature-list">
+          <li>Incendio, rayo y explosión</li>
+          <li>Robo de contenidos y electrónicos</li>
+          <li>Daños por agua y fenómenos naturales</li>
+          <li>Responsabilidad civil a terceros</li>
+          <li>Vidrios y cristales rotos</li>
+          <li>Rotura de tubería y daños eléctricos</li>
+          <li>Asistencia de plomería, electricidad y cerrajería</li>
+          <li>Habitación provisional en caso de siniestro</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="spacer-md"></div>
+
+  </div>
+</div><!-- /page seguros personales -->
+
+
+<!-- ══════════════════════════════════════
+     PÁGINA 4 — SEGUROS EMPRESARIALES
+══════════════════════════════════════ -->
+<div class="page">
+  <div class="inner-page">
+
+    <div class="inner-header" style="position:relative;">
+      <span class="inner-header-title">Seguros Empresariales</span>
+      <span class="inner-header-right">Protección Corporativa</span>
+      <div class="inner-header-line"></div>
+    </div>
+
+    <!-- Banner -->
+    <div class="page-banner">
+      <div class="banner-eyebrow">03 — Soluciones empresariales</div>
+      <div class="banner-title">Protege tu empresa,<br><em>cuida a tu equipo.</em></div>
+      <div class="banner-desc">
+        Un colaborador protegido es un colaborador comprometido. Diseñamos planes de beneficios corporativos que atraen y retienen talento, mientras blindan los activos y la operación de tu negocio.
+      </div>
+    </div>
+
+    <div class="section-wrap" style="padding-bottom:20px;">
+      <div class="section-eyebrow">Beneficios para colaboradores</div>
+      <div class="section-title" style="font-size:26px;">Vida Colectivo &amp; <em>Salud Grupal</em></div>
+    </div>
+
+    <div class="full-card">
+      <div class="full-card-num">01</div>
+      <div class="full-card-content">
+        <div class="full-card-title">Seguro de Vida Colectivo</div>
+        <div class="full-card-body">
+          Protege a todos tus colaboradores con una sola póliza corporativa. Suma asegurada múltiplo del salario anual o monto fijo. Incluye fallecimiento por cualquier causa, invalidez total y permanente, doble indemnización por accidente, y beneficios opcionales de enfermedades graves. Deducible fiscalmente para la empresa y exento de ISR para el beneficiario.
+        </div>
+        <div class="full-card-tags">
+          <span class="tag-pill">Deducible fiscal</span>
+          <span class="tag-pill">Sin examen médico grupal</span>
+          <span class="tag-pill">Desde 5 empleados</span>
+          <span class="tag-pill">MetLife · GNP · AXA · Allianz</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="spacer-sm"></div>
+
+    <div class="full-card">
+      <div class="full-card-num">02</div>
+      <div class="full-card-content">
+        <div class="full-card-title">Gastos Médicos Mayores Colectivo</div>
+        <div class="full-card-body">
+          Plan de salud grupal con acceso a las mejores redes hospitalarias del país. Cobertura para titular, cónyuge e hijos. Suma asegurada millonaria, tabuladores especiales para grupos, deducibles y coaseguros ajustables según presupuesto corporativo. Reporte de siniestralidad trimestral para control de costos.
+        </div>
+        <div class="full-card-tags">
+          <span class="tag-pill">Red IMSS complementario</span>
+          <span class="tag-pill">Control de siniestralidad</span>
+          <span class="tag-pill">Maternidad incluida</span>
+          <span class="tag-pill">GNP · Seguros Monterrey · BUPA</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="spacer-sm"></div>
+
+    <div class="section-wrap" style="padding-top:24px;padding-bottom:16px;">
+      <div class="section-eyebrow">Protección de activos</div>
+      <div class="section-title" style="font-size:26px;">Flotilla Vehicular &amp; <em>Seguro Empresa</em></div>
+    </div>
+
+    <div class="cols-2">
+      <div class="col-block">
+        <div class="col-block-title">
+          <svg viewBox="0 0 20 20" fill="none">
+            <rect x="1" y="9" width="18" height="6" rx="1" stroke="#C9A84C" stroke-width="1.3"/>
+            <circle cx="5" cy="15" r="1.5" stroke="#C9A84C" stroke-width="1.3"/>
+            <circle cx="15" cy="15" r="1.5" stroke="#C9A84C" stroke-width="1.3"/>
+            <path d="M1 12 L4 9 L8 9 L11 6 L16 9 L19 9" stroke="#C9A84C" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M8 9 L8 12" stroke="#C9A84C" stroke-width="1.3"/>
+          </svg>
+          Auto en Flotilla
+        </div>
+        <ul class="feature-list">
+          <li>Tarifa especial desde 3 unidades</li>
+          <li>Cobertura amplia o limitada por vehículo</li>
+          <li>RC ampliada para transportistas</li>
+          <li>Administración centralizada de siniestros</li>
+          <li>Facturación consolidada mensual</li>
+          <li>Flotillas mixtas: autos, camionetas, camiones</li>
+          <li>GPS y rastreo satelital opcional</li>
+          <li>Reposición de llaves y asistencia vial</li>
+          <li>Carga y mercancías transportadas</li>
+        </ul>
+      </div>
+      <div class="col-block">
+        <div class="col-block-title">
+          <svg viewBox="0 0 20 20" fill="none">
+            <rect x="3" y="7" width="14" height="10" stroke="#C9A84C" stroke-width="1.3"/>
+            <path d="M3 7 L10 3 L17 7" stroke="#C9A84C" stroke-width="1.3" stroke-linejoin="round"/>
+            <rect x="7" y="12" width="4" height="5" stroke="#C9A84C" stroke-width="1.3"/>
+            <path d="M13 10 H15 M13 12 H15" stroke="#C9A84C" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          Seguro para la Empresa
+        </div>
+        <ul class="feature-list">
+          <li>Incendio, explosión y fenómenos naturales</li>
+          <li>Robo con violencia a instalaciones</li>
+          <li>Responsabilidad civil patronal y de producto</li>
+          <li>Equipo electrónico y maquinaria</li>
+          <li>Interrupción de negocio (lucro cesante)</li>
+          <li>Cristales y rotulación exterior</li>
+          <li>Dinero y valores en caja fuerte</li>
+          <li>Transporte de mercancías</li>
+          <li>Responsabilidad civil ambiental</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="spacer-md"></div>
+
+  </div>
+</div><!-- /page empresarial -->
+
+
+<!-- ══════════════════════════════════════
+     PÁGINA 5 — CONTACTO
+══════════════════════════════════════ -->
+<div class="page">
+  <div class="contact-page">
+    <div class="contact-geo"></div>
+
+    <div class="contact-content">
+
+      <div class="contact-top">
+        <div class="contact-headline">
+          Agenda tu<br><em>consultoría</em><br>sin costo.
+        </div>
+        <div class="contact-tagline">
+          Un asesor certificado analizará tu situación y diseñará la solución ideal para ti o tu empresa, sin compromiso.
+        </div>
+      </div>
+
+      <div class="contact-divider"></div>
+
+      <div class="contact-grid">
+
+        <div>
+          <div class="contact-item-label">Teléfono &amp; WhatsApp</div>
+          <div class="contact-item-val">
+            +52 (55) 0000-0000<br>
+            Lun – Vie · 9:00 – 19:00 h<br>
+            Sáb · 10:00 – 14:00 h
+          </div>
+        </div>
+
+        <div>
+          <div class="contact-item-label">Correo Electrónico</div>
+          <div class="contact-item-val">
+            contacto@advisorsgroup.mx<br>
+            atencion@advisorsgroup.mx<br><br>
+            Respuesta en menos de 24 h
+          </div>
+        </div>
+
+        <div>
+          <div class="contact-item-label">Redes &amp; Web</div>
+          <div class="contact-item-val">
+            www.advisorsgroup.mx<br>
+            @AdvisorsGroupMX<br><br>
+            Cotización en línea disponible
+          </div>
+        </div>
+
+      </div>
+
+      <div class="spacer-md"></div>
+
+      <!-- Why us -->
+      <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:32px;">
+        <div class="banner-eyebrow" style="margin-bottom:20px;">¿Por qué elegirnos?</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+          <div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--gold-light);font-weight:300;line-height:1;">+15</div>
+            <div style="font-size:9px;color:rgba(255,255,255,.5);margin-top:4px;letter-spacing:1px;">Años de experiencia en el mercado financiero mexicano</div>
+          </div>
+          <div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--gold-light);font-weight:300;line-height:1;">+20</div>
+            <div style="font-size:9px;color:rgba(255,255,255,.5);margin-top:4px;letter-spacing:1px;">Aseguradoras e instituciones financieras aliadas</div>
+          </div>
+          <div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--gold-light);font-weight:300;line-height:1;">100%</div>
+            <div style="font-size:9px;color:rgba(255,255,255,.5);margin-top:4px;letter-spacing:1px;">Independientes · Sin conflicto de interés · Tu mejor opción siempre</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-promise">
+        <div class="promise-text">
+          "Nuestro compromiso es asesorarte con honestidad, transparencia y profundo conocimiento técnico para que cada peso que inviertas o cada prima que pagues sea la mejor decisión para tu patrimonio."
+        </div>
+        <div class="promise-seal">
+          <div class="promise-seal-inner">
+            <span class="promise-seal-main">CNSF</span>
+            <div class="promise-seal-sub">Autorizado</div>
+          </div>
+        </div>
+        <div class="promise-seal" style="margin-left:12px;">
+          <div class="promise-seal-inner">
+            <span class="promise-seal-main">CNBV</span>
+            <div class="promise-seal-sub">Registrado</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div><!-- /page contacto -->
+
+</body>
+</html>
