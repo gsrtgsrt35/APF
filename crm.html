@@ -483,6 +483,8 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
 <script>
 const STORAGE_KEY = 'crm_apf_x10_v2';
 
+const CSV_FILE_PATH = path.join(__dirname, 'prospectos.csv');
+
 const STATUS_CLASS = {
   'Firmado':'s-firmado','En comité':'s-comite','Reunión agendada':'s-reunion',
   'Cotización enviada':'s-cotizacion','Respuesta positiva':'s-positivo',
@@ -515,12 +517,11 @@ const GHOST_REC = {
 // ghost classifications per session: {prospectId: classNum}
 let ghostClassifications = {};
 
-const CSV_FILE_PATH = path.join(__dirname, 'prospectos.csv');
 
 function loadData(){try{const r=localStorage.getItem(STORAGE_KEY);return r?JSON.parse(r):null}catch{return null}}
-//function saveData(ps){localStorage.setItem(STORAGE_KEY,JSON.stringify(ps))}
+function saveData(ps){localStorage.setItem(STORAGE_KEY,JSON.stringify(ps))}
 
-function saveData(ps) {
+/*function saveData(ps) {
   // --- Build CSV content ---
   if (!ps || (Array.isArray(ps) && ps.length === 0)) {
     console.warn('saveData: no data to save.');
@@ -554,7 +555,7 @@ function saveData(ps) {
     console.error('saveData: failed to write CSV file.', err);
     throw err;                  // re-throw so callers can handle it if needed
   }
-}
+}*/
 
 function getProspects(){return loadData()||getDefaults()}
 
