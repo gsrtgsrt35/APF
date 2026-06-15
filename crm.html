@@ -483,7 +483,10 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
 <script>
 const STORAGE_KEY = 'crm_apf_x10_v2';
 
-const CSV_FILE_PATH = path.join(__dirname, 'prospectos.csv');
+const fs = require('fs');
+const path = require('path');
+
+const CSV_FILE_PATH = path.join(__dirname, 'data.csv');
 
 const STATUS_CLASS = {
   'Firmado':'s-firmado','En comité':'s-comite','Reunión agendada':'s-reunion',
@@ -521,50 +524,14 @@ let ghostClassifications = {};
 function loadData(){try{const r=localStorage.getItem(STORAGE_KEY);return r?JSON.parse(r):null}catch{return null}}
 function saveData(ps){localStorage.setItem(STORAGE_KEY,JSON.stringify(ps))}
 
-/*function saveData(ps) {
-  // --- Build CSV content ---
-  if (!ps || (Array.isArray(ps) && ps.length === 0)) {
-    console.warn('saveData: no data to save.');
-    return;
-  }
-
-  // Normalize: support a single object or an array of objects
-  const rows = Array.isArray(ps) ? ps : [ps];
-
-  // Extract headers from the first object's keys
-  const headers = Object.keys(rows[0]);
-
-  // Escape a cell value: wrap in quotes if it contains commas, quotes, or newlines
-  const escapeCell = (val) => {
-    const str = val === null || val === undefined ? '' : String(val);
-    return /[",\n\r]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
-  };
-
-  const csvLines = [
-    headers.join(','),                                          // header row
-    ...rows.map(row => headers.map(h => escapeCell(row[h])).join(','))
-  ];
-
-  const csvContent = csvLines.join('\n');
-
-  // --- Write file (overwrites each time) ---
-  try {
-    fs.writeFileSync(CSV_FILE_PATH, csvContent, 'utf8');
-    console.log(`Data saved to ${CSV_FILE_PATH}`);
-  } catch (err) {
-    console.error('saveData: failed to write CSV file.', err);
-    throw err;                  // re-throw so callers can handle it if needed
-  }
-}*/
-
 function getProspects(){return loadData()||getDefaults()}
 
 function getDefaults(){
   return [{
-    id:'p_'+Date.now(),name:'Grecia',age:37,status:'En reactivación',
-    channel:'WhatsApp',products:['Auto','GMM'],profile:'Persona (25-50)',
+    id:'p_'+Date.now(),name:'Juan Pérez',age:32,status:'En reactivación',
+    channel:'WhatsApp',products:['Auto','GMM'],profile:'Familia',
     prima:null,lastContact:'',nextContact:'',
-    notes:'Prospecto inicial — último contacto fue de ella. Pendiente reactivar.',
+    notes:'Prospecto inicial — último contacto fue de él. Pendiente reactivar.',
     createdAt:new Date().toISOString()
   }];
 }
