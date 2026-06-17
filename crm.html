@@ -722,6 +722,14 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
           <label>⏰ Recordatorio / Seguimiento</label>
           <input type="date" id="f-nextcontact">
         </div>
+        <div class="form-group">
+          <label>Agente asignado</label>
+          <input type="text" id="f-agente" placeholder="Ej. Fernando García">
+        </div>
+        <div class="form-group">
+          <label>Subagente</label>
+          <input type="text" id="f-subagente" placeholder="Ej. Laura Martínez">
+        </div>
         <div class="form-group full">
           <label>Notas / Observaciones</label>
           <textarea id="f-notes" placeholder="Objeción principal, contexto, avance…"></textarea>
@@ -1197,6 +1205,8 @@ function openModal(id){
     document.getElementById('f-prima').value=p.prima||'';
     document.getElementById('f-lastcontact').value=p.lastContact||'';
     document.getElementById('f-nextcontact').value=p.nextContact||'';
+    document.getElementById('f-agente').value=p.agente||'';
+    document.getElementById('f-subagente').value=p.subagente||'';
     document.getElementById('f-notes').value=p.notes||'';
     const sel=document.getElementById('f-products');
     Array.from(sel.options).forEach(o=>{o.selected=(p.products||[]).includes(o.value)});
@@ -1212,7 +1222,7 @@ function openModal(id){
   } else {
     document.getElementById('modal-title').textContent='Nuevo prospecto';
     document.getElementById('modal-sub').textContent='Campaña: Protege lo más importante';
-    ['f-id','f-name','f-age','f-channel','f-profile','f-prima','f-notes'].forEach(id=>{document.getElementById(id).value=''});
+    ['f-id','f-name','f-age','f-channel','f-profile','f-prima','f-agente','f-subagente','f-notes'].forEach(id=>{document.getElementById(id).value=''});
     document.getElementById('f-status').value='';
     document.getElementById('f-lastcontact').value=todayStr();
     document.getElementById('f-nextcontact').value='';
@@ -1543,6 +1553,8 @@ function saveProspect(){
     products,profile:document.getElementById('f-profile').value,
     prima:primaVal,lastContact:document.getElementById('f-lastcontact').value,
     nextContact:document.getElementById('f-nextcontact').value,
+    agente:document.getElementById('f-agente').value.trim(),
+    subagente:document.getElementById('f-subagente').value.trim(),
     notes:document.getElementById('f-notes').value.trim()
   };
   if(editingId){
@@ -1575,8 +1587,8 @@ function doReset(){localStorage.removeItem(STORAGE_KEY);closeConfirm();renderTab
 
 function exportCSV(){
   const ps=getProspects();
-  const h=['Nombre','Edad','Estado','Productos','Prima MXN','Canal','Perfil','Último contacto','Seguimiento','Notas'];
-  const rows=ps.map(p=>[p.name,p.age||'',p.status,(p.products||[]).join('|'),p.prima||'',p.channel||'',p.profile||'',p.lastContact||'',p.nextContact||'',(p.notes||'').replace(/,/g,';').replace(/\n/g,' ')]);
+  const h=['Nombre','Edad','Estado','Productos','Prima MXN','Canal','Perfil','Agente asignado','Subagente','Último contacto','Seguimiento','Notas'];
+  const rows=ps.map(p=>[p.name,p.age||'',p.status,(p.products||[]).join('|'),p.prima||'',p.channel||'',p.profile||'',p.agente||'',p.subagente||'',p.lastContact||'',p.nextContact||'',(p.notes||'').replace(/,/g,';').replace(/\n/g,' ')]);
   const csv=[h,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
   const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
