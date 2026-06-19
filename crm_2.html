@@ -819,16 +819,11 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
     </div>
     <div class="config-body">
       <div class="config-field">
-        <label>URL de tu Web App — Google Sheets (Apps Script)</label>
+        <label>URL de tu Web App (Apps Script)</label>
         <input type="url" id="config-url" placeholder="https://script.google.com/macros/s/…/exec">
-        <div class="config-hint">Para sincronizar prospectos con Google Sheets.</div>
-      </div>
-      <div class="config-field" style="margin-top:16px">
-        <label>🤖 URL Webhook de Make — Herramientas IA</label>
-        <input type="url" id="config-make-url" placeholder="https://hook.make.com/…">
         <div class="config-hint">
-          Para activar: Mensaje sin presión · Manejar objeción · Email de bienvenida · Notas → Propuesta.
-          Sigue las instrucciones del archivo <strong>make_blueprint_instrucciones.txt</strong> para obtener esta URL.
+          Pega aquí la URL que genera Google al publicar el script como Web App.
+          Si aún no lo has configurado, sigue los pasos abajo.
         </div>
       </div>
       <div id="config-status" class="config-status"></div>
@@ -1317,7 +1312,17 @@ Cierra con una firma cálida de Fernando, Agente APF MX.
 Responde ÚNICAMENTE con el texto del email. Sin asunto, sin comillas, sin explicaciones, sin markdown. Listo para pegar y enviar.`;
 
   try {
-    const text = await callAI(prompt, 1000);
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await response.json();
+    const text = data.content?.map(b=>b.text||'').join('').trim();
     if(!text) throw new Error('empty');
 
     bienvenidaText = text;
@@ -1326,11 +1331,8 @@ Responde ÚNICAMENTE con el texto del email. Sin asunto, sin comillas, sin expli
     showToast('✅ Email de bienvenida generado');
 
   } catch(err){
-    const msg = err.message === 'MAKE_NOT_CONFIGURED'
-      ? '⚙️ Configura primero el webhook de Make en el botón 🔗 Sheets de la toolbar.'
-      : '⚠️ No se pudo generar el email. Verifica tu conexión e intenta de nuevo.';
-    content.innerHTML = `<div style="color:var(--danger);font-size:12px;padding:8px 0">${msg}</div>`;
-    console.error('Bienvenida error:', err);
+    content.innerHTML = `<div style="color:var(--danger);font-size:12px;padding:8px 0">⚠️ No se pudo generar el email. Verifica tu conexión e intenta de nuevo.</div>`;
+    console.error('Bienvenida API error:', err);
   }
 }
 
@@ -1401,7 +1403,18 @@ Reglas para cada respuesta:
 Tono: profesional consultivo, humano, nunca vendedor ni agresivo. Adapta el lenguaje al canal ${channel}.`;
 
   try {
-    const raw = await callAI(prompt, 1000);
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    const raw  = data.content?.map(b => b.text || '').join('').trim();
     if(!raw) throw new Error('Respuesta vacía');
 
     // Strip possible markdown fences
@@ -1430,11 +1443,8 @@ Tono: profesional consultivo, humano, nunca vendedor ni agresivo. Adapta el leng
     }).join('');
 
   } catch(err) {
-    const msg = err.message === 'MAKE_NOT_CONFIGURED'
-      ? '⚙️ Configura primero el webhook de Make en el botón 🔗 Sheets de la toolbar.'
-      : '⚠️ No se pudieron generar las respuestas. Verifica tu conexión e intenta de nuevo.';
-    responsesDiv.innerHTML = `<div style="color:var(--danger);font-size:12px;padding:8px 0">${msg}</div>`;
-    console.error('Objeción error:', err);
+    responsesDiv.innerHTML = `<div style="color:var(--danger);font-size:12px;padding:8px 0">⚠️ No se pudieron generar las respuestas. Verifica tu conexión e intenta de nuevo.</div>`;
+    console.error('Objeción API error:', err);
   } finally {
     generateBtn.disabled = false;
     generateBtn.textContent = '⚡ Generar respuestas';
@@ -1499,7 +1509,18 @@ ${notesStr}
 Responde ÚNICAMENTE con el mensaje final. Sin comillas, sin encabezados, sin explicaciones. Listo para pegar.`;
 
   try {
-    const text = await callAI(prompt, 1000);
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content?.map(b => b.text || '').join('').trim();
     if (!text) throw new Error('Respuesta vacía');
 
     sinPresionText = text;
@@ -1507,11 +1528,8 @@ Responde ÚNICAMENTE con el mensaje final. Sin comillas, sin encabezados, sin ex
     actions.style.display = 'flex';
 
   } catch(err) {
-    const msg = err.message === 'MAKE_NOT_CONFIGURED'
-      ? '⚙️ Configura primero el webhook de Make en el botón 🔗 Sheets de la toolbar.'
-      : '⚠️ No se pudo generar el mensaje. Verifica tu conexión e intenta de nuevo.';
-    content.innerHTML = `<div style="color:var(--danger);font-size:12px;padding:8px 0">${msg}</div>`;
-    console.error('SinPresión error:', err);
+    content.innerHTML = `<div style="color:var(--danger);font-size:12px;padding:8px 0">⚠️ No se pudo generar el mensaje. Verifica tu conexión e intenta de nuevo.</div>`;
+    console.error('SinPresión API error:', err);
   }
 }
 
@@ -1822,7 +1840,17 @@ Genera exactamente este JSON (sin markdown, sin texto extra):
 }`;
 
   try {
-    const raw = await callAI(prompt, 4000);
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        messages: [{ role:'user', content: prompt }]
+      })
+    });
+    const data = await response.json();
+    const raw  = data.content?.map(b=>b.text||'').join('').trim();
     if(!raw) throw new Error('empty');
     const clean  = raw.replace(/```json|```/g,'').trim();
     const parsed = JSON.parse(clean);
@@ -1876,11 +1904,8 @@ Genera exactamente este JSON (sin markdown, sin texto extra):
     showToast('✅ 3 entregables generados');
 
   } catch(err) {
-    const msg = err.message === 'MAKE_NOT_CONFIGURED'
-      ? '⚙️ Configura primero el webhook de Make en el botón 🔗 Sheets de la toolbar.'
-      : 'No se pudieron generar los entregables. Verifica tu conexión e intenta de nuevo.';
-    output.innerHTML = `<div class="np-empty"><div class="np-empty-icon">⚠️</div><p>${msg}</p></div>`;
-    console.error('Propuesta error:', err);
+    output.innerHTML = `<div class="np-empty"><div class="np-empty-icon">⚠️</div><p>No se pudieron generar los entregables.<br>Verifica tu conexión e intenta de nuevo.</p></div>`;
+    console.error('Propuesta API error:', err);
   } finally {
     btn.disabled = false;
     btn.textContent = '✨ Generar 3 entregables';
@@ -1925,33 +1950,7 @@ function copyAllPropuesta(){
 }
 
 // ── GOOGLE SHEETS SYNC ──────────────────────────────────────────
-const GS_URL_KEY   = 'crm_apf_gs_url';
-const MAKE_URL_KEY = 'crm_apf_make_url';
-
-function getMakeUrl(){ return localStorage.getItem(MAKE_URL_KEY) || ''; }
-function setMakeUrl(url){ localStorage.setItem(MAKE_URL_KEY, url); }
-
-// ── FUNCIÓN CENTRAL DE IA ────────────────────────────────────────
-// Todas las herramientas IA pasan por aquí → webhook de Make → Anthropic
-async function callAI(prompt, maxTokens = 1000){
-  const makeUrl = getMakeUrl();
-  if(!makeUrl){
-    throw new Error('MAKE_NOT_CONFIGURED');
-  }
-  const response = await fetch(makeUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt, max_tokens: maxTokens })
-  });
-  if(!response.ok){
-    throw new Error(`HTTP ${response.status}`);
-  }
-  const data = await response.json();
-  // Make devuelve { text: "..." } desde el blueprint
-  const text = data.text || data.content || data.result || '';
-  if(!text) throw new Error('Respuesta vacía del webhook');
-  return text.trim();
-}
+const GS_URL_KEY = 'crm_apf_gs_url';
 
 let syncTimeout = null;
 let lastSyncTime = null;
@@ -1972,7 +1971,6 @@ function setSyncState(state, label){
 function openConfig(){
   const overlay = document.getElementById('config-overlay');
   document.getElementById('config-url').value = getGsUrl();
-  document.getElementById('config-make-url').value = getMakeUrl();
   document.getElementById('config-status').className = 'config-status';
   document.getElementById('config-status').textContent = '';
   overlay.classList.add('open');
@@ -1982,38 +1980,21 @@ function handleConfigOverlay(e){ if(e.target===document.getElementById('config-o
 
 // Guardar URL y hacer primera sincronización
 async function saveConfigAndSync(){
-  const url     = document.getElementById('config-url').value.trim();
-  const makeUrl = document.getElementById('config-make-url').value.trim();
+  const url = document.getElementById('config-url').value.trim();
   const statusEl = document.getElementById('config-status');
 
-  // Guardar Make URL si se proporcionó (independiente de Sheets)
-  if(makeUrl && makeUrl.startsWith('https://hook.')){
-    setMakeUrl(makeUrl);
-    statusEl.className='config-status ok';
-    statusEl.textContent='✅ Webhook de Make guardado. Las herramientas IA ya están activas.';
-  } else if(makeUrl && !makeUrl.startsWith('https://hook.')){
+  if(!url || !url.startsWith('https://script.google.com')){
     statusEl.className='config-status err';
-    statusEl.textContent='⚠️ La URL del webhook de Make no parece válida. Debe empezar con https://hook.make.com/…';
-    return;
-  }
-
-  // Si también hay URL de Sheets, conectar
-  if(!url){
-    if(makeUrl) return; // Solo Make, sin Sheets — OK
-    statusEl.className='config-status err';
-    statusEl.textContent='⚠️ Agrega al menos la URL del webhook de Make o la de Google Sheets.';
-    return;
-  }
-
-  if(!url.startsWith('https://script.google.com')){
-    statusEl.className='config-status err';
-    statusEl.textContent='⚠️ La URL de Google Sheets no parece válida.';
+    statusEl.textContent='⚠️ La URL no parece válida. Asegúrate de copiar la URL completa del Web App.';
     return;
   }
 
   setGsUrl(url);
+  statusEl.className='config-status';
+  statusEl.textContent='';
   setSyncState('busy','Conectando…');
 
+  // Intentar cargar datos desde Sheets primero
   try {
     const loaded = await fetchFromSheets(url);
     if(loaded && loaded.length > 0){
@@ -2026,6 +2007,7 @@ async function saveConfigAndSync(){
       lastSyncTime = new Date();
       showToast(`✅ ${loaded.length} prospectos cargados desde Google Sheets`);
     } else {
+      // Sheet vacío — subir datos locales
       await pushToSheets(url, getProspects());
       statusEl.className='config-status ok';
       statusEl.textContent='✅ Conexión exitosa. Datos locales enviados a Google Sheets.';
@@ -2035,7 +2017,7 @@ async function saveConfigAndSync(){
     }
   } catch(err){
     statusEl.className='config-status err';
-    statusEl.textContent='❌ No se pudo conectar con Google Sheets. Verifica la URL del Apps Script.';
+    statusEl.textContent='❌ No se pudo conectar. Verifica que el script esté publicado correctamente y que la URL sea la de la aplicación web.';
     setSyncState('error','Error de conexión');
     console.error('GS Config error:', err);
   }
