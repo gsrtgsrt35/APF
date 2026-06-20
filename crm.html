@@ -549,6 +549,7 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
           <option value="GMM">GMM</option>
           <option value="Vida">Vida</option>
           <option value="Hogar">Hogar</option>
+          <option value="Daños">Daños</option>
         </select>
       </div>
       <div class="toolbar-right">
@@ -699,6 +700,7 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
             <option value="GMM">GMM</option>
             <option value="Vida">Vida</option>
             <option value="Hogar">Hogar</option>
+            <option value="Daños">Daños</option>
           </select>
         </div>
         <div class="form-group">
@@ -708,7 +710,7 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
             <option value="Comerciante">Comerciante</option>
             <option value="Empleado">Empleado</option>
             <option value="Familia">Familia</option>
-            <option value="Persona (25-50)">Persona (25-50)</option>
+            <option value="Individual">Individual</option>
           </select>
         </div>
         <div class="form-group">
@@ -1786,7 +1788,7 @@ async function generatePropuesta(){
     <div class="np-loading"><div class="spin"></div><span>Analizando notas y generando los 3 entregables… esto toma unos segundos.</span></div>
   </div>`;
 
-  const prompt = `Eres Fernando, agente de seguros Chubb con 10 años de experiencia en Ciudad de México. Eres consultor, no vendedor.
+  const prompt = `Eres Fernando, agente de seguros con 10 años de experiencia en Ciudad de México. Eres consultor, no vendedor.
 
 PROSPECTO: ${p.name}${p.age?' ('+p.age+' años)':''}
 PERFIL: ${profile}
@@ -1799,7 +1801,7 @@ NOTAS CRUDAS DE LA CITA:
 Genera exactamente este JSON (sin markdown, sin texto extra):
 {
   "email": "string — email de seguimiento profesional con: saludo personalizado, resumen de los puntos clave acordados en la cita (máx 3 bullets), los próximos 2 pasos concretos con fechas tentativas, cierre cálido consultivo. Firma como Fernando, Agente APF MX. Máx 200 palabras.",
-  "propuesta": "string — propuesta ejecutiva de UNA PÁGINA con estas secciones claramente marcadas con saltos de línea:\n\nPERFIL DE RIESGO\n[2-3 líneas sobre la situación y necesidad específica del prospecto]\n\nCOBERTURA CHUBB RECOMENDADA\n[Producto(s) específico(s) con las coberturas clave que aplican a su caso]\n\nPOR QUÉ APLICA ESPECÍFICAMENTE A ${p.name.toUpperCase()}\n[3 razones concretas y personalizadas basadas en las notas]\n\nINVERSIÓN ESTIMADA\n[Prima estimada y formato de pago]\n\nPRÓXIMO PASO\n[El paso acordado]",
+  "propuesta": "string — propuesta ejecutiva de UNA PÁGINA con estas secciones claramente marcadas con saltos de línea:\n\nPERFIL DE RIESGO\n[2-3 líneas sobre la situación y necesidad específica del prospecto]\n\nCOBERTURA RECOMENDADA\n[Producto(s) específico(s) con las coberturas clave que aplican a su caso]\n\nPOR QUÉ APLICA ESPECÍFICAMENTE A ${p.name.toUpperCase()}\n[3 razones concretas y personalizadas basadas en las notas]\n\nINVERSIÓN ESTIMADA\n[Prima estimada y formato de pago]\n\nPRÓXIMO PASO\n[El paso acordado]",
   "escenarios": [
     {
       "num": 1,
@@ -1817,7 +1819,7 @@ Genera exactamente este JSON (sin markdown, sin texto extra):
       "num": 3,
       "tipo": "Objeción de precio o comparación",
       "situacion": "El prospecto dice: [escenario donde cuestionan el precio o mencionan que vieron algo más barato]",
-      "respuesta": "Respuesta que reencuadra el valor, menciona una cobertura específica de Chubb que la competencia no incluye, y propone comparación justa. 2-3 oraciones."
+      "respuesta": "Respuesta que reencuadra el valor, menciona una cobertura específica de seguros que la competencia no incluye, y propone comparación justa. 2-3 oraciones."
     }
   ]
 }`;
@@ -1856,7 +1858,7 @@ Genera exactamente este JSON (sin markdown, sin texto extra):
         <div class="np-del-header">
           <div class="np-del-header-left">
             <span class="np-del-icon">📄</span>
-            <div><div class="np-del-title">Propuesta ejecutiva</div><div class="np-del-sub">Perfil de riesgo · Cobertura Chubb · Próximo paso</div></div>
+            <div><div class="np-del-title">Propuesta ejecutiva</div><div class="np-del-sub">Perfil de riesgo · Cobertura APF MX · Próximo paso</div></div>
           </div>
           <button class="np-del-copy" onclick="copyNpSection('propuesta',this)">📋 Copiar propuesta</button>
         </div>
