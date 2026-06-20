@@ -1946,30 +1946,9 @@ async function callAI(prompt, maxTokens = 1000){
   if(!response.ok){
     throw new Error(`HTTP ${response.status}`);
   }
-  // Leer como texto primero para manejar caracteres especiales
-  const raw = await response.text();
-
-  // Intentar extraer el texto de forma segura sin JSON.parse
-  let text = '';
-  try {
-    // Intento 1: parse normal
-    const data = JSON.parse(raw);
-    text = data.text || data.content || data.result || '';
-  } catch(e) {
-    // Intento 2: extraer con regex sin depender de JSON.parse
-    const match = raw.match(/"text"\s*:\s*"([\s\S]*?)"\s*\}?\s*$/);
-    if(match){
-      text = match[1]
-        .replace(/\\n/g, '\n')
-        .replace(/\\t/g, '\t')
-        .replace(/\\"/g, '"')
-        .replace(/\\\\/g, '\\');
-    } else {
-      // Intento 3: devolver el raw completo si parece texto plano
-      text = raw.replace(/^\{"text"\s*:\s*"?/, '').replace(/"?\}$/, '');
-    }
-  }
-
+  const data = await response.json();
+  // Make devuelve { text: "..." } desde el blueprint
+  const text = data.text || data.content || data.result || '';
   if(!text) throw new Error('Respuesta vacía del webhook');
   return text.trim();
 }
