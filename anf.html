@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prospecto de Análisis Financiero</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --navy:       #0a1f44;
+    --navy-mid:   #163266;
+    --navy-light: #e8edf7;
+    --navy-pale:  #f0f3fa;
+    --gold:       #c9a84c;
+    --gold-light: #fdf6e3;
+    --danger:     #c0392b;
+    --danger-bg:  #fdf0ef;
+    --success:    #1a6635;
+    --success-bg: #e0f4e8;
+    --warning:    #7a5c00;
+    --warning-bg: #fff8d6;
+    --text:       #0d1b2a;
+    --text-sub:   #4a5568;
+    --text-muted: #8a9ab0;
+    --border:     #d6dce8;
+    --bg:         #f4f6fb;
+    --white:      #ffffff;
+    --radius:     8px;
+    --radius-lg:  12px;
+    --shadow:     0 1px 4px rgba(10,31,68,.08), 0 4px 16px rgba(10,31,68,.06);
+    --shadow-lg:  0 8px 32px rgba(10,31,68,.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.5; }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    color: #fff; padding: 0 36px;
+    display: flex; align-items: stretch; gap: 0;
+    border-bottom: 3px solid var(--gold);
+  }
+  .header-brand { display: flex; align-items: center; gap: 14px; padding: 20px 0; flex: 1; }
+  .header-emblem {
+    width: 46px; height: 46px; border-radius: var(--radius);
+    background: rgba(201,168,76,.18); border: 1px solid rgba(201,168,76,.35);
+    display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+  }
+  .header-text-title { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
+  .header-text-sub { font-size: 11px; opacity: 0.6; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .header-right { display: flex; align-items: center; gap: 8px; padding: 20px 0; }
+  .badge {
+    background: rgba(201,168,76,.15); border: 1px solid rgba(201,168,76,.4);
+    border-radius: 4px; padding: 4px 12px; font-size: 11px; font-weight: 600;
+    color: #e8c96a; text-transform: uppercase; letter-spacing: 0.07em;
+  }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 880px; margin: 0 auto; padding: 28px 24px 72px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 0; margin-bottom: 16px;
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .card-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 22px; background: var(--navy-pale);
+    border-bottom: 1px solid var(--border);
+  }
+  .card-icon {
+    width: 32px; height: 32px; border-radius: var(--radius);
+    background: var(--navy); display: flex; align-items: center;
+    justify-content: center; font-size: 15px; flex-shrink: 0;
+  }
+  .card-title { font-size: 12px; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.07em; }
+  .card-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+  .card-body { padding: 20px 22px; }
+
+  /* ── FIELDS ── */
+  .grid { display: grid; gap: 14px; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .col-full { grid-column: 1 / -1; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 11px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.05em; }
+  .field input, .field select, .field textarea {
+    padding: 9px 11px; border: 1px solid var(--border); border-radius: var(--radius);
+    font-size: 13.5px; font-family: inherit; color: var(--text); background: var(--white);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none; border-color: var(--navy-mid); box-shadow: 0 0 0 3px rgba(22,50,102,.1);
+  }
+  .field textarea { resize: vertical; min-height: 68px; }
+  .field input[readonly] { background: var(--bg); color: var(--text-muted); cursor: default; }
+
+  /* ── PILLS ── */
+  .pill-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill {
+    padding: 6px 14px; border: 1px solid var(--border); border-radius: 20px;
+    font-size: 12.5px; cursor: pointer; background: var(--white); color: var(--text-sub);
+    transition: all 0.15s; user-select: none; font-weight: 500;
+  }
+  .pill:hover { border-color: var(--navy-mid); color: var(--navy); }
+  .pill.active { background: var(--navy); color: #fff; border-color: var(--navy); font-weight: 600; }
+
+  /* ── EXPENSE ROWS ── */
+  .expense-group-label {
+    font-size: 10.5px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin: 18px 0 10px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .expense-row {
+    display: grid; grid-template-columns: 1fr 148px;
+    align-items: center; gap: 12px; padding: 9px 0;
+    border-bottom: 1px solid #f0f2f7;
+  }
+  .expense-row:last-child { border-bottom: none; }
+  .expense-name { font-size: 13.5px; color: var(--text); }
+  .expense-hint { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+  .expense-row input { padding: 7px 10px; text-align: right; font-size: 13.5px; }
+
+  /* ── BENEFICIARIOS ── */
+  .beneficiary-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
+  .bene-item {
+    background: var(--navy-pale); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    display: grid; grid-template-columns: 2fr 1.2fr 0.7fr 1fr 36px;
+    gap: 10px; align-items: end;
+  }
+  .btn-remove {
+    width: 36px; height: 36px; border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--white); color: var(--text-muted); cursor: pointer; font-size: 14px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+  }
+  .btn-remove:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); }
+  .btn-add {
+    width: 100%; padding: 9px; background: none;
+    border: 1px dashed var(--navy-mid); border-radius: var(--radius);
+    color: var(--navy-mid); font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-add:hover { background: var(--navy-light); }
+
+  /* ── STICKY SUMMARY ── */
+  .summary-bar {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    background: var(--navy); border-radius: var(--radius-lg);
+    padding: 14px 20px; margin-bottom: 20px;
+    box-shadow: var(--shadow-lg); position: sticky; top: 8px; z-index: 20;
+  }
+  .sm-label { font-size: 10px; color: rgba(255,255,255,.55); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 3px; }
+  .sm-value { font-size: 17px; font-weight: 700; color: #fff; }
+  .sm-value.ok { color: #6de3a0; }
+  .sm-value.warn { color: #f5c842; }
+  .sm-value.bad { color: #ff7b72; }
+
+  /* ── ALERT BAR ── */
+  .alert-bar {
+    display: none; align-items: center; gap: 10px;
+    background: var(--warning-bg); border: 1px solid #e8c840;
+    border-radius: var(--radius); padding: 10px 16px;
+    font-size: 13px; color: var(--warning); margin-bottom: 16px;
+  }
+  .alert-bar.show { display: flex; }
+
+  /* ── CTA BUTTONS ── */
+  .btn-primary {
+    width: 100%; padding: 14px; border: none; border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    color: #fff; font-size: 15px; font-weight: 700; cursor: pointer;
+    letter-spacing: -0.01em; transition: opacity 0.2s;
+    border-bottom: 2px solid var(--gold);
+  }
+  .btn-primary:hover { opacity: 0.92; }
+  .btn-secondary {
+    width: 100%; padding: 11px; background: var(--white); color: var(--text);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    font-size: 13.5px; font-weight: 500; cursor: pointer; margin-top: 10px; transition: all 0.15s;
+  }
+  .btn-secondary:hover { border-color: var(--navy); color: var(--navy); }
+
+  /* ══════════════ RESULT PAGE ══════════════ */
+  .status-banner {
+    border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 20px;
+    box-shadow: var(--shadow);
+  }
+  .status-banner.apto { background: var(--success-bg); border: 2px solid #2d7a4f; }
+  .status-banner.proceso { background: var(--warning-bg); border: 2px solid #e6b800; }
+  .status-icon { font-size: 44px; flex-shrink: 0; }
+  .status-eyebrow { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 4px; }
+  .status-eyebrow.apto { color: #1a6635; }
+  .status-eyebrow.proceso { color: var(--warning); }
+  .status-title { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; margin-bottom: 6px; }
+  .status-title.apto { color: var(--success); }
+  .status-title.proceso { color: #5a4000; }
+  .status-desc { font-size: 13px; color: var(--text-sub); }
+
+  /* Prospect block */
+  .prospect-block { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .prospect-avatar {
+    width: 52px; height: 52px; border-radius: 50%; background: var(--navy);
+    color: #fff; font-size: 18px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .prospect-name { font-size: 19px; font-weight: 700; color: var(--navy); }
+  .prospect-meta { font-size: 12.5px; color: var(--text-sub); margin-top: 3px; }
+
+  /* Score */
+  .score-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .score-label { font-size: 12px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.06em; }
+  .score-num { font-size: 22px; font-weight: 800; color: var(--navy); }
+  .score-bg { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .score-fill { height: 100%; border-radius: 4px; transition: width 1.1s cubic-bezier(.4,0,.2,1); }
+
+  /* Tags */
+  .tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 11px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+  .tag-warn { background: #fff3cd; color: #7a5800; border: 1px solid #f0c040; }
+  .tag-ok   { background: #e0f4e8; color: #1a6635; border: 1px solid #8fd4aa; }
+  .tag-info { background: var(--navy-light); color: var(--navy); border: 1px solid #b0c0e0; }
+  .tag-risk { background: var(--danger-bg); color: #922b21; border: 1px solid #e8a09b; }
+
+  /* Needs grid */
+  .needs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .need-card { background: var(--navy-pale); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+  .need-card-title { font-size: 11px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+  .need-card-value { font-size: 13.5px; color: var(--text); font-weight: 600; }
+  .need-card-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
+
+  /* Recos */
+  .reco-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  .reco-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--navy-pale); border: 1px solid #b0c0df;
+    border-left: 4px solid var(--navy); border-radius: var(--radius); padding: 13px 16px;
+  }
+  .reco-num {
+    width: 26px; height: 26px; border-radius: 50%; background: var(--navy);
+    color: #fff; font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+  }
+  .reco-title { font-size: 13.5px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+  .reco-desc { font-size: 12.5px; color: var(--text-sub); line-height: 1.55; }
+
+  /* Beneficiarios result */
+  .bene-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+  .bene-table th { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 7px 10px; border-bottom: 2px solid var(--border); text-align: left; }
+  .bene-table td { padding: 9px 10px; border-bottom: 1px solid #f0f2f7; color: var(--text); }
+  .bene-table tr:last-child td { border-bottom: none; }
+
+  /* Risk / quote box */
+  .info-box {
+    background: var(--navy-pale); border-left: 4px solid var(--navy);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 13px 16px; font-size: 13px; color: var(--text); line-height: 1.65;
+  }
+  .info-box.gold { border-left-color: var(--gold); }
+  .info-box.grey { border-left-color: #aaa; }
+
+  /* Stamp */
+  .stamp { text-align: right; font-size: 11px; color: var(--text-muted); margin-top: 24px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .stamp strong { color: var(--navy); }
+
+  /* Divider in result */
+  .result-divider { height: 1px; background: var(--border); margin: 4px 0 16px; }
+
+  @media print {
+    .no-print { display: none !important; }
+    body { background: #fff; }
+    .header, .status-banner, .summary-bar { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+  @media (max-width: 620px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .needs-grid { grid-template-columns: 1fr; }
+    .summary-bar { grid-template-columns: 1fr 1fr; }
+    .bene-item { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-brand">
+    <div class="header-emblem">💼</div>
+    <div>
+      <div class="header-text-title">Prospecto de Análisis Financiero</div>
+      <div class="header-text-sub">Formulario de primera cita · Asesoría Financiera Profesional</div>
+    </div>
+  </div>
+  <div class="header-right no-print">
+    <div class="badge">1ª Cita</div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ══════════════════════ FORM PAGE ══════════════════════ -->
+<div id="formPage" class="page active">
+
+  <div id="alertDescarte" class="alert-bar">
+    ⚠️ <strong>Atención:</strong> El rango de ingreso seleccionado es menor a $15,000 MXN. El prospecto quedará marcado como <strong>EN PROCESO</strong>.
+  </div>
+
+  <!-- Sticky summary -->
+  <div class="summary-bar no-print">
+    <div><div class="sm-label">Ingreso est.</div><div class="sm-value" id="smIng">—</div></div>
+    <div><div class="sm-label">Gastos</div><div class="sm-value" id="smGas">$0</div></div>
+    <div><div class="sm-label">Flujo libre est.</div><div class="sm-value" id="smFlu">—</div></div>
+    <div><div class="sm-label">% comprometido</div><div class="sm-value" id="smPct">—</div></div>
+  </div>
+
+  <!-- 1. Datos personales -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">👤</div>
+      <div><div class="card-title">Datos personales</div><div class="card-sub">Información demográfica y hábitos de vida</div></div>
+    </div>
+    <div class="card-body">
+      <div class="grid grid-2">
+        <div class="field col-full"><label>Nombre completo *</label><input type="text" id="nombre" placeholder="Ej. María García Reyes"></div>
+        <div class="field"><label>Fecha de nacimiento *</label><input type="date" id="fechaNac" oninput="calcEdad()"></div>
+        <div class="field"><label>Edad (calculada)</label><input type="text" id="edadCalc" readonly placeholder="—"></div>
+        <div class="field"><label>Género</label>
+          <select id="genero"><option value="">Seleccionar</option><option>Masculino</option><option>Femenino</option><option>Prefiero no decir</option></select>
+        </div>
+        <div class="field"><label>Estado civil *</label>
+          <select id="estadoCivil"><option value="">Seleccionar</option><option>Soltero/a</option><option>Casado/a</option><option>Unión libre</option><option>Divorciado/a</option><option>Viudo/a</option></select>
+        </div>
+        <div class="field"><label>Número de hijos</label><input type="number" id="hijos" min="0" max="20" value="0"></div>
+        <div class="field"><label>Otros dependientes económicos</label><input type="number" id="dependientes" min="0" max="20" value="0" placeholder="Padres, suegros..."></div>
+        <div class="field col-full"><label>Profesión / Ocupación</label><input type="text" id="ocupacion" placeholder="Ej. Médico, Empresario, Contador..."></div>
+        <div class="field col-full">
+          <label>Tipo de ingreso laboral *</label>
+          <div class="pill-group" id="tipoEmpleoGroup">
+            <div class="pill active" data-val="asalariado">🏢 Asalariado / Empleado</div>
+            <div class="pill" data-val="independiente">💡 Independiente / Freelance</div>
+            <div class="pill" data-val="empresario">🏭 Empresario / Dueño de negocio</div>
+            <div class="pill" data-val="mixto">🔄 Mixto</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>¿Es fumador/a?</label>
+          <div class="pill-group" id="fumadorGroup">
+            <div class="pill active" data-val="no">No</div>
+            <div class="pill" data-val="ex">Ex-fumador</div>
+            <div class="pill" data-val="si">Sí</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>¿Consume alcohol?</label>
+          <div class="pill-group" id="alcoholGroup">
+            <div class="pill active" data-val="no">No</div>
+            <div class="pill" data-val="ocasional">Ocasional</div>
+            <div class="pill" data-val="frecuente">Frecuente</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Situación financiera -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">🏦</div>
+      <div><div class="card-title">Situación financiera</div><div class="card-sub">Rango de ingresos, patrimonio y deudas</div></div>
+    </div>
+    <div class="card-body">
+      <div class="grid grid-2">
+        <div class="field col-full">
+          <label>Rango de ingreso neto mensual *</label>
+          <select id="ingresoNeto" onchange="calcSummary()">
+            <option value="">Seleccionar rango</option>
+            <option value="5000">Menos de $10,000</option>
+            <option value="15000">$10,000 – $20,000</option>
+            <option value="35000">$20,000 – $50,000</option>
+            <option value="65000">$50,000 – $80,000</option>
+            <option value="90000">$80,000 – $100,000</option>
+            <option value="120000">Más de $100,000</option>
+          </select>
+        </div>
+        <div class="field"><label>Ingresos adicionales mensuales ($MXN)</label><input type="number" id="ingresoExtra" min="0" placeholder="Rentas, negocios, honorarios..." oninput="calcSummary()"></div>
+        <div class="field"><label>Ahorro actual mensual ($MXN)</label><input type="number" id="ahorro" min="0" placeholder="0"></div>
+        <div class="field"><label>Patrimonio estimado total ($MXN)</label><input type="number" id="patrimonio" min="0" placeholder="Inmuebles, inversiones..."></div>
+        <div class="field col-full"><label>Deudas totales actuales ($MXN)</label><input type="number" id="deudas" min="0" placeholder="Hipotecas, créditos personales, tarjetas..."></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Gastos mensuales -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">🧾</div>
+      <div><div class="card-title">Gastos mensuales</div><div class="card-sub">Gastos fijos, variables y gastos hormiga</div></div>
+    </div>
+    <div class="card-body">
+      <div class="expense-group-label">🏠 Gastos fijos del hogar</div>
+      <div class="expense-row"><div><div class="expense-name">Renta / Hipoteca</div><div class="expense-hint">Vivienda principal</div></div><input type="number" class="gasto" min="0" placeholder="$0" oninput="calcSummary()"></div>
+      <div class="expense-row"><div><div class="expense-name">Servicios del hogar</div><div class="expense-hint">Luz, agua, gas, internet, TV</div></div><input type="number" class="gasto" min="0" placeholder="$0" oninput="calcSummary()"></div>
+      <div class="expense-row"><div><div class="expense-name">Despensa / Alimentos</div><div class="expense-hint">Supermercado y mercado</div></div><input type="number" class="gasto" min="0" placeholder="$0" oninput="calcSummary()"></div>
+      <div class="expense-group-label">🚗 Transporte y educación</div>
+      <div class="expense-row"><div><div class="expense-name">Transporte / Automóvil</div><div class="expense-hint">Gasolina, Uber, mantenimiento, tenencia</div></div><input type="number" class="gasto" min="0" placeholder="$0" oninput="calcSummary()"></div>
+      <div class="expense-row"><div><div class="expense-name">Educación</div><div class="expense-hint">Colegiaturas, útiles, cursos</div></div><input type="number" class="gasto" min="0" placeholder="$0" oninput="calcSummary()"></div>
+      <div class="expense-group-label">❤️ Salud y finanzas</div>
+      <div class="expense-row"><div><div class="expense-name">Salud / Médico</div><div class="expense-hint">Medicamentos, consultas, laboratorios</div></div><input type="number" class="gasto" min="0" placeholder="$0" oninput="calcSummary()"></div>
+      <div class="expense-row"><div><div class="expense-name">Telefonía / Suscripciones digitales</div><div class="expense-hint">Celular, streaming, apps de pago</div></div><input type="number" class="gasto" min="0" placeholder="$0" oninput="calcSummary()"></div>
+      <div class="expense-row"><div><div class="expense-name">Pago mínimo de deudas</div><div class="expense-hint">Tarjetas de crédito, créditos vigentes</div></div><input type="number" class="gasto" min="0" placeholder="$0" oninput="calcSummary()"></div>
+      <div class="expense-group-label">🐜 Gastos hormiga (pequeños gastos cotidianos)</div>
+      <div class="expense-row"><div><div class="expense-name">Café, antojitos y comida diaria</div><div class="expense-hint">Cafeterías, taquerías, delivery frecuente</div></div><input type="number" class="gasto" min="0" placeholder="$0" oninput="calcSummary()"></div>
+      <div class="expense-row"><div><div class="expense-name">Entretenimiento y salidas</div><div class="expense-hint">Bares, restaurantes, cines, conciertos</div></div><input type="number" class="gasto" min="0" placeholder="$0" oninput="calcSummary()"></div>
+      <div class="expense-row"><div><div class="expense-name">Ropa, estética y cuidado personal</div><div class="expense-hint">Salón, barbería, ropa, accesorios</div></div><input type="number" class="gasto" min="0" placeholder="$0" oninput="calcSummary()"></div>
+      <div class="expense-row"><div><div class="expense-name">Compras online y ocio digital</div><div class="expense-hint">Amazon, apps, juegos, compras impulsivas</div></div><input type="number" class="gasto" min="0" placeholder="$0" oninput="calcSummary()"></div>
+      <div class="expense-row"><div><div class="expense-name">Gastos discrecionales varios</div><div class="expense-hint">Propinas, donativos, emergencias menores</div></div><input type="number" class="gasto" min="0" placeholder="$0" oninput="calcSummary()"></div>
+    </div>
+  </div>
+
+  <!-- 4. Protección y metas -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">🛡️</div>
+      <div><div class="card-title">Protección actual y metas</div><div class="card-sub">Coberturas vigentes y horizonte de planeación</div></div>
+    </div>
+    <div class="card-body">
+      <div class="grid grid-2">
+        <div class="field">
+          <label>¿Tiene seguro de vida?</label>
+          <div class="pill-group" id="segVidaGroup"><div class="pill active" data-val="no">No</div><div class="pill" data-val="basico">Sí, básico</div><div class="pill" data-val="amplio">Sí, amplio</div></div>
+        </div>
+        <div class="field">
+          <label>¿Seguro de gastos médicos mayores?</label>
+          <div class="pill-group" id="segGMGroup"><div class="pill active" data-val="no">No</div><div class="pill" data-val="basico">Sí, básico</div><div class="pill" data-val="amplio">Sí, amplio</div></div>
+        </div>
+        <div class="field">
+          <label>¿Cuenta con fondo de emergencia?</label>
+          <div class="pill-group" id="fondoGroup"><div class="pill active" data-val="no">No</div><div class="pill" data-val="parcial">Parcial (&lt;3 meses)</div><div class="pill" data-val="si">Sí (&gt;3 meses)</div></div>
+        </div>
+        <div class="field">
+          <label>¿Tiene plan de retiro?</label>
+          <div class="pill-group" id="retiroGroup"><div class="pill active" data-val="no">No</div><div class="pill" data-val="afore">Solo AFORE</div><div class="pill" data-val="privado">Plan privado</div></div>
+        </div>
+        <div class="field"><label>Edad de retiro deseada</label><input type="number" id="edadRetiro" min="40" max="80" placeholder="65"></div>
+        <div class="field">
+          <label>¿Tiene testamento?</label>
+          <div class="pill-group" id="testamentoGroup"><div class="pill active" data-val="no">No</div><div class="pill" data-val="si">Sí</div></div>
+        </div>
+        <div class="field col-full"><label>Principal preocupación o meta financiera</label><input type="text" id="preocupacion" placeholder="Ej. Proteger a mi familia, retiro tranquilo, pagar universidad de mis hijos..."></div>
+        <div class="field col-full"><label>Notas del asesor</label><textarea id="notas" placeholder="Observaciones de la entrevista, impresiones, acciones de seguimiento..."></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Beneficiarios -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">👨‍👩‍👧</div>
+      <div><div class="card-title">Beneficiarios</div><div class="card-sub">Personas designadas en caso de fallecimiento o invalidez total</div></div>
+    </div>
+    <div class="card-body">
+      <div id="beneficiaryList" class="beneficiary-list"></div>
+      <button class="btn-add" onclick="addBeneficiary()">+ Agregar beneficiario</button>
+      <p style="font-size:11px;color:var(--text-muted);margin-top:10px;">La suma de porcentajes debe totalizar 100%. Incluir fecha de nacimiento para menores de edad.</p>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="generarAnalisis()">📊 Generar Análisis de Necesidades Financieras</button>
+
+</div><!-- /formPage -->
+
+<!-- ══════════════════════ RESULT PAGE ══════════════════════ -->
+<div id="resultPage" class="page">
+
+  <!-- Status banner -->
+  <div id="statusBanner" class="status-banner">
+    <div class="status-icon" id="statusIcon"></div>
+    <div>
+      <div class="status-eyebrow" id="statusEyebrow">Estatus del prospecto</div>
+      <div class="status-title" id="statusTitle"></div>
+      <div class="status-desc" id="statusDesc"></div>
+    </div>
+  </div>
+
+  <!-- Prospect + score -->
+  <div class="card">
+    <div class="card-body">
+      <div class="prospect-block">
+        <div class="prospect-avatar" id="resAvatar">—</div>
+        <div>
+          <div class="prospect-name" id="resNombre">—</div>
+          <div class="prospect-meta" id="resMeta">—</div>
+        </div>
+      </div>
+      <div class="result-divider"></div>
+      <div class="score-row">
+        <span class="score-label">Índice de salud financiera</span>
+        <span class="score-num" id="scoreNum">—</span>
+      </div>
+      <div class="score-bg"><div class="score-fill" id="scoreFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Perfil laboral y hábitos -->
+  <div class="card">
+    <div class="card-header"><div class="card-icon">🏷️</div><div><div class="card-title">Perfil laboral y hábitos de vida</div></div></div>
+    <div class="card-body"><div class="tags-wrap" id="perfilTags"></div></div>
+  </div>
+
+  <!-- Necesidades detectadas -->
+  <div class="card">
+    <div class="card-header"><div class="card-icon">🔍</div><div><div class="card-title">Necesidades detectadas</div><div class="card-sub">Áreas de oportunidad identificadas en la entrevista</div></div></div>
+    <div class="card-body">
+      <div class="tags-wrap" id="needsTags"></div>
+      <div class="needs-grid" id="needsGrid"></div>
+    </div>
+  </div>
+
+  <!-- Recomendaciones -->
+  <div class="card">
+    <div class="card-header"><div class="card-icon">🎯</div><div><div class="card-title">Recomendaciones prioritarias</div><div class="card-sub">Productos y estrategias a presentar en esta cita</div></div></div>
+    <div class="card-body"><div class="reco-list" id="recoList"></div></div>
+  </div>
+
+  <!-- Beneficiarios result -->
+  <div class="card" id="beneCard" style="display:none">
+    <div class="card-header"><div class="card-icon">👨‍👩‍👧</div><div><div class="card-title">Beneficiarios registrados</div></div></div>
+    <div class="card-body">
+      <table class="bene-table">
+        <thead><tr><th>Nombre completo</th><th>Parentesco</th><th>% Asignado</th><th>Fecha de nacimiento</th></tr></thead>
+        <tbody id="beneTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Perfil de riesgo -->
+  <div class="card">
+    <div class="card-header"><div class="card-icon">📋</div><div><div class="card-title">Perfil de riesgo y horizonte temporal</div></div></div>
+    <div class="card-body"><div class="info-box" id="riskBox"></div></div>
+  </div>
+
+  <!-- Meta -->
+  <div class="card" id="metaCard" style="display:none">
+    <div class="card-header"><div class="card-icon">💬</div><div><div class="card-title">Meta / Preocupación expresada por el prospecto</div></div></div>
+    <div class="card-body"><div class="info-box gold" id="metaBox"></div></div>
+  </div>
+
+  <!-- Notas -->
+  <div class="card" id="notasCard" style="display:none">
+    <div class="card-header"><div class="card-icon">📝</div><div><div class="card-title">Notas del asesor</div></div></div>
+    <div class="card-body"><div class="info-box grey" id="notasBox"></div></div>
+  </div>
+
+  <div class="stamp">
+    Análisis generado el <span id="fechaGen"></span> &nbsp;·&nbsp;
+    <strong>ANF v2.1</strong> &nbsp;·&nbsp; Documento confidencial — uso exclusivo del asesor
+  </div>
+
+  <div class="no-print" style="margin-top:16px">
+    <button class="btn-primary" id="btnPDF" onclick="exportarPDF()">🖨️ Imprimir / Guardar como PDF</button>
+    <div id="pdfProgress" style="display:none;margin-top:12px;">
+      <div style="background:var(--border);border-radius:4px;height:6px;overflow:hidden;">
+        <div id="pdfBar" style="height:100%;background:var(--gold);border-radius:4px;width:0%;transition:width 0.4s ease;"></div>
+      </div>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:6px;text-align:center;" id="pdfMsg">Generando PDF, un momento...</p>
+    </div>
+    <button class="btn-secondary" onclick="volverFormulario()">← Volver y editar</button>
+  </div>
+
+</div><!-- /resultPage -->
+</div><!-- /container -->
+
+<script>
+// ── State ──
+const st = { tipoEmpleo:'asalariado', fumador:'no', alcohol:'no', segVida:'no', segGM:'no', fondo:'no', retiro:'no', testamento:'no' };
+let beneficiarios = [];
+let bIdx = 0;
+
+// Ingreso range midpoints for calculations
+const ingresoMidpoints = { '5000':5000, '15000':15000, '35000':35000, '65000':65000, '90000':90000, '120000':120000 };
+const ingresoLabels = {
+  '5000':'Menos de $10,000',
+  '15000':'$10,000 – $20,000',
+  '35000':'$20,000 – $50,000',
+  '65000':'$50,000 – $80,000',
+  '90000':'$80,000 – $100,000',
+  '120000':'Más de $100,000'
+};
+
+// ── Pills ──
+function initPills(id, key) {
+  document.getElementById(id).querySelectorAll('.pill').forEach(p => {
+    p.onclick = () => {
+      document.getElementById(id).querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      st[key] = p.dataset.val;
+    };
+  });
+}
+initPills('tipoEmpleoGroup','tipoEmpleo');
+initPills('fumadorGroup','fumador');
+initPills('alcoholGroup','alcohol');
+initPills('segVidaGroup','segVida');
+initPills('segGMGroup','segGM');
+initPills('fondoGroup','fondo');
+initPills('retiroGroup','retiro');
+initPills('testamentoGroup','testamento');
+
+// ── Age ──
+function calcEdad() {
+  const v = document.getElementById('fechaNac').value;
+  if (!v) return;
+  const hoy = new Date(), nac = new Date(v);
+  let e = hoy.getFullYear() - nac.getFullYear();
+  if (hoy.getMonth() < nac.getMonth() || (hoy.getMonth()===nac.getMonth() && hoy.getDate()<nac.getDate())) e--;
+  document.getElementById('edadCalc').value = e + ' años';
+}
+
+// ── Format ──
+function fmt(n) { return '$' + Math.round(n).toLocaleString('es-MX'); }
+function pct(a,b) { return b > 0 ? Math.round((a/b)*100) : 0; }
+
+// ── Live summary ──
+function calcSummary() {
+  const sel = document.getElementById('ingresoNeto').value;
+  const ingBase = sel ? ingresoMidpoints[sel] : 0;
+  const ingExtra = parseFloat(document.getElementById('ingresoExtra').value || 0);
+  const ing = ingBase + ingExtra;
+  let gas = 0;
+  document.querySelectorAll('.gasto').forEach(g => gas += parseFloat(g.value || 0));
+  const flu = ing - gas;
+  const p = pct(gas, ing);
+
+  document.getElementById('smIng').textContent = sel ? ingresoLabels[sel] : '—';
+  document.getElementById('smGas').textContent = fmt(gas);
+  if (ing > 0) {
+    const fluEl = document.getElementById('smFlu');
+    fluEl.textContent = fmt(flu);
+    fluEl.className = 'sm-value ' + (flu<0?'bad':flu<ing*0.15?'warn':'ok');
+    const pEl = document.getElementById('smPct');
+    pEl.textContent = p + '%';
+    pEl.className = 'sm-value ' + (p>90?'bad':p>75?'warn':'ok');
+  } else {
+    document.getElementById('smFlu').textContent = '—';
+    document.getElementById('smPct').textContent = '—';
+    document.getElementById('smFlu').className = 'sm-value';
+    document.getElementById('smPct').className = 'sm-value';
+  }
+
+  // Discard alert
+  const alertEl = document.getElementById('alertDescarte');
+  alertEl.classList.toggle('show', sel === '5000');
+}
+
+// ── Beneficiaries ──
+function addBeneficiary() {
+  const i = bIdx++;
+  beneficiarios.push({ id: i });
+  renderBeneficiaries();
+}
+function removeBeneficiary(i) {
+  beneficiarios = beneficiarios.filter(b => b.id !== i);
+  renderBeneficiaries();
+}
+function renderBeneficiaries() {
+  const c = document.getElementById('beneficiaryList');
+  c.innerHTML = '';
+  beneficiarios.forEach(b => {
+    const div = document.createElement('div');
+    div.className = 'bene-item';
+    div.innerHTML = `
+      <div class="field"><label>Nombre completo</label><input type="text" id="bn_${b.id}" placeholder="Ej. Ana García"></div>
+      <div class="field"><label>Parentesco</label><select id="bp_${b.id}"><option value="">Seleccionar</option><option>Cónyuge</option><option>Hijo/a</option><option>Padre/Madre</option><option>Hermano/a</option><option>Otro</option></select></div>
+      <div class="field"><label>% asignado</label><input type="number" id="bpct_${b.id}" min="0" max="100" placeholder="0"></div>
+      <div class="field"><label>Fecha de nacimiento</label><input type="date" id="bfn_${b.id}"></div>
+      <button class="btn-remove" onclick="removeBeneficiary(${b.id})" title="Eliminar">✕</button>
+    `;
+    c.appendChild(div);
+  });
+}
+addBeneficiary();
+
+// ── Generate analysis ──
+function generarAnalisis() {
+  const nombre = document.getElementById('nombre').value.trim();
+  const sel = document.getElementById('ingresoNeto').value;
+  if (!nombre) { alert('Por favor ingresa el nombre del prospecto.'); return; }
+  if (!sel) { alert('Por favor selecciona el rango de ingreso neto mensual.'); return; }
+
+  const ingBase = ingresoMidpoints[sel];
+  const ingExtra = parseFloat(document.getElementById('ingresoExtra').value || 0);
+  const ingreso = ingBase + ingExtra;
+  const ingresoLabel = ingresoLabels[sel];
+  let gastos = 0;
+  document.querySelectorAll('.gasto').forEach(g => gastos += parseFloat(g.value || 0));
+  const flujo = ingreso - gastos;
+  const capAhorro = pct(flujo, ingreso);
+  const pctGasto = pct(gastos, ingreso);
+  const hijos = parseInt(document.getElementById('hijos').value || 0);
+  const deps = parseInt(document.getElementById('dependientes').value || 0);
+  const edadStr = document.getElementById('edadCalc').value;
+  const edadN = parseInt(edadStr) || 0;
+  const retiroDeseado = parseInt(document.getElementById('edadRetiro').value || 65);
+  const anosRetiro = Math.max(0, retiroDeseado - edadN);
+  const deudas = parseFloat(document.getElementById('deudas').value || 0);
+  const ec = document.getElementById('estadoCivil').value || 'N/E';
+  const ocup = document.getElementById('ocupacion').value || 'N/E';
+  const genero = document.getElementById('genero').value || '';
+  const preocupacion = document.getElementById('preocupacion').value.trim();
+  const notas = document.getElementById('notas').value.trim();
+
+  const apto = sel !== '5000'; // menos de $10k = EN PROCESO
+
+  // ── Score ──
+  let score = 55;
+  if (capAhorro >= 20) score += 15; else if (capAhorro >= 10) score += 7; else if (capAhorro < 0) score -= 20;
+  if (st.fondo==='si') score += 10; else if (st.fondo==='parcial') score += 4; else score -= 5;
+  if (st.retiro==='privado') score += 10; else if (st.retiro==='afore') score += 3; else score -= 7;
+  if (st.segVida==='amplio') score += 6; else if (st.segVida==='basico') score += 2; else score -= 5;
+  if (st.segGM==='amplio') score += 6; else if (st.segGM==='basico') score += 2; else score -= 5;
+  if (st.fumador==='si') score -= 6; else if (st.fumador==='ex') score -= 2;
+  if (st.alcohol==='frecuente') score -= 5;
+  if (deudas > ingreso*6) score -= 12; else if (deudas > ingreso*3) score -= 6;
+  if (st.testamento==='si') score += 5;
+  if (anosRetiro < 10 && st.retiro==='no') score -= 8;
+  score = Math.max(5, Math.min(100, score));
+  if (!apto) score = Math.min(score, 40);
+
+  // ── Status banner ──
+  const banner = document.getElementById('statusBanner');
+  banner.className = 'status-banner ' + (apto ? 'apto' : 'proceso');
+  document.getElementById('statusIcon').textContent = apto ? '✅' : '🟡';
+  const ey = document.getElementById('statusEyebrow');
+  ey.className = 'status-eyebrow ' + (apto ? 'apto' : 'proceso');
+  const tt = document.getElementById('statusTitle');
+  tt.textContent = apto ? 'POSITIVO' : 'EN PROCESO';
+  tt.className = 'status-title ' + (apto ? 'apto' : 'proceso');
+  document.getElementById('statusDesc').textContent = apto
+    ? 'Prospecto califica. Rango de ingreso: ' + ingresoLabel + '. Proceder con propuesta integral.'
+    : 'Rango de ingreso ' + ingresoLabel + ' no supera el umbral mínimo de $15,000 MXN. Dar seguimiento y recalificar.';
+
+  // ── Prospect header ──
+  const iniciales = nombre.split(' ').slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('');
+  document.getElementById('resAvatar').textContent = iniciales;
+  document.getElementById('resNombre').textContent = nombre;
+  document.getElementById('resMeta').textContent = [edadStr, ec, hijos+' hijo(s)', deps+' otro(s) dep.', ocup].filter(Boolean).join(' · ');
+
+  // ── Score bar ──
+  document.getElementById('scoreNum').textContent = score + ' / 100';
+  const fill = document.getElementById('scoreFill');
+  setTimeout(()=>{ fill.style.width = score+'%'; }, 150);
+  fill.style.background = score>=70 ? '#2d7a4f' : score>=45 ? '#e6b800' : '#c0392b';
+
+  // ── Perfil tags ──
+  const tipoLabel = { asalariado:'🏢 Asalariado', independiente:'💡 Independiente/Freelance', empresario:'🏭 Empresario', mixto:'🔄 Ingreso mixto' };
+  const pTags = [
+    { t: tipoLabel[st.tipoEmpleo]||st.tipoEmpleo, c:'info' },
+    ...(genero?[{t:genero,c:'info'}]:[]),
+    { t: st.fumador==='si'?'🚬 Fumador activo':st.fumador==='ex'?'🚭 Ex-fumador':'✔ No fumador', c:st.fumador==='si'?'risk':'ok' },
+    { t: st.alcohol==='frecuente'?'🍺 Alcohol frecuente':st.alcohol==='ocasional'?'🥂 Alcohol ocasional':'✔ No consume alcohol', c:st.alcohol==='frecuente'?'risk':'ok' },
+    { t: st.testamento==='si'?'📜 Tiene testamento':'⚠ Sin testamento', c:st.testamento==='si'?'ok':'warn' },
+  ];
+  document.getElementById('perfilTags').innerHTML = pTags.map(t=>`<span class="tag tag-${t.c}">${t.t}</span>`).join('');
+
+  // ── Needs tags ──
+  const nTags = [];
+  if (st.segVida==='no') nTags.push({t:'⚠ Sin seguro de vida',c:'warn'});
+  if (st.segGM==='no') nTags.push({t:'⚠ Sin GMM',c:'warn'});
+  if (st.fondo==='no') nTags.push({t:'⚠ Sin fondo de emergencia',c:'warn'});
+  if (st.retiro==='no') nTags.push({t:'⚠ Sin plan de retiro',c:'warn'});
+  if (gastos>0 && flujo<ingreso*0.1) nTags.push({t:'⚠ Flujo ajustado',c:'warn'});
+  if (deudas>ingreso*3) nTags.push({t:'🔴 Carga de deuda elevada',c:'risk'});
+  if (hijos+deps>0) nTags.push({t:'👨‍👩‍👧 '+(hijos+deps)+' dependiente(s)',c:'info'});
+  if (anosRetiro<15&&st.retiro==='no') nTags.push({t:'🔴 Retiro próximo sin plan',c:'risk'});
+  if (capAhorro>=20) nTags.push({t:'✅ Buen potencial de ahorro',c:'ok'});
+  if (st.tipoEmpleo==='independiente'||st.tipoEmpleo==='empresario') nTags.push({t:'💡 Sin IMSS — mayor exposición',c:'warn'});
+  document.getElementById('needsTags').innerHTML = nTags.map(n=>`<span class="tag tag-${n.c}">${n.t}</span>`).join('');
+
+  // ── Needs grid (sin mostrar montos de ingreso) ──
+  const deudaLabel = deudas>0 ? fmt(deudas)+' total · '+Math.round(deudas/ingreso*10)/10+'× ingreso est.' : 'Sin deudas registradas';
+  const ngItems = [
+    {title:'🛡 Protección de vida', val:st.segVida==='no'?'Sin cobertura — necesidad alta':'Con seguro ('+st.segVida+')', sub:hijos+deps>0?(hijos+deps)+' dependiente(s) a proteger':''},
+    {title:'❤️ Gastos médicos', val:st.segGM==='no'?'Sin GMM — vulnerabilidad alta':'Con GMM ('+st.segGM+')', sub:''},
+    {title:'🏦 Fondo de emergencia', val:{no:'No tiene — urgente construir',parcial:'Parcial (menos de 3 meses)',si:'Sí tiene (más de 3 meses)'}[st.fondo], sub:''},
+    {title:'🎯 Retiro', val:anosRetiro+' años para retirarse', sub:{no:'Sin plan — situación crítica',afore:'Solo AFORE — insuficiente',privado:'Plan privado — mantener y optimizar'}[st.retiro]},
+    {title:'💵 Flujo estimado', val:gastos>0?fmt(flujo)+' libre':'Gastos no capturados', sub:gastos>0?pctGasto+'% del ingreso comprometido':''},
+    {title:'💳 Deudas', val:deudaLabel, sub:''},
+  ];
+  document.getElementById('needsGrid').innerHTML = ngItems.map(n=>`<div class="need-card"><div class="need-card-title">${n.title}</div><div class="need-card-value">${n.val}</div>${n.sub?'<div class="need-card-sub">'+n.sub+'</div>':''}</div>`).join('');
+
+  // ── Recomendaciones ──
+  const recos = [];
+  if (st.segVida==='no'&&(hijos+deps>0||ingBase>20000)) recos.push({t:'Seguro de vida con cobertura de protección familiar',d:'Con '+(hijos+deps)+' dependiente(s), la familia queda desprotegida ante fallecimiento o invalidez total.'});
+  if (st.segGM==='no') recos.push({t:'Seguro de gastos médicos mayores (GMM)',d:'Sin cobertura ante hospitalización mayor, un evento de salud puede comprometer todo el patrimonio acumulado.'});
+  if (st.fondo==='no') recos.push({t:'Fondo de emergencia + ahorro líquido inmediato',d:'Construir el equivalente a 3–6 meses de gastos en un instrumento líquido y seguro.'});
+  if (st.retiro!=='privado') recos.push({t:'Plan de retiro complementario (AFORE + instrumento privado)',d:'Con '+anosRetiro+' años al retiro deseado, es el momento '+(anosRetiro<15?'crítico y urgente':'ideal')+' para estructurar un plan complementario.'});
+  if ((st.tipoEmpleo==='independiente'||st.tipoEmpleo==='empresario')&&st.segGM==='no') recos.push({t:'Protección de ingresos por incapacidad temporal',d:'Sin IMSS, una incapacidad puede interrumpir completamente el flujo de ingresos sin ninguna red de seguridad institucional.'});
+  if (capAhorro>=20&&st.retiro!=='privado') recos.push({t:'Instrumento de inversión con horizonte de largo plazo',d:'La capacidad de ahorro identificada representa una oportunidad real de capitalización que puede iniciarse hoy.'});
+  if (recos.length===0) recos.push({t:'Revisión de coberturas y optimización fiscal',d:'El prospecto cuenta con bases sólidas. Enfocar la propuesta en maximizar rendimiento de inversiones y eficiencia fiscal.'});
+  document.getElementById('recoList').innerHTML = recos.slice(0,4).map((r,i)=>`<div class="reco-item"><div class="reco-num">${i+1}</div><div><div class="reco-title">${r.t}</div><div class="reco-desc">${r.d}</div></div></div>`).join('');
+
+  // ── Beneficiarios ──
+  const bRows = beneficiarios.map(b=>({
+    bn: document.getElementById('bn_'+b.id)?.value||'',
+    bp: document.getElementById('bp_'+b.id)?.value||'',
+    bpct: document.getElementById('bpct_'+b.id)?.value||'',
+    bfn: document.getElementById('bfn_'+b.id)?.value||''
+  })).filter(b=>b.bn);
+  if (bRows.length>0) {
+    document.getElementById('beneCard').style.display='block';
+    document.getElementById('beneTableBody').innerHTML = bRows.map(b=>`<tr><td>${b.bn}</td><td>${b.bp||'N/E'}</td><td style="font-weight:700">${b.bpct}%</td><td>${b.bfn||'N/E'}</td></tr>`).join('');
+  }
+
+  // ── Risk profile ──
+  let risk = '';
+  if (edadN<35) risk='Perfil joven ('+edadStr+') con horizonte de inversión amplio (+30 años). Tolerancia a riesgo potencialmente alta — instrumentos de renta variable y crecimiento son apropiados. ';
+  else if (edadN<50) risk='Perfil maduro ('+edadStr+') en etapa de acumulación activa. Con '+anosRetiro+' años al retiro, el balance entre crecimiento e instrumentos de protección es lo recomendable. ';
+  else risk='Perfil próximo al retiro ('+edadStr+'). Con '+anosRetiro+' años de horizonte, la prioridad es proteger el capital y generar renta predecible. Riesgo moderado-bajo. ';
+  if (st.fumador==='si'||st.alcohol==='frecuente') risk+='Hábitos de vida detectados (tabaco / alcohol frecuente) que impactarán las primas de seguros y deberán declararse en la solicitud. ';
+  if (st.tipoEmpleo==='independiente'||st.tipoEmpleo==='empresario') risk+='Al ser independiente o empresario, no cuenta con beneficios del IMSS — amplía significativamente la necesidad de coberturas privadas integrales.';
+  document.getElementById('riskBox').textContent = risk;
+
+  if (preocupacion) { document.getElementById('metaCard').style.display='block'; document.getElementById('metaBox').textContent='"'+preocupacion+'"'; }
+  if (notas) { document.getElementById('notasCard').style.display='block'; document.getElementById('notasBox').textContent=notas; }
+
+  document.getElementById('fechaGen').textContent = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+
+  document.getElementById('formPage').classList.remove('active');
+  document.getElementById('resultPage').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function volverFormulario() {
+  document.getElementById('resultPage').classList.remove('active');
+  document.getElementById('formPage').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+async function exportarPDF() {
+  const btn = document.getElementById('btnPDF');
+  const progress = document.getElementById('pdfProgress');
+  const bar = document.getElementById('pdfBar');
+  const msg = document.getElementById('pdfMsg');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Generando PDF...';
+  progress.style.display = 'block';
+  bar.style.width = '10%';
+  msg.textContent = 'Preparando el documento...';
+
+  // Temporarily hide no-print elements
+  const noPrint = document.querySelectorAll('.no-print');
+  noPrint.forEach(el => el.style.visibility = 'hidden');
+
+  // Make sticky bar non-sticky for capture
+  const stickyBar = document.querySelector('.summary-bar');
+  const origPosition = stickyBar ? stickyBar.style.position : null;
+  if (stickyBar) stickyBar.style.position = 'static';
+
+  await new Promise(r => setTimeout(r, 100));
+  bar.style.width = '30%';
+  msg.textContent = 'Capturando contenido...';
+
+  try {
+    const resultPage = document.getElementById('resultPage');
+    const canvas = await html2canvas(resultPage, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#f4f6fb',
+      scrollY: 0,
+      windowWidth: 900,
+      onclone: (cloned) => {
+        // In cloned doc, remove no-print
+        cloned.querySelectorAll('.no-print').forEach(el => el.remove());
+      }
+    });
+
+    bar.style.width = '70%';
+    msg.textContent = 'Construyendo PDF...';
+    await new Promise(r => setTimeout(r, 50));
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    const pageW = pdf.internal.pageSize.getWidth();   // 210mm
+    const pageH = pdf.internal.pageSize.getHeight();  // 297mm
+    const margin = 10;
+    const contentW = pageW - margin * 2;
+
+    const imgW = canvas.width;
+    const imgH = canvas.height;
+    const ratio = contentW / (imgW * 0.264583); // px to mm at 96dpi
+    const totalH = imgH * 0.264583 * ratio;     // total height in mm
+    const usableH = pageH - margin * 2;
+
+    let yOffset = 0;
+    let pageNum = 0;
+
+    while (yOffset < totalH) {
+      if (pageNum > 0) pdf.addPage();
+
+      // Slice the canvas for this page
+      const sliceTopPx = (yOffset / totalH) * imgH;
+      const sliceHeightPx = Math.min((usableH / totalH) * imgH, imgH - sliceTopPx);
+
+      const sliceCanvas = document.createElement('canvas');
+      sliceCanvas.width = imgW;
+      sliceCanvas.height = sliceHeightPx;
+      const ctx = sliceCanvas.getContext('2d');
+      ctx.drawImage(canvas, 0, sliceTopPx, imgW, sliceHeightPx, 0, 0, imgW, sliceHeightPx);
+
+      const sliceImg = sliceCanvas.toDataURL('image/jpeg', 0.92);
+      const sliceHmm = sliceHeightPx * 0.264583 * ratio;
+
+      pdf.addImage(sliceImg, 'JPEG', margin, margin, contentW, sliceHmm);
+      yOffset += usableH;
+      pageNum++;
+
+      bar.style.width = Math.min(90, 70 + (yOffset / totalH) * 20) + '%';
+    }
+
+    bar.style.width = '100%';
+    msg.textContent = '¡Listo! Descargando...';
+    await new Promise(r => setTimeout(r, 300));
+
+    // Generate filename with prospect name
+    const nombre = document.getElementById('resNombre').textContent.trim().replace(/\s+/g,'_') || 'prospecto';
+    const fecha = new Date().toISOString().slice(0,10);
+    pdf.save(`ANF_${nombre}_${fecha}.pdf`);
+
+  } catch(err) {
+    console.error('PDF error:', err);
+    msg.textContent = 'Error al generar el PDF. Intenta de nuevo.';
+    msg.style.color = '#c0392b';
+  } finally {
+    // Restore
+    noPrint.forEach(el => el.style.visibility = '');
+    if (stickyBar && origPosition !== null) stickyBar.style.position = origPosition;
+    btn.disabled = false;
+    btn.textContent = '🖨️ Imprimir / Guardar como PDF';
+    setTimeout(() => {
+      progress.style.display = 'none';
+      bar.style.width = '0%';
+      msg.style.color = '';
+      msg.textContent = 'Generando PDF, un momento...';
+    }, 2000);
+  }
+}
+</script>
+</body>
+</html>
