@@ -894,6 +894,18 @@ function generarAnalisis() {
     fechaNac: document.getElementById('bfn_'+b.id)?.value||''
   })).filter(b=>b.nombre);
 
+  // ── Serializar necesidades detectadas (etiquetas de texto plano) ──
+  const needsTexto = nTags.map(n => n.t.replace(/[\u{1F000}-\u{1FFFF}]|[\u2600-\u26FF]|[\u2700-\u27BF]|⚠|✅|🔴|💡|👨‍👩‍👧/gu, '').trim()).filter(Boolean).join(' | ');
+
+  // ── Serializar necesidades detalladas (grid) ──
+  const needsDetalle = ngItems.map(n => {
+    const titulo = n.title.replace(/[\u{1F000}-\u{1FFFF}]|[\u2600-\u26FF]|[\u2700-\u27BF]|❤️|🛡|🏦|🎯|💵|💳/gu,'').trim();
+    return titulo + ': ' + n.val + (n.sub ? ' (' + n.sub + ')' : '');
+  }).join(' | ');
+
+  // ── Serializar recomendaciones ──
+  const recosTexto = recos.slice(0,4).map((r, i) => (i+1) + '. ' + r.t + ' — ' + r.d).join('\n');
+
   lastAnalysisData = {
     fecha: fechaStr,
     estatus: apto ? 'POSITIVO' : 'EN PROCESO',
@@ -926,7 +938,11 @@ function generarAnalisis() {
     preocupacion,
     notas,
     indiceSaludFinanciera: score,
-    beneficiarios: beneResumen.map(b=>`${b.nombre} (${b.parentesco}) ${b.porcentaje}% - Nac: ${b.fechaNac||'N/E'}`).join(' | ')
+    beneficiarios: beneResumen.map(b=>`${b.nombre} (${b.parentesco}) ${b.porcentaje}% - Nac: ${b.fechaNac||'N/E'}`).join(' | '),
+    necesidadesDetectadas: needsTexto,
+    necesidadesDetalle: needsDetalle,
+    recomendaciones: recosTexto,
+    perfilRiesgo: risk
   };
 
   // Reset save status
