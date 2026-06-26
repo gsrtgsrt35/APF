@@ -275,34 +275,6 @@
   /* Divider in result */
   .result-divider { height: 1px; background: var(--border); margin: 4px 0 16px; }
 
-  /* ── SHEETS CONFIG BANNER ── */
-  .sheets-config {
-    background: #e8f0fe; border: 1px solid #4a90d9; border-radius: var(--radius);
-    padding: 14px 18px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 12px;
-  }
-  .sheets-config-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
-  .sheets-config-title { font-size: 12px; font-weight: 700; color: #1a3a7a; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-  .sheets-config input {
-    width: 100%; padding: 8px 11px; border: 1px solid #b0c4e8; border-radius: var(--radius);
-    font-size: 13px; font-family: inherit; color: var(--text); background: #fff; margin-top: 6px;
-  }
-  .sheets-config input:focus { outline: none; border-color: #4a90d9; box-shadow: 0 0 0 3px rgba(74,144,217,.15); }
-  .sheets-config-hint { font-size: 11px; color: #4a5a8a; margin-top: 5px; line-height: 1.5; }
-  /* ── SAVE TO SHEETS BUTTON ── */
-  .btn-sheets {
-    width: 100%; padding: 12px; border: none; border-radius: var(--radius);
-    background: #1a6635; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer;
-    margin-top: 10px; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .btn-sheets:hover { opacity: 0.9; }
-  .btn-sheets:disabled { opacity: 0.45; cursor: not-allowed; }
-  .save-status {
-    display: none; align-items: center; gap: 8px; padding: 10px 14px;
-    border-radius: var(--radius); font-size: 13px; margin-top: 10px;
-  }
-  .save-status.ok  { display: flex; background: #e0f4e8; border: 1px solid #8fd4aa; color: #1a6635; }
-  .save-status.err { display: flex; background: var(--danger-bg); border: 1px solid #e8a09b; color: var(--danger); }
-
   @media print {
     .no-print { display: none !important; }
     body { background: #fff; }
@@ -336,16 +308,6 @@
 
 <!-- ══════════════════════ FORM PAGE ══════════════════════ -->
 <div id="formPage" class="page active">
-
-  <!-- Google Sheets config -->
-  <div class="sheets-config no-print">
-    <div class="sheets-config-icon">📊</div>
-    <div style="flex:1">
-      <div class="sheets-config-title">Conexión con Google Sheets</div>
-      <input type="text" id="sheetsWebhookUrl" placeholder="Pega aquí la URL de tu Google Apps Script Web App..." spellcheck="false">
-      <div class="sheets-config-hint">⚙️ Configura tu URL siguiendo la guía de pasos incluida en este archivo. Una vez pegada, se guardará automáticamente al generar cada análisis.</div>
-    </div>
-  </div>
 
   <div id="alertDescarte" class="alert-bar">
     ⚠️ <strong>Atención:</strong> El rango de ingreso seleccionado es menor a $15,000 MXN. El prospecto quedará marcado como <strong>EN PROCESO</strong>.
@@ -610,10 +572,6 @@
       </div>
       <p style="font-size:12px;color:var(--text-muted);margin-top:6px;text-align:center;" id="pdfMsg">Generando PDF, un momento...</p>
     </div>
-    <button class="btn-sheets" id="btnSheets" onclick="guardarEnSheets()">
-      <span>📊</span> Guardar en Google Sheets
-    </button>
-    <div class="save-status" id="saveStatus"></div>
     <button class="btn-secondary" onclick="volverFormulario()">← Volver y editar</button>
   </div>
 
@@ -625,16 +583,6 @@
 const st = { tipoEmpleo:'asalariado', fumador:'no', alcohol:'no', segVida:'no', segGM:'no', fondo:'no', retiro:'no', testamento:'no' };
 let beneficiarios = [];
 let bIdx = 0;
-let lastAnalysisData = null; // Holds data snapshot for Sheets upload
-
-// Persist webhook URL in localStorage
-window.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('anf_sheets_url');
-  if (saved) document.getElementById('sheetsWebhookUrl').value = saved;
-  document.getElementById('sheetsWebhookUrl').addEventListener('input', function(){
-    localStorage.setItem('anf_sheets_url', this.value.trim());
-  });
-});
 
 // Ingreso range midpoints for calculations
 const ingresoMidpoints = { '5000':5000, '15000':15000, '35000':35000, '65000':65000, '90000':90000, '120000':120000 };
@@ -883,103 +831,11 @@ function generarAnalisis() {
   if (preocupacion) { document.getElementById('metaCard').style.display='block'; document.getElementById('metaBox').textContent='"'+preocupacion+'"'; }
   if (notas) { document.getElementById('notasCard').style.display='block'; document.getElementById('notasBox').textContent=notas; }
 
-  const fechaStr = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  document.getElementById('fechaGen').textContent = fechaStr;
-
-  // ── Snapshot para Google Sheets ──
-  const beneResumen = beneficiarios.map(b=>({
-    nombre: document.getElementById('bn_'+b.id)?.value||'',
-    parentesco: document.getElementById('bp_'+b.id)?.value||'',
-    porcentaje: document.getElementById('bpct_'+b.id)?.value||'',
-    fechaNac: document.getElementById('bfn_'+b.id)?.value||''
-  })).filter(b=>b.nombre);
-
-  lastAnalysisData = {
-    fecha: fechaStr,
-    estatus: apto ? 'POSITIVO' : 'EN PROCESO',
-    nombre,
-    fechaNacimiento: document.getElementById('fechaNac').value,
-    edad: edadStr,
-    genero,
-    estadoCivil: ec,
-    hijos,
-    dependientes: deps,
-    ocupacion: ocup,
-    tipoEmpleo: st.tipoEmpleo,
-    fumador: st.fumador,
-    alcohol: st.alcohol,
-    ingresoRango: ingresoLabel,
-    ingresoAdicional: document.getElementById('ingresoExtra').value || '0',
-    ahorro: document.getElementById('ahorro').value || '0',
-    patrimonio: document.getElementById('patrimonio').value || '0',
-    deudas: deudas,
-    gastosTotales: gastos,
-    flujoEstimado: flujo,
-    capacidadAhorroPct: capAhorro,
-    seguroVida: st.segVida,
-    seguroGMM: st.segGM,
-    fondoEmergencia: st.fondo,
-    planRetiro: st.retiro,
-    edadRetiroDeseada: retiroDeseado,
-    anosParaRetiro: anosRetiro,
-    testamento: st.testamento,
-    preocupacion,
-    notas,
-    indiceSaludFinanciera: score,
-    beneficiarios: beneResumen.map(b=>`${b.nombre} (${b.parentesco}) ${b.porcentaje}% - Nac: ${b.fechaNac||'N/E'}`).join(' | ')
-  };
-
-  // Reset save status
-  const ss = document.getElementById('saveStatus');
-  ss.className = 'save-status';
-  ss.textContent = '';
-  document.getElementById('btnSheets').disabled = false;
+  document.getElementById('fechaGen').textContent = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
 
   document.getElementById('formPage').classList.remove('active');
   document.getElementById('resultPage').classList.add('active');
   window.scrollTo(0,0);
-}
-
-async function guardarEnSheets() {
-  const url = document.getElementById('sheetsWebhookUrl').value.trim();
-  const ss = document.getElementById('saveStatus');
-  const btn = document.getElementById('btnSheets');
-
-  if (!url) {
-    ss.className = 'save-status err';
-    ss.innerHTML = '⚠️ Primero pega la URL de tu Google Apps Script en el campo de configuración (arriba del formulario).';
-    return;
-  }
-  if (!lastAnalysisData) {
-    ss.className = 'save-status err';
-    ss.innerHTML = '⚠️ No hay datos de análisis. Genera el análisis primero.';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.innerHTML = '<span>⏳</span> Guardando...';
-  ss.className = 'save-status';
-  ss.textContent = '';
-
-  try {
-    // Use no-cors mode — Apps Script returns opaque response but data IS saved
-    await fetch(url, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(lastAnalysisData)
-    });
-
-    // With no-cors we can't read the response, so we assume success
-    ss.className = 'save-status ok';
-    ss.innerHTML = '✅ Datos enviados a Google Sheets correctamente. Verifica tu hoja para confirmar.';
-    btn.innerHTML = '<span>✅</span> Guardado en Sheets';
-  } catch (err) {
-    ss.className = 'save-status err';
-    ss.innerHTML = '❌ Error de conexión: ' + err.message + '. Verifica que la URL sea correcta y que el script esté publicado como Web App pública.';
-    btn.disabled = false;
-    btn.innerHTML = '<span>📊</span> Guardar en Google Sheets';
-  }
 }
 
 function volverFormulario() {
