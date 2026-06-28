@@ -293,7 +293,7 @@ body{font-family:'Inter',sans-serif;background:var(--gray-bg);color:var(--black)
 
   <!-- Actions & Filters -->
   <div class="actions-bar">
-    <div class="filters-bar">
+    <div class="filters-bar" id="filters-bar">
       <button class="filter-btn active" data-cat="all">Todos</button>
       <button class="filter-btn" data-cat="Retención y Lealtad">Retención</button>
       <button class="filter-btn" data-cat="Eficiencia Comercial">Comercial</button>
@@ -550,21 +550,25 @@ function setSyncDot(state){ // 'ok'|'syncing'|'error'|'idle'
 // ═══════════════════════════════════════════════════════════════
 async function gsGet(params){
   if(!SCRIPT_URL) throw new Error('URL no configurada');
-  const url = SCRIPT_URL + '?' + new URLSearchParams(params);
-  const r = await fetch(url);
+  const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString();
+  const r = await fetch(url, { redirect:'follow' });
   if(!r.ok) throw new Error('HTTP '+r.status);
-  return r.json();
+  const text = await r.text();
+  try{ return JSON.parse(text); }
+  catch(e){ throw new Error('Respuesta inválida del servidor: '+text.slice(0,120)); }
 }
 
+// Apps Script con doGet no admite POST cross-origin con JSON.
+// Enviamos todo como GET con el payload en el parámetro "body" (JSON.stringify).
 async function gsPost(body){
   if(!SCRIPT_URL) throw new Error('URL no configurada');
-  const r = await fetch(SCRIPT_URL, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(body)
-  });
+  const params = new URLSearchParams({ action: body.action, body: JSON.stringify(body) });
+  const url = SCRIPT_URL + '?' + params.toString();
+  const r = await fetch(url, { redirect:'follow' });
   if(!r.ok) throw new Error('HTTP '+r.status);
-  return r.json();
+  const text = await r.text();
+  try{ return JSON.parse(text); }
+  catch(e){ throw new Error('Respuesta inválida del servidor: '+text.slice(0,120)); }
 }
 
 // ── Init sheets ───────────────────────────────────────────────
@@ -580,31 +584,21 @@ async function syncFromSheets(silent=false){
   setSyncDot('syncing');
   if(!silent) setLoading(true,'Leyendo datos de Google Sheets…');
   try{
-    // 1. Estado actual de todos los KPIs
     const resKpis = await gsGet({action:'read_all'});
-    if(!resKpis.ok) throw new Error(resKpis.error);
+    if(!resKpis.ok) throw new Error(resKpis.error||'Error leyendo KPIs');
 
-    // 2. Historial de cada KPI en paralelo
-    const histPromises = KPI_DEFS.map(k => gsGet({action:'read_history',kpi_id:k.id}));
+    const histPromises = KPI_DEFS.map(k=>gsGet({action:'read_history', kpi_id:k.id}));
     const histResults  = await Promise.all(histPromises);
+    const resQ3        = await gsGet({action:'read_q3'});
 
-    // 3. Q3
-    const resQ3 = await gsGet({action:'read_q3'});
-
-    // Construir DB local
     DB = {};
     KPI_DEFS.forEach((k,i)=>{
-      const sheetRow = (resKpis.kpis||{})[k.id] || {};
-      const hist     = (histResults[i].history||[]).sort((a,b)=> new Date(a.timestamp)-new Date(b.timestamp));
-      DB[k.id] = {
-        valor:  sheetRow.valor   || '—',
-        status: sheetRow.status  || 'info',
-        notes:  sheetRow.notes   || '',
-        historia: hist
-      };
+      const sr   = (resKpis.kpis||{})[k.id] || {};
+      const hist = (histResults[i].history||[]).sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp));
+      DB[k.id]   = { valor:sr.valor||'—', status:sr.status||'info', notes:sr.notes||'', historia:hist };
     });
 
-    if(resQ3.ok) Q3_DATA = {placed: resQ3.placed||0, meta: resQ3.meta||50};
+    if(resQ3.ok) Q3_DATA = {placed:resQ3.placed||0, meta:resQ3.meta||50};
 
     setSyncDot('ok');
     if(!silent) toast('Sincronizado con Google Sheets ✓','ok');
@@ -612,8 +606,11 @@ async function syncFromSheets(silent=false){
     if(activeTab==='tendencias') renderTrends();
   } catch(e){
     setSyncDot('error');
-    toast('Error de sincronización: '+e.message,'err',6000);
-  } finally{ setLoading(false); }
+    toast('Error de sincronización: '+e.message,'err',7000);
+    console.error('[APF Sync]', e);
+  } finally{
+    setLoading(false);
+  }
 }
 
 // ── Guardar KPI en Sheets ─────────────────────────────────────
@@ -691,16 +688,27 @@ function updateBannerVisibility(){
 document.getElementById('btn-connect').onclick = async()=>{
   const url = document.getElementById('script-url-input').value.trim();
   if(!url.startsWith('https://script.google.com')){ toast('URL inválida. Debe ser de script.google.com','err'); return; }
-  SCRIPT_URL = url;
-  localStorage.setItem(LS_KEY, url);
-  updateBannerVisibility();
+  const btn = document.getElementById('btn-connect');
+  btn.disabled = true;
   setLoading(true,'Inicializando hojas de Google Sheets…');
   try{
-    await initSheets();
-    toast('Hojas inicializadas. Sincronizando…','ok');
+    SCRIPT_URL = url;
+    // Test rápido de conectividad
+    const test = await gsGet({action:'init'});
+    if(!test.ok) throw new Error(test.error || 'El script respondió con error');
+    localStorage.setItem(LS_KEY, url);
+    updateBannerVisibility();
+    toast('Hojas inicializadas. Cargando datos…','ok');
     await syncFromSheets(true);
     toast('¡Conectado! Datos cargados desde Sheets ✓','ok');
-  } catch(e){ toast('Error al conectar: '+e.message,'err',6000); setSyncDot('error'); setLoading(false); }
+  } catch(e){
+    SCRIPT_URL = '';
+    toast('Error al conectar: '+e.message,'err',8000);
+    setSyncDot('error');
+  } finally{
+    btn.disabled = false;
+    setLoading(false);
+  }
 };
 
 document.getElementById('script-url-input').value = SCRIPT_URL;
