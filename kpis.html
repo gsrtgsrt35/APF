@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KPIs APF X100 — Fernando</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0D1B3E;--teal:#0E7C6B;--teal-l:#E1F5EE;--teal-m:#9FE1CB;--teal-d:#085041;
+  --amber:#BA7517;--amber-l:#FAEEDA;--blue:#185FA5;--blue-l:#E6F1FB;
+  --red:#A32D2D;--red-l:#FCEBEB;--green:#3B6D11;--green-l:#EAF3DE;--green-m:#C0DD97;
+  --gray-bg:#F4F4F2;--gray-line:#D3D1C7;--gray-text:#5F5E5A;--white:#fff;--black:#1A1A1A;
+  --radius:10px;--radius-lg:14px;
+}
+body{font-family:'Inter',sans-serif;background:var(--gray-bg);color:var(--black);min-height:100vh;font-size:14px}
+
+/* HEADER */
+.header{background:var(--navy);padding:13px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;gap:10px;flex-wrap:wrap}
+.header-left{display:flex;align-items:center;gap:12px}
+.logo-badge{background:var(--teal);color:#fff;font-weight:700;font-size:14px;padding:7px 12px;border-radius:8px}
+.header-info h1{font-size:16px;font-weight:700;color:#fff}
+.header-info p{font-size:11px;color:var(--teal-m);margin-top:1px}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.header-chip{background:rgba(255,255,255,.08);color:var(--teal-m);font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.12)}
+.q3-badge{background:var(--teal);color:#fff;font-size:11px;font-weight:600;padding:4px 11px;border-radius:20px}
+.sync-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--teal-m);padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.12);cursor:pointer;background:none;font-family:'Inter',sans-serif;transition:.15s}
+.sync-pill:hover{background:rgba(255,255,255,.06)}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--teal-m);flex-shrink:0;transition:.3s}
+.sync-dot.syncing{animation:pulse .9s infinite}.sync-dot.error{background:#F7C1C1}.sync-dot.ok{background:var(--green-m)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* TAB BAR */
+.tab-bar{background:var(--white);border-bottom:2px solid var(--gray-line);position:sticky;top:53px;z-index:200}
+.tab-inner{max-width:1200px;margin:0 auto;padding:0 20px;display:flex}
+.tab-btn{display:flex;align-items:center;gap:7px;padding:13px 22px;font-size:13px;font-weight:600;color:var(--gray-text);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;white-space:nowrap;font-family:'Inter',sans-serif}
+.tab-btn:hover{color:var(--navy)}.tab-btn.active{color:var(--teal);border-bottom-color:var(--teal)}
+
+/* PANELS */
+.panel{display:none}.panel.active{display:block}
+.main{max-width:1200px;margin:0 auto;padding:24px 20px}
+.sec-lbl{font-size:11px;font-weight:600;color:var(--gray-text);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* LOADING */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(13,27,62,.6);z-index:2000;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+.loading-overlay.show{display:flex}
+.spinner{width:42px;height:42px;border:3px solid rgba(255,255,255,.2);border-top-color:var(--teal-m);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{color:#fff;font-size:14px;font-weight:500}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:22px;right:22px;z-index:3000;display:flex;flex-direction:column;gap:8px}
+.toast{padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.15);display:flex;align-items:center;gap:9px;animation:toastIn .25s ease;max-width:320px}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.toast-ok{background:#1a3d28;color:#9FE1CB;border:1px solid #0E7C6B}
+.toast-err{background:#3d1a1a;color:#F7C1C1;border:1px solid #A32D2D}
+.toast-info{background:#1a2a3d;color:var(--teal-m);border:1px solid var(--blue)}
+
+/* SETUP BANNER */
+.setup-banner{background:linear-gradient(135deg,var(--navy),var(--teal-d));border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:22px}
+.setup-banner.hidden{display:none}
+.setup-banner h3{color:#fff;font-size:14px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.setup-banner p{color:var(--teal-m);font-size:12px;line-height:1.7;margin-bottom:10px}
+.setup-row{display:flex;gap:8px;flex-wrap:wrap}
+.setup-input{padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:12px;font-family:'Inter',sans-serif;outline:none;flex:1;min-width:260px}
+.setup-input::placeholder{color:rgba(255,255,255,.4)}.setup-input:focus{border-color:var(--teal-m)}
+
+/* EXEC CARDS */
+.exec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:22px}
+.exec-card{background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--gray-line);padding:16px 18px;cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+.exec-card:hover{border-color:#aaa;box-shadow:0 4px 14px rgba(0,0,0,.07)}
+.exec-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%}
+.c-teal::before{background:var(--teal)}.c-amber::before{background:var(--amber)}.c-blue::before{background:var(--blue)}.c-green::before{background:var(--green)}
+.ec-lbl{font-size:11px;color:var(--gray-text);font-weight:500;margin-bottom:5px;padding-left:7px}
+.ec-val{font-size:24px;font-weight:700;padding-left:7px;line-height:1}
+.ec-sub{font-size:11px;color:var(--gray-text);padding-left:7px;margin-top:4px}
+.ec-bench{position:absolute;top:11px;right:11px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.bench-good{background:var(--green-l);color:var(--green)}.bench-warn{background:var(--amber-l);color:var(--amber)}
+.bench-bad{background:var(--red-l);color:var(--red)}.bench-info{background:var(--blue-l);color:var(--blue)}
+
+/* Q3 */
+.q3-wrap{background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--gray-line);padding:18px 20px;margin-bottom:22px}
+.q3-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
+.q3-ttl{font-size:14px;font-weight:600;color:var(--navy)}
+.prog-bg{background:var(--gray-bg);border-radius:20px;height:12px;overflow:hidden}
+.prog-fill{background:linear-gradient(90deg,var(--teal),#1D9E75);height:100%;border-radius:20px;transition:width .6s}
+.q3-stats{display:flex;gap:22px;margin-top:11px;flex-wrap:wrap}
+.q3-s{display:flex;flex-direction:column;gap:2px}
+.q3-s span:first-child{font-size:11px;color:var(--gray-text)}
+.q3-s span:last-child{font-size:15px;font-weight:700;color:var(--navy)}
+
+/* KPI LIST */
+.actions-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;justify-content:space-between}
+.filters-bar{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.filter-btn{padding:5px 13px;border-radius:20px;border:1px solid var(--gray-line);background:var(--white);color:var(--gray-text);font-size:12px;font-weight:500;cursor:pointer;transition:.15s;font-family:'Inter',sans-serif}
+.filter-btn:hover{border-color:#999;color:var(--black)}.filter-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.search-inp{padding:6px 12px;border-radius:20px;border:1px solid var(--gray-line);font-size:12px;outline:none;background:var(--white);color:var(--black);width:165px;font-family:'Inter',sans-serif}
+.search-inp:focus{border-color:var(--teal)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:1px solid var(--gray-line);background:var(--white);color:var(--black);font-size:12px;font-weight:500;cursor:pointer;transition:.15s;font-family:'Inter',sans-serif}
+.btn:hover{border-color:#aaa;background:var(--gray-bg)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--navy);color:#fff;border-color:var(--navy)}.btn-primary:hover{background:#162e6a}
+.btn-teal{background:var(--teal);color:#fff;border-color:var(--teal)}.btn-teal:hover{background:var(--teal-d)}
+.kpi-list{display:flex;flex-direction:column;gap:9px}
+.kpi-row{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray-line);padding:13px 18px;display:grid;grid-template-columns:34px 1fr auto auto auto auto;align-items:center;gap:12px;cursor:pointer;transition:.15s}
+.kpi-row:hover{border-color:#aaa;transform:translateX(2px)}
+.kpi-num{font-size:12px;font-weight:700;color:var(--gray-text)}
+.kpi-name{font-size:13px;font-weight:600;color:var(--navy)}
+.kpi-cat{font-size:11px;color:var(--gray-text)}
+.kpi-v{font-size:17px;font-weight:700;min-width:80px;text-align:right}
+.kpi-bench{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;min-width:60px;text-align:center}
+.kpi-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.dot-g{background:var(--teal)}.dot-a{background:var(--amber)}.dot-r{background:var(--red)}.dot-b{background:var(--blue)}
+.kpi-acts{display:flex;gap:5px}
+.icon-btn{border:none;background:none;cursor:pointer;color:var(--gray-text);padding:4px;border-radius:6px;display:flex;align-items:center;font-size:15px;transition:.15s}
+.icon-btn:hover{background:var(--gray-bg);color:var(--navy)}
+.empty{text-align:center;padding:40px;color:var(--gray-text)}
+.empty i{font-size:34px;margin-bottom:8px;display:block;color:var(--gray-line)}
+
+/* MODAL */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(13,27,62,.45);z-index:1000;align-items:center;justify-content:center;padding:16px}
+.modal-ov.open{display:flex}
+.modal{background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:640px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-hdr{background:var(--navy);padding:18px 22px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;display:flex;justify-content:space-between;align-items:flex-start}
+.modal-hdr h2{color:#fff;font-size:16px;font-weight:700}.modal-hdr p{color:var(--teal-m);font-size:11px;margin-top:3px}
+.modal-x{border:none;background:rgba(255,255,255,.1);color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:.15s}
+.modal-x:hover{background:rgba(255,255,255,.2)}
+.modal-body{padding:22px}
+.fg{display:flex;flex-direction:column;gap:4px}.fg.full{grid-column:1/-1}
+.fg label{font-size:11px;font-weight:600;color:var(--gray-text);text-transform:uppercase;letter-spacing:.06em}
+.fg input,.fg select,.fg textarea{padding:8px 11px;border:1px solid var(--gray-line);border-radius:8px;font-size:13px;color:var(--black);background:var(--white);font-family:'Inter',sans-serif;outline:none;transition:.15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--teal)}
+.fg textarea{resize:vertical;min-height:70px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.msec{margin-bottom:18px}
+.msec-t{font-size:11px;font-weight:600;color:var(--gray-text);text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;padding-bottom:5px;border-bottom:1px solid var(--gray-line)}
+.bench-box{background:var(--blue-l);border-radius:8px;padding:11px 13px;font-size:12px;color:var(--blue);line-height:1.6}
+.modal-ftr{padding:14px 22px;border-top:1px solid var(--gray-line);display:flex;gap:8px;justify-content:flex-end}
+.alert-list{list-style:none;display:flex;flex-direction:column;gap:5px}
+.alert-list li{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--gray-text);line-height:1.5}
+.alert-list li::before{content:'•';color:var(--amber);flex-shrink:0;margin-top:1px}
+.ss{display:flex;gap:7px;flex-wrap:wrap}
+.so{padding:5px 13px;border-radius:20px;border:1px solid var(--gray-line);font-size:12px;font-weight:500;cursor:pointer;transition:.15s;font-family:'Inter',sans-serif}
+.so:hover{border-color:#aaa}.so.s-good{background:var(--green-l);color:var(--green);border-color:var(--green)}
+.so.s-warn{background:var(--amber-l);color:var(--amber);border-color:var(--amber)}.so.s-bad{background:var(--red-l);color:var(--red);border-color:var(--red)}
+.htbl{width:100%;border-collapse:collapse;font-size:12px}
+.htbl th{text-align:left;padding:6px 9px;background:var(--gray-bg);color:var(--gray-text);font-weight:600;font-size:11px}
+.htbl td{padding:6px 9px;border-bottom:1px solid var(--gray-line);color:var(--black)}
+.htbl tr:last-child td{border-bottom:none}
+.sync-status-row{font-size:11px;color:var(--gray-text);margin-top:8px;display:flex;align-items:center;gap:5px}
+
+/* NEW VALUE MODAL */
+.nv-ov{display:none;position:fixed;inset:0;background:rgba(13,27,62,.45);z-index:1010;align-items:center;justify-content:center;padding:16px}
+.nv-ov.open{display:flex}
+.nv-modal{background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+
+/* ══════════════════════════════════════
+   TENDENCIAS
+══════════════════════════════════════ */
+.t-toolbar{background:var(--white);border-bottom:1px solid var(--gray-line);padding:13px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.t-toolbar-l{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.t-sel{padding:7px 11px;border:1px solid var(--gray-line);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;color:var(--black);background:var(--white);outline:none;cursor:pointer;min-width:230px}
+.t-sel:focus{border-color:var(--teal)}
+.ct-grp{display:flex;border:1px solid var(--gray-line);border-radius:8px;overflow:hidden}
+.ct-btn{padding:7px 13px;border:none;background:var(--white);font-size:12px;font-weight:500;cursor:pointer;color:var(--gray-text);transition:.15s;font-family:'Inter',sans-serif}
+.ct-btn:not(:last-child){border-right:1px solid var(--gray-line)}
+.ct-btn:hover{background:var(--gray-bg)}.ct-btn.active{background:var(--navy);color:#fff}
+.t-main{display:grid;grid-template-columns:1fr 290px;border-bottom:1px solid var(--gray-line)}
+.chart-area{padding:22px;border-right:1px solid var(--gray-line);min-height:320px;display:flex;flex-direction:column}
+.chart-title{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.cat-tag{font-size:11px;font-weight:500;color:var(--gray-text);background:var(--gray-bg);padding:2px 8px;border-radius:20px}
+.canvas-box{flex:1;position:relative;min-height:250px}
+.no-data{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--gray-text);font-size:13px;background:var(--white)}
+.no-data i{font-size:34px;color:var(--gray-line)}
+.stats-side{padding:18px 16px;display:flex;flex-direction:column;gap:9px}
+.stats-side-ttl{font-size:11px;font-weight:600;color:var(--gray-text);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.stat-c{background:var(--gray-bg);border-radius:9px;padding:11px 13px}
+.stat-c-lbl{font-size:11px;color:var(--gray-text);margin-bottom:3px}
+.stat-c-val{font-size:18px;font-weight:700;color:var(--navy)}
+.stat-c-sub{font-size:10px;color:var(--gray-text);margin-top:2px}
+.tp{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:20px;margin-top:4px}
+.tp-up{background:var(--green-l);color:var(--green)}.tp-dn{background:var(--red-l);color:var(--red)}.tp-fl{background:var(--gray-bg);color:var(--gray-text)}
+.bench-ref{background:var(--blue-l);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--blue);line-height:1.6}
+.sec-charts{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--gray-line)}
+.sc-block{padding:20px 22px}
+.sc-block:first-child{border-right:1px solid var(--gray-line)}
+.sc-ttl{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:13px;display:flex;align-items:center;gap:6px}
+.sc-box{height:190px;position:relative}
+.spark-panel{padding:20px 22px}
+.spark-phdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.spark-pt{font-size:12px;font-weight:600;color:var(--navy);display:flex;align-items:center;gap:6px}
+.spark-hint{font-size:11px;color:var(--gray-text)}
+.spark-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.spark-c{background:var(--gray-bg);border-radius:10px;padding:11px 13px;cursor:pointer;transition:.15s;border:2px solid transparent}
+.spark-c:hover{background:var(--white);border-color:var(--gray-line)}.spark-c.active-sp{border-color:var(--teal);background:var(--teal-l)}
+.sp-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;gap:5px}
+.sp-name{font-size:11px;font-weight:600;color:var(--navy);line-height:1.3}
+.sp-right{text-align:right;flex-shrink:0}
+.sp-val{font-size:12px;font-weight:700;color:var(--navy)}
+.sp-trend{font-size:10px}
+.sp-canvas{height:36px}
+.sp-nd{height:36px;display:flex;align-items:center;font-size:10px;color:var(--gray-text)}
+
+@media(max-width:900px){
+  .t-main{grid-template-columns:1fr}.chart-area{border-right:none}
+  .stats-side{flex-direction:row;flex-wrap:wrap}.stat-c{flex:1;min-width:110px}
+  .sec-charts{grid-template-columns:1fr}.sc-block:first-child{border-right:none;border-bottom:1px solid var(--gray-line)}
+}
+@media(max-width:700px){
+  .header{padding:11px 14px}.main{padding:14px 12px}
+  .kpi-row{grid-template-columns:28px 1fr auto;gap:8px}
+  .kpi-bench,.kpi-dot,.kpi-acts{display:none}
+  .fgrid{grid-template-columns:1fr}.exec-grid{grid-template-columns:1fr 1fr}
+  .t-sel{min-width:160px}.t-toolbar{padding:10px 14px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-txt" id="loading-txt">Sincronizando con Google Sheets…</div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo-badge">APF</div>
+    <div class="header-info">
+      <h1>KPIs APF X100</h1>
+      <p>Fernando · APF MX · CDMX &amp; Zona Metropolitana</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="header-chip">Daños · Auto · Vida · GMM</div>
+    <button class="sync-pill" id="sync-pill" title="Sincronizar con Google Sheets">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span id="sync-txt">Sheets</span>
+    </button>
+    <div class="q3-badge" id="q3-badge">Q3 · 0/50</div>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <div class="tab-inner">
+    <button class="tab-btn active" data-tab="dashboard"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
+    <button class="tab-btn" data-tab="tendencias"><i class="ti ti-chart-line"></i> Tendencias</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PANEL DASHBOARD
+══════════════════════════════════════ -->
+<div class="panel active" id="panel-dashboard">
+<div class="main">
+
+  <!-- Setup banner -->
+  <div class="setup-banner" id="setup-banner">
+    <h3><i class="ti ti-brand-google" aria-hidden="true"></i> Conectar con Google Sheets</h3>
+    <p>Pega la URL de tu Google Apps Script Web App para activar la sincronización bidireccional.<br>
+    Todo se guardará en tu Google Sheet con histórico completo por KPI.</p>
+    <div class="setup-row">
+      <input class="setup-input" id="script-url-input" type="url" placeholder="https://script.google.com/macros/s/XXXXX/exec">
+      <button class="btn btn-teal" id="btn-connect"><i class="ti ti-plug"></i> Conectar</button>
+    </div>
+  </div>
+
+  <!-- Exec cards -->
+  <div class="sec-lbl"><i class="ti ti-dashboard"></i> Dashboard ejecutivo</div>
+  <div class="exec-grid" id="exec-grid"></div>
+
+  <!-- Q3 Bar -->
+  <div class="q3-wrap">
+    <div class="q3-head">
+      <div class="q3-ttl"><i class="ti ti-target" style="color:var(--teal);margin-right:5px"></i>Meta Q3 — 50 pólizas nuevas</div>
+      <div style="font-size:11px;color:var(--gray-text)">Julio – Septiembre 2025</div>
+    </div>
+    <div class="prog-bg"><div class="prog-fill" id="q3-bar" style="width:0%"></div></div>
+    <div class="q3-stats">
+      <div class="q3-s"><span>Colocadas</span><span id="q3-placed">0</span></div>
+      <div class="q3-s"><span>Restantes</span><span id="q3-rem">50</span></div>
+      <div class="q3-s"><span>Avance</span><span id="q3-pct">0%</span></div>
+      <div class="q3-s"><span>Proyección</span><span id="q3-proj">—</span></div>
+    </div>
+  </div>
+
+  <!-- Actions & Filters -->
+  <div class="actions-bar">
+    <div class="filters-bar">
+      <button class="filter-btn active" data-cat="all">Todos</button>
+      <button class="filter-btn" data-cat="Retención y Lealtad">Retención</button>
+      <button class="filter-btn" data-cat="Eficiencia Comercial">Comercial</button>
+      <button class="filter-btn" data-cat="Operaciones y Cobranza">Operaciones</button>
+      <button class="filter-btn" data-cat="Riesgo y Rentabilidad">Riesgo</button>
+      <input class="search-inp" id="search-inp" type="text" placeholder="Buscar KPI…">
+    </div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="btn-new"><i class="ti ti-plus"></i> Nuevo valor</button>
+      <button class="btn" id="btn-export"><i class="ti ti-download"></i> Exportar CSV</button>
+      <button class="btn" id="btn-sync-full"><i class="ti ti-refresh"></i> Sincronizar</button>
+    </div>
+  </div>
+
+  <!-- KPI List -->
+  <div class="sec-lbl"><i class="ti ti-list-check"></i> Indicadores de desempeño</div>
+  <div class="kpi-list" id="kpi-list"></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PANEL TENDENCIAS
+══════════════════════════════════════ -->
+<div class="panel" id="panel-tendencias">
+
+  <div class="t-toolbar">
+    <div class="t-toolbar-l">
+      <select class="t-sel" id="t-sel"></select>
+      <div class="ct-grp">
+        <button class="ct-btn active" data-chart="line"><i class="ti ti-chart-line"></i> Línea</button>
+        <button class="ct-btn" data-chart="bar"><i class="ti ti-chart-bar"></i> Barras</button>
+        <button class="ct-btn" data-chart="area"><i class="ti ti-chart-area"></i> Área</button>
+      </div>
+    </div>
+    <span style="font-size:11px;color:var(--gray-text)">Clic en una sparkline para ver su gráfica completa</span>
+  </div>
+
+  <!-- Main chart -->
+  <div class="t-main">
+    <div class="chart-area">
+      <div class="chart-title">
+        <i class="ti ti-trending-up" style="color:var(--teal)"></i>
+        <span id="t-chart-title">Evolución histórica</span>
+        <span class="cat-tag" id="t-chart-cat"></span>
+      </div>
+      <div class="canvas-box">
+        <canvas id="main-chart"></canvas>
+        <div class="no-data" id="no-data">
+          <i class="ti ti-chart-dots-3"></i>
+          <span>Sin historial registrado.</span>
+          <span style="font-size:11px">Registra valores con "+ Nuevo valor" para ver la gráfica.</span>
+        </div>
+      </div>
+    </div>
+    <div class="stats-side">
+      <div class="stats-side-ttl"><i class="ti ti-calculator"></i> Estadísticas</div>
+      <div class="stat-c"><div class="stat-c-lbl">Último valor</div><div class="stat-c-val" id="s-last">—</div></div>
+      <div class="stat-c"><div class="stat-c-lbl">Máximo histórico</div><div class="stat-c-val" id="s-max">—</div><div class="stat-c-sub" id="s-max-d"></div></div>
+      <div class="stat-c"><div class="stat-c-lbl">Mínimo histórico</div><div class="stat-c-val" id="s-min">—</div><div class="stat-c-sub" id="s-min-d"></div></div>
+      <div class="stat-c"><div class="stat-c-lbl">Promedio</div><div class="stat-c-val" id="s-avg">—</div></div>
+      <div class="stat-c"><div class="stat-c-lbl">Tendencia general</div><div id="s-trend">—</div></div>
+      <div class="stat-c"><div class="stat-c-lbl">Registros totales</div><div class="stat-c-val" id="s-count">0</div></div>
+      <div class="bench-ref" id="s-bench"></div>
+    </div>
+  </div>
+
+  <!-- Secondary charts -->
+  <div class="sec-charts">
+    <div class="sc-block">
+      <div class="sc-ttl"><i class="ti ti-chart-radar" style="color:var(--teal)"></i> Score por categoría</div>
+      <div class="sc-box"><canvas id="radar-chart"></canvas></div>
+    </div>
+    <div class="sc-block">
+      <div class="sc-ttl"><i class="ti ti-chart-bar" style="color:var(--amber)"></i> Estado de los KPIs</div>
+      <div class="sc-box"><canvas id="status-chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Sparklines -->
+  <div class="spark-panel">
+    <div class="spark-phdr">
+      <div class="spark-pt"><i class="ti ti-layout-grid" style="color:var(--teal)"></i> Todos los KPIs — Vista rápida</div>
+      <div class="spark-hint">Los datos vienen de Google Sheets en tiempo real</div>
+    </div>
+    <div class="spark-grid" id="spark-grid"></div>
+  </div>
+</div>
+
+<!-- MODAL KPI -->
+<div class="modal-ov" id="modal-ov">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div><h2 id="m-title">KPI</h2><p id="m-cat">Categoría</p></div>
+      <button class="modal-x" id="m-close"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="msec"><div class="msec-t">Valores actuales</div><div class="fgrid" id="m-fields"></div></div>
+      <div class="msec">
+        <div class="msec-t">Estado del indicador</div>
+        <div class="ss" id="m-status">
+          <div class="so" data-s="good">✅ En meta</div>
+          <div class="so" data-s="warn">⚠️ Atención</div>
+          <div class="so" data-s="bad">🔴 Crítico</div>
+        </div>
+      </div>
+      <div class="msec"><div class="msec-t">Benchmark y fórmula</div><div class="bench-box" id="m-bench"></div></div>
+      <div class="msec"><div class="msec-t">Niveles de alerta</div><ul class="alert-list" id="m-alerts"></ul></div>
+      <div class="msec">
+        <div class="msec-t">Notas del agente</div>
+        <div class="fgrid"><div class="fg full"><label>Observaciones / acciones</label><textarea id="m-notes" placeholder="Contexto, acciones tomadas…"></textarea></div></div>
+      </div>
+      <div class="msec">
+        <div class="msec-t">Historial en Google Sheets</div>
+        <div class="sync-status-row"><i class="ti ti-database" style="color:var(--teal)"></i> <span id="m-hist-count">0 registros guardados en Sheets</span></div>
+        <table class="htbl" style="margin-top:8px"><thead><tr><th>Fecha</th><th>Valor</th><th>Nota</th></tr></thead><tbody id="m-hist"></tbody></table>
+      </div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn" id="m-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="m-save"><i class="ti ti-device-floppy"></i> Guardar en Sheets</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO VALOR -->
+<div class="nv-ov" id="nv-ov">
+  <div class="nv-modal">
+    <div class="modal-hdr">
+      <div><h2>Registrar nuevo valor</h2><p>Se guarda en Google Sheets con historial</p></div>
+      <button class="modal-x" id="nv-close"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="fgrid">
+        <div class="fg full"><label>KPI</label><select id="nv-kpi" style="padding:8px 11px;border:1px solid var(--gray-line);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;outline:none;color:var(--black)"></select></div>
+        <div class="fg"><label>Valor</label><input type="text" id="nv-val" placeholder="ej. 85%"></div>
+        <div class="fg"><label>Fecha</label><input type="date" id="nv-date"></div>
+        <div class="fg full"><label>Nota (opcional)</label><input type="text" id="nv-note" placeholder="Contexto del registro…"></div>
+      </div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn" id="nv-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="nv-save"><i class="ti ti-plus"></i> Guardar en Sheets</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  KPI DEFINITIONS
+// ═══════════════════════════════════════════════════════════════
+const KPI_DEFS = [
+  {id:'prima_venta_nueva',num:'01',name:'Prima Pagada — Venta Nueva',cat:'Eficiencia Comercial',color:'teal',bench:'Meta mensual definida',benchStyle:'bench-info',freq:'Mensual',
+   formula:'Suma de primas de pólizas nuevas emitidas y pagadas',queMide:'Ingreso total generado por pólizas nuevas. Mide la producción bruta excluyendo renovaciones.',
+   alertas:['Prima < 60% de meta: Revisar pipeline.','Estancada 2 meses: Ampliar canales.'],
+   fields:[{k:'valor',l:'Prima mensual actual',t:'text',p:'ej. $45,000'}],exec:true,execColor:'teal'},
+  {id:'facturacion_total',num:'02',name:'Facturación Total del Periodo',cat:'Riesgo y Rentabilidad',color:'green',bench:'Crecimiento > 10% vs anterior',benchStyle:'bench-good',freq:'Mensual',
+   formula:'Prima nueva + Prima renovaciones cobrada',queMide:'Ingresos totales incluyendo venta nueva y renovaciones. Refleja la salud financiera real.',
+   alertas:['Menor al periodo anterior: Revisar cancelaciones.','Crecimiento < 5%: Evaluar mix de productos.'],
+   fields:[{k:'valor',l:'Facturación total',t:'text',p:'ej. $120,000'},{k:'anterior',l:'Periodo anterior',t:'text',p:'ej. $105,000'}],exec:true,execColor:'green'},
+  {id:'renovacion',num:'03',name:'Tasa de Renovación de Pólizas',cat:'Retención y Lealtad',color:'teal',bench:'> 85%',benchStyle:'bench-good',freq:'Mensual',
+   formula:'Pólizas renovadas / Pólizas vencidas × 100',queMide:'Porcentaje de pólizas que se renuevan al vencimiento. Indicador directo de lealtad.',
+   alertas:['< 70%: Alarma crítica.','70-79%: Seguimiento activo.','> 90%: Excelente.'],
+   fields:[{k:'renovadas',l:'Pólizas renovadas',t:'number',p:'ej. 42'},{k:'vencidas',l:'Pólizas vencidas',t:'number',p:'ej. 50'},{k:'valor',l:'Tasa (%)',t:'text',p:'Auto-calculado'}],exec:true,execColor:'teal'},
+  {id:'retencion',num:'04',name:'Tasa de Retención de Clientes',cat:'Retención y Lealtad',color:'teal',bench:'> 80%',benchStyle:'bench-good',freq:'Mensual',
+   formula:'(Clientes al final – Nuevos) / Clientes al inicio × 100',queMide:'Clientes que permanecen activos. Retener cuesta 5× menos que adquirir.',
+   alertas:['< 70%: Revisión urgente.','>90%: Pedir referidos activamente.'],
+   fields:[{k:'inicio',l:'Clientes inicio',t:'number',p:'ej. 150'},{k:'nuevos',l:'Clientes nuevos',t:'number',p:'ej. 18'},{k:'final',l:'Clientes al final',t:'number',p:'ej. 152'},{k:'valor',l:'Tasa (%)',t:'text',p:'Auto-calculado'}],exec:true,execColor:'blue'},
+  {id:'cac',num:'05',name:'Costo de Adquisición de Cliente (CAC)',cat:'Eficiencia Comercial',color:'amber',bench:'LTV ≥ 3× CAC',benchStyle:'bench-warn',freq:'Mensual',
+   formula:'Gasto total en captación / Clientes nuevos obtenidos',queMide:'Inversión para conseguir un nuevo cliente. Evalúa si la estrategia es sostenible.',
+   alertas:['CAC > LTV/2: No rentable.','CAC creciente: Revisar canal.'],
+   fields:[{k:'gasto',l:'Gasto captación ($)',t:'number',p:'ej. 3500'},{k:'nuevos_cl',l:'Clientes nuevos',t:'number',p:'ej. 8'},{k:'valor',l:'CAC ($)',t:'text',p:'Auto-calculado'}],exec:true,execColor:'amber'},
+  {id:'ltv',num:'06',name:'Valor de Vida del Cliente (LTV)',cat:'Eficiencia Comercial',color:'blue',bench:'LTV / CAC > 3',benchStyle:'bench-info',freq:'Trimestral',
+   formula:'Prima promedio anual × Años de permanencia',queMide:'Ingreso total estimado que generará un cliente durante su relación con la agencia.',
+   alertas:['LTV/CAC < 3: Modelo en riesgo.','LTV > 5× CAC: Escalar captación.'],
+   fields:[{k:'prima_p',l:'Prima promedio anual ($)',t:'number',p:'ej. 4500'},{k:'anos_p',l:'Años permanencia promedio',t:'number',p:'ej. 4.5'},{k:'valor',l:'LTV ($)',t:'text',p:'Auto-calculado'}],exec:false},
+  {id:'conversion',num:'07',name:'Tasa de Conversión de Leads',cat:'Eficiencia Comercial',color:'blue',bench:'10% – 20%',benchStyle:'bench-info',freq:'Semanal',
+   formula:'Pólizas emitidas / Leads contactados × 100',queMide:'Porcentaje de prospectos que se convierten en clientes con póliza.',
+   alertas:['< 5%: Revisar calidad de leads.','>20%: Replicar fuente.'],
+   fields:[{k:'leads',l:'Leads contactados',t:'number',p:'ej. 60'},{k:'polizas',l:'Pólizas emitidas',t:'number',p:'ej. 9'},{k:'valor',l:'Tasa (%)',t:'text',p:'Auto-calculado'}],exec:false},
+  {id:'prima_ec',num:'08',name:'Prima Emitida vs. Prima Cobrada',cat:'Operaciones y Cobranza',color:'blue',bench:'> 95%',benchStyle:'bench-info',freq:'Mensual',
+   formula:'Prima cobrada / Prima emitida × 100',queMide:'Diferencia entre lo facturado y lo cobrado. Detecta problemas de cobranza.',
+   alertas:['< 85%: Cobranza en crisis.','Caída repentina: Revisar cancelaciones.'],
+   fields:[{k:'emitida',l:'Prima emitida ($)',t:'number',p:'ej. 180000'},{k:'cobrada',l:'Prima cobrada ($)',t:'number',p:'ej. 171000'},{k:'valor',l:'Ratio (%)',t:'text',p:'Auto-calculado'}],exec:false},
+  {id:'siniestralidad',num:'09',name:'Ratio de Siniestralidad',cat:'Riesgo y Rentabilidad',color:'red',bench:'< 60% – 70%',benchStyle:'bench-warn',freq:'Mensual',
+   formula:'Siniestros pagados / Primas cobradas × 100',queMide:'Proporción de dinero en siniestros vs primas. Mide el riesgo real de la cartera.',
+   alertas:['> 80%: Posible pérdida técnica.','Incremento sostenido: Revisar riesgos.'],
+   fields:[{k:'siniestros',l:'Siniestros pagados ($)',t:'number',p:'ej. 45000'},{k:'primas',l:'Primas cobradas ($)',t:'number',p:'ej. 180000'},{k:'valor',l:'Ratio (%)',t:'text',p:'Auto-calculado'}],exec:false},
+  {id:'nps',num:'10',name:'Net Promoter Score (NPS)',cat:'Retención y Lealtad',color:'teal',bench:'> 30 puntos',benchStyle:'bench-good',freq:'Trimestral',
+   formula:'% Promotores (9-10) – % Detractores (0-6)',queMide:'Probabilidad de recomendación. Predice crecimiento por referidos.',
+   alertas:['< 10: Experiencia crítica.','Negativo: Alarma máxima.','>50: Crear programa de referidos.'],
+   fields:[{k:'promo',l:'% Promotores',t:'number',p:'ej. 45'},{k:'pasivos',l:'% Pasivos',t:'number',p:'ej. 35'},{k:'detrac',l:'% Detractores',t:'number',p:'ej. 20'},{k:'valor',l:'NPS',t:'text',p:'Auto-calculado'}],exec:false},
+  {id:'margen',num:'11',name:'Margen de Ganancia Neta',cat:'Riesgo y Rentabilidad',color:'red',bench:'> 10% – 15%',benchStyle:'bench-warn',freq:'Mensual',
+   formula:'(Ingresos – Gastos) / Ingresos × 100',queMide:'Porcentaje de ingresos que se convierte en ganancia real. El KPI de rentabilidad definitivo.',
+   alertas:['< 5%: Revisar costos urgente.','Negativo: Operando en pérdida.'],
+   fields:[{k:'ingresos',l:'Ingresos totales ($)',t:'number',p:'ej. 80000'},{k:'gastos',l:'Gastos totales ($)',t:'number',p:'ej. 65000'},{k:'valor',l:'Margen (%)',t:'text',p:'Auto-calculado'}],exec:false},
+];
+
+const Q3_GOAL = 50;
+const LS_KEY  = 'apf_script_url';
+const COLOR_MAP = {
+  teal:  {line:'#0E7C6B',fill:'rgba(14,124,107,.12)'},
+  amber: {line:'#BA7517',fill:'rgba(186,117,23,.12)'},
+  blue:  {line:'#185FA5',fill:'rgba(24,95,165,.12)'},
+  red:   {line:'#A32D2D',fill:'rgba(163,45,45,.12)'},
+  green: {line:'#3B6D11',fill:'rgba(59,109,17,.12)'},
+};
+
+// ── State ─────────────────────────────────────────────────────
+let SCRIPT_URL  = localStorage.getItem(LS_KEY) || '';
+let DB          = {};          // { kpi_id: { valor, status, notes, historia:[] } }
+let Q3_DATA     = { placed:0, meta:50 };
+let activeFilter= 'all', searchQ='', activeTab='dashboard';
+let currentKpi  = null;
+let mainChart=null, radarChart=null, statusChart=null;
+const sparkCharts={};
+let activeTrendKpi = KPI_DEFS[0].id;
+let activeChartType= 'line';
+
+// ═══════════════════════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════════════════════
+function kpiData(id){ return DB[id]||{valor:'—',status:'info',notes:'',historia:[]}; }
+function kpiHist(id){ return (DB[id]||{}).historia||[]; }
+function cVar(c){ return ({teal:'var(--teal)',amber:'var(--amber)',blue:'var(--blue)',red:'var(--red)',green:'var(--green)'})[c]||'var(--teal)'; }
+function bClass(s,d){ return s==='good'?'bench-good':s==='warn'?'bench-warn':s==='bad'?'bench-bad':d||'bench-info'; }
+function dClass(s){ return s==='good'?'dot-g':s==='warn'?'dot-a':s==='bad'?'dot-r':'dot-b'; }
+function parseNums(hist){
+  return (hist||[]).map(h=>{ const n=parseFloat((h.valor||'').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:{date:h.fecha||h.date,raw:h.valor,num:n,note:h.nota||h.note||''}; }).filter(Boolean);
+}
+
+function toast(msg, type='ok', ms=3000){
+  const w=document.getElementById('toast-wrap');
+  const t=document.createElement('div');
+  t.className=`toast toast-${type}`;
+  t.innerHTML=`<i class="ti ti-${type==='ok'?'check':'alert-circle'}"></i>${msg}`;
+  w.appendChild(t);
+  setTimeout(()=>t.remove(), ms);
+}
+
+function setLoading(show, txt='Sincronizando…'){
+  document.getElementById('loading').classList.toggle('show',show);
+  document.getElementById('loading-txt').textContent=txt;
+}
+
+function setSyncDot(state){ // 'ok'|'syncing'|'error'|'idle'
+  const dot=document.getElementById('sync-dot');
+  const txt=document.getElementById('sync-txt');
+  dot.className='sync-dot '+state;
+  txt.textContent = state==='ok'?'Sheets ✓':state==='syncing'?'Sincronizando…':state==='error'?'Error':'Sheets';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  GOOGLE SHEETS API
+// ═══════════════════════════════════════════════════════════════
+async function gsGet(params){
+  if(!SCRIPT_URL) throw new Error('URL no configurada');
+  const url = SCRIPT_URL + '?' + new URLSearchParams(params);
+  const r = await fetch(url);
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return r.json();
+}
+
+async function gsPost(body){
+  if(!SCRIPT_URL) throw new Error('URL no configurada');
+  const r = await fetch(SCRIPT_URL, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return r.json();
+}
+
+// ── Init sheets ───────────────────────────────────────────────
+async function initSheets(){
+  const res = await gsGet({action:'init'});
+  if(!res.ok) throw new Error(res.error);
+  return res;
+}
+
+// ── Sync: leer todo desde Sheets ─────────────────────────────
+async function syncFromSheets(silent=false){
+  if(!SCRIPT_URL){ if(!silent) toast('Conecta Google Sheets primero','err'); return; }
+  setSyncDot('syncing');
+  if(!silent) setLoading(true,'Leyendo datos de Google Sheets…');
+  try{
+    // 1. Estado actual de todos los KPIs
+    const resKpis = await gsGet({action:'read_all'});
+    if(!resKpis.ok) throw new Error(resKpis.error);
+
+    // 2. Historial de cada KPI en paralelo
+    const histPromises = KPI_DEFS.map(k => gsGet({action:'read_history',kpi_id:k.id}));
+    const histResults  = await Promise.all(histPromises);
+
+    // 3. Q3
+    const resQ3 = await gsGet({action:'read_q3'});
+
+    // Construir DB local
+    DB = {};
+    KPI_DEFS.forEach((k,i)=>{
+      const sheetRow = (resKpis.kpis||{})[k.id] || {};
+      const hist     = (histResults[i].history||[]).sort((a,b)=> new Date(a.timestamp)-new Date(b.timestamp));
+      DB[k.id] = {
+        valor:  sheetRow.valor   || '—',
+        status: sheetRow.status  || 'info',
+        notes:  sheetRow.notes   || '',
+        historia: hist
+      };
+    });
+
+    if(resQ3.ok) Q3_DATA = {placed: resQ3.placed||0, meta: resQ3.meta||50};
+
+    setSyncDot('ok');
+    if(!silent) toast('Sincronizado con Google Sheets ✓','ok');
+    renderDashboard();
+    if(activeTab==='tendencias') renderTrends();
+  } catch(e){
+    setSyncDot('error');
+    toast('Error de sincronización: '+e.message,'err',6000);
+  } finally{ setLoading(false); }
+}
+
+// ── Guardar KPI en Sheets ─────────────────────────────────────
+async function saveKpiToSheets(kpiId, valor, status, notes, fields){
+  const k = KPI_DEFS.find(x=>x.id===kpiId);
+  const oldVal = kpiData(kpiId).valor;
+  setSyncDot('syncing');
+
+  // 1. Guardar estado actual
+  const saveRes = await gsPost({
+    action:'save_kpi',
+    kpi_id: kpiId, nombre: k.name, categoria: k.cat,
+    valor, status, notes
+  });
+  if(!saveRes.ok) throw new Error(saveRes.error);
+
+  // 2. Si el valor cambió → agregar al historial
+  if(valor && valor!=='—' && valor!==oldVal){
+    const histRes = await gsPost({
+      action:'add_history',
+      kpi_id: kpiId, nombre: k.name, valor,
+      fecha: new Date().toLocaleDateString('es-MX'),
+      nota: notes||''
+    });
+    if(!histRes.ok) throw new Error(histRes.error);
+    // Actualizar DB local
+    const hist = DB[kpiId]?.historia || [];
+    hist.push({ kpi_id:kpiId, nombre:k.name, valor, fecha:new Date().toLocaleDateString('es-MX'), nota:notes||'', timestamp:new Date().toISOString() });
+    DB[kpiId] = { valor, status, notes, historia: hist, fields };
+  } else {
+    if(!DB[kpiId]) DB[kpiId]={ valor, status, notes, historia:[], fields };
+    else { DB[kpiId].valor=valor; DB[kpiId].status=status; DB[kpiId].notes=notes; DB[kpiId].fields=fields; }
+  }
+  setSyncDot('ok');
+}
+
+// ── Guardar valor puntual ─────────────────────────────────────
+async function addValueToSheets(kpiId, valor, fecha, nota){
+  const k = KPI_DEFS.find(x=>x.id===kpiId);
+  setSyncDot('syncing');
+
+  // Guarda en historial
+  const hRes = await gsPost({ action:'add_history', kpi_id:kpiId, nombre:k.name, valor, fecha, nota });
+  if(!hRes.ok) throw new Error(hRes.error);
+
+  // Actualiza estado actual
+  const sRes = await gsPost({ action:'save_kpi', kpi_id:kpiId, nombre:k.name, categoria:k.cat, valor, status:(DB[kpiId]||{}).status||'info', notes:(DB[kpiId]||{}).notes||'' });
+  if(!sRes.ok) throw new Error(sRes.error);
+
+  // Actualizar DB local
+  const hist = DB[kpiId]?.historia || [];
+  hist.push({kpi_id:kpiId, nombre:k.name, valor, fecha, nota, timestamp:new Date().toISOString()});
+  DB[kpiId] = {...(DB[kpiId]||{}), valor, historia:hist};
+  setSyncDot('ok');
+}
+
+// ── Guardar Q3 ────────────────────────────────────────────────
+async function saveQ3(placed){
+  Q3_DATA.placed = placed;
+  if(SCRIPT_URL){
+    setSyncDot('syncing');
+    try{ await gsPost({action:'save_q3', placed, meta:Q3_GOAL}); setSyncDot('ok'); }
+    catch(e){ setSyncDot('error'); }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SETUP / CONEXIÓN
+// ═══════════════════════════════════════════════════════════════
+function updateBannerVisibility(){
+  const banner = document.getElementById('setup-banner');
+  SCRIPT_URL ? banner.classList.add('hidden') : banner.classList.remove('hidden');
+}
+
+document.getElementById('btn-connect').onclick = async()=>{
+  const url = document.getElementById('script-url-input').value.trim();
+  if(!url.startsWith('https://script.google.com')){ toast('URL inválida. Debe ser de script.google.com','err'); return; }
+  SCRIPT_URL = url;
+  localStorage.setItem(LS_KEY, url);
+  updateBannerVisibility();
+  setLoading(true,'Inicializando hojas de Google Sheets…');
+  try{
+    await initSheets();
+    toast('Hojas inicializadas. Sincronizando…','ok');
+    await syncFromSheets(true);
+    toast('¡Conectado! Datos cargados desde Sheets ✓','ok');
+  } catch(e){ toast('Error al conectar: '+e.message,'err',6000); setSyncDot('error'); setLoading(false); }
+};
+
+document.getElementById('script-url-input').value = SCRIPT_URL;
+
+// ═══════════════════════════════════════════════════════════════
+//  TAB NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.onclick=()=>{
+    activeTab=btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+activeTab).classList.add('active');
+    if(activeTab==='tendencias') setTimeout(()=>renderTrends(),40);
+  };
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  DASHBOARD — RENDER
+// ═══════════════════════════════════════════════════════════════
+function renderExecGrid(){
+  const g=document.getElementById('exec-grid'); g.innerHTML='';
+  KPI_DEFS.filter(k=>k.exec).forEach(k=>{
+    const d=kpiData(k.id);
+    const card=document.createElement('div'); card.className=`exec-card c-${k.execColor}`; card.tabIndex=0;
+    card.innerHTML=`<span class="ec-bench ${bClass(d.status,k.benchStyle)}">${k.bench}</span>
+      <div class="ec-lbl">${k.name}</div>
+      <div class="ec-val" style="color:${cVar(k.execColor)}">${d.valor==='—'?'—':d.valor}</div>
+      <div class="ec-sub"><i class="ti ti-clock-hour-4"></i> ${k.freq}</div>`;
+    card.onclick=()=>openModal(k.id); card.onkeydown=e=>{ if(e.key==='Enter'||e.key===' ') openModal(k.id); };
+    g.appendChild(card);
+  });
+}
+
+function renderQ3(){
+  const p=Q3_DATA.placed||0, goal=Q3_GOAL;
+  const rem=Math.max(0,goal-p), pct=Math.min(100,Math.round(p/goal*100));
+  document.getElementById('q3-bar').style.width=pct+'%';
+  document.getElementById('q3-placed').textContent=p;
+  document.getElementById('q3-rem').textContent=rem;
+  document.getElementById('q3-pct').textContent=pct+'%';
+  document.getElementById('q3-badge').textContent=`Q3 · ${p}/${goal}`;
+  const now=new Date(), s=new Date(now.getFullYear(),6,1), e=new Date(now.getFullYear(),8,30);
+  const el=Math.max(1,(now-s)/864e5), tot=(e-s)/864e5;
+  const proj=p>0?Math.round((p/el)*tot):0;
+  document.getElementById('q3-proj').textContent=proj>0?proj+' pólizas':'—';
+}
+
+function renderList(){
+  const list=document.getElementById('kpi-list'); list.innerHTML='';
+  const filtered=KPI_DEFS.filter(k=>{
+    const cm=activeFilter==='all'||k.cat===activeFilter;
+    const sm=!searchQ||k.name.toLowerCase().includes(searchQ.toLowerCase())||k.cat.toLowerCase().includes(searchQ.toLowerCase());
+    return cm&&sm;
+  });
+  if(!filtered.length){ list.innerHTML='<div class="empty"><i class="ti ti-search"></i><p>Sin resultados.</p></div>'; return; }
+  filtered.forEach(k=>{
+    const d=kpiData(k.id);
+    const row=document.createElement('div'); row.className='kpi-row'; row.tabIndex=0;
+    row.innerHTML=`<div class="kpi-num">${k.num}</div>
+      <div><div class="kpi-name">${k.name}</div><div class="kpi-cat">${k.cat} · ${k.freq}</div></div>
+      <div class="kpi-v" style="color:${cVar(k.color)}">${d.valor==='—'?'—':d.valor}</div>
+      <div class="kpi-bench ${bClass(d.status,k.benchStyle)}">${k.bench}</div>
+      <div class="kpi-dot ${dClass(d.status)}"></div>
+      <div class="kpi-acts"><button class="icon-btn" aria-label="Editar"><i class="ti ti-edit"></i></button></div>`;
+    row.onclick=e=>{ if(!e.target.closest('.icon-btn')) openModal(k.id); };
+    row.querySelector('.icon-btn').onclick=e=>{ e.stopPropagation(); openModal(k.id); };
+    list.appendChild(row);
+  });
+}
+
+document.getElementById('filters-bar').addEventListener('click',e=>{
+  const b=e.target.closest('[data-cat]'); if(!b) return;
+  activeFilter=b.dataset.cat;
+  document.querySelectorAll('[data-cat]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); renderList();
+});
+document.getElementById('search-inp').addEventListener('input',e=>{ searchQ=e.target.value; renderList(); });
+
+function renderDashboard(){ renderExecGrid(); renderQ3(); renderList(); }
+
+// ═══════════════════════════════════════════════════════════════
+//  MODAL KPI
+// ═══════════════════════════════════════════════════════════════
+async function openModal(id){
+  currentKpi=id;
+  const k=KPI_DEFS.find(x=>x.id===id);
+  const d=kpiData(id);
+  document.getElementById('m-title').textContent=`KPI ${k.num} — ${k.name}`;
+  document.getElementById('m-cat').textContent=`${k.cat} · ${k.freq}`;
+
+  const ff=document.getElementById('m-fields'); ff.innerHTML='';
+  k.fields.forEach(f=>{
+    const sv=(d.fields&&d.fields[f.k])||'';
+    const g=document.createElement('div'); g.className='fg';
+    g.innerHTML=`<label>${f.l}</label><input type="${f.t}" id="ff-${f.k}" value="${sv}" placeholder="${f.p}">`;
+    ff.appendChild(g);
+  });
+
+  // auto-calc helpers
+  const ac=(ids,out,fn)=>{ const ins=ids.map(i=>document.getElementById(i)).filter(Boolean); const o=document.getElementById(out); if(!o) return; const calc=()=>{ try{ o.value=fn(...ins.map(i=>parseFloat(i.value)||0)); }catch(e){} }; ins.forEach(i=>i.addEventListener('input',calc)); calc(); };
+  if(id==='renovacion')  ac(['ff-renovadas','ff-vencidas'],'ff-valor',(a,b)=>b?(a/b*100).toFixed(1)+'%':'—');
+  if(id==='retencion')   ac(['ff-inicio','ff-nuevos','ff-final'],'ff-valor',(a,b,c)=>a?((c-b)/a*100).toFixed(1)+'%':'—');
+  if(id==='cac')         ac(['ff-gasto','ff-nuevos_cl'],'ff-valor',(a,b)=>b?'$'+(a/b).toFixed(0):'—');
+  if(id==='ltv')         ac(['ff-prima_p','ff-anos_p'],'ff-valor',(a,b)=>'$'+(a*b).toFixed(0));
+  if(id==='conversion')  ac(['ff-leads','ff-polizas'],'ff-valor',(a,b)=>a?(b/a*100).toFixed(1)+'%':'—');
+  if(id==='prima_ec')    ac(['ff-emitida','ff-cobrada'],'ff-valor',(a,b)=>a?(b/a*100).toFixed(1)+'%':'—');
+  if(id==='siniestralidad') ac(['ff-siniestros','ff-primas'],'ff-valor',(a,b)=>b?(a/b*100).toFixed(1)+'%':'—');
+  if(id==='nps')         ac(['ff-promo','ff-detrac'],'ff-valor',(a,b)=>(a-b).toFixed(0)+' pts');
+  if(id==='margen')      ac(['ff-ingresos','ff-gastos'],'ff-valor',(a,b)=>a?((a-b)/a*100).toFixed(1)+'%':'—');
+
+  // q3
+  if(['retencion','prima_venta_nueva','facturacion_total'].includes(id)){
+    const g=document.createElement('div'); g.className='fg';
+    g.innerHTML=`<label>Pólizas Q3 colocadas (meta: 50)</label><input type="number" id="ff-q3" value="${Q3_DATA.placed||0}" min="0" max="100">`;
+    ff.appendChild(g);
+  }
+
+  document.getElementById('m-notes').value=d.notes||'';
+  const ms=document.getElementById('m-status');
+  ms.querySelectorAll('.so').forEach(o=>{ o.className='so'; if(o.dataset.s===d.status) o.classList.add('s-'+d.status); o.onclick=()=>{ ms.querySelectorAll('.so').forEach(x=>x.className='so'); o.classList.add('s-'+o.dataset.s); }; });
+  document.getElementById('m-bench').innerHTML=`<strong>Benchmark:</strong> ${k.bench}<br><strong>Fórmula:</strong> ${k.formula}<br><br>${k.queMide}`;
+  document.getElementById('m-alerts').innerHTML=k.alertas.map(a=>`<li>${a}</li>`).join('');
+
+  // Historial desde Sheets
+  const hist=kpiHist(id);
+  document.getElementById('m-hist-count').textContent=`${hist.length} registros guardados en Sheets`;
+  const tb=document.getElementById('m-hist'); tb.innerHTML='';
+  [...hist].reverse().slice(0,20).forEach(h=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${h.fecha||h.date||'—'}</td><td>${h.valor}</td><td>${h.nota||h.note||'—'}</td>`;
+    tb.appendChild(tr);
+  });
+
+  document.getElementById('modal-ov').classList.add('open');
+}
+
+function closeModal(){ document.getElementById('modal-ov').classList.remove('open'); currentKpi=null; }
+
+document.getElementById('m-close').onclick=closeModal;
+document.getElementById('m-cancel').onclick=closeModal;
+document.getElementById('modal-ov').onclick=e=>{ if(e.target===document.getElementById('modal-ov')) closeModal(); };
+
+document.getElementById('m-save').onclick=async()=>{
+  if(!SCRIPT_URL){ toast('Conecta Google Sheets primero','err'); return; }
+  const k=KPI_DEFS.find(x=>x.id===currentKpi);
+  const fields={}; k.fields.forEach(f=>{ const el=document.getElementById('ff-'+f.k); if(el) fields[f.k]=el.value; });
+  const valor  = fields['valor']||'—';
+  const status = document.querySelector('#m-status .so[class*="s-"]')?.dataset.s||'info';
+  const notes  = document.getElementById('m-notes').value;
+  const q3El   = document.getElementById('ff-q3');
+
+  const btn=document.getElementById('m-save'); btn.disabled=true;
+  setLoading(true,'Guardando en Google Sheets…');
+  try{
+    await saveKpiToSheets(currentKpi, valor, status, notes, fields);
+    if(q3El){ await saveQ3(parseInt(q3El.value)||0); }
+    toast('Guardado en Google Sheets ✓','ok');
+    closeModal(); renderDashboard();
+    if(activeTab==='tendencias') renderTrends();
+  } catch(e){ toast('Error al guardar: '+e.message,'err',6000); setSyncDot('error'); }
+  finally{ btn.disabled=false; setLoading(false); }
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  MODAL NUEVO VALOR
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('btn-new').onclick=()=>{
+  const s=document.getElementById('nv-kpi');
+  s.innerHTML=KPI_DEFS.map(k=>`<option value="${k.id}">${k.num} — ${k.name}</option>`).join('');
+  document.getElementById('nv-val').value=''; document.getElementById('nv-note').value='';
+  document.getElementById('nv-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('nv-ov').classList.add('open');
+};
+const closeNv=()=>document.getElementById('nv-ov').classList.remove('open');
+document.getElementById('nv-close').onclick=closeNv;
+document.getElementById('nv-cancel').onclick=closeNv;
+document.getElementById('nv-ov').onclick=e=>{ if(e.target===document.getElementById('nv-ov')) closeNv(); };
+
+document.getElementById('nv-save').onclick=async()=>{
+  const id=document.getElementById('nv-kpi').value;
+  const val=document.getElementById('nv-val').value.trim();
+  const note=document.getElementById('nv-note').value.trim();
+  const fecha=document.getElementById('nv-date').value||new Date().toLocaleDateString('es-MX');
+  if(!val){ toast('Ingresa un valor','err'); return; }
+  if(!SCRIPT_URL){ toast('Conecta Google Sheets primero','err'); return; }
+  const btn=document.getElementById('nv-save'); btn.disabled=true;
+  setLoading(true,'Guardando en Google Sheets…');
+  try{
+    await addValueToSheets(id, val, fecha, note);
+    toast('Valor registrado en Google Sheets ✓','ok');
+    closeNv(); renderDashboard();
+    if(activeTab==='tendencias') renderTrends();
+  } catch(e){ toast('Error: '+e.message,'err',5000); setSyncDot('error'); }
+  finally{ btn.disabled=false; setLoading(false); }
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  BOTONES SYNC / EXPORT
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('sync-pill').onclick=()=>syncFromSheets(false);
+document.getElementById('btn-sync-full').onclick=()=>syncFromSheets(false);
+
+document.getElementById('btn-export').onclick=()=>{
+  const rows=[['ID','Nombre','Categoria','Valor','Estado','Benchmark','Registros','Notas']];
+  KPI_DEFS.forEach(k=>{ const d=kpiData(k.id); rows.push([k.id,k.name,k.cat,d.valor||'—',d.status||'—',k.bench,kpiHist(k.id).length,(d.notes||'').replace(/,/g,';')]); });
+  const csv=rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download=`KPIs_APF_X100_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+  toast('CSV exportado ✓','ok');
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  TENDENCIAS
+// ═══════════════════════════════════════════════════════════════
+function buildTrendSel(){
+  const s=document.getElementById('t-sel'); if(s.options.length) return;
+  s.innerHTML=KPI_DEFS.map(k=>`<option value="${k.id}">${k.num} — ${k.name}</option>`).join('');
+  s.value=activeTrendKpi;
+  s.onchange=e=>{ activeTrendKpi=e.target.value; renderMainChart(); renderSparklines(); };
+}
+
+function renderMainChart(){
+  const k=KPI_DEFS.find(x=>x.id===activeTrendKpi);
+  const pts=parseNums(kpiHist(activeTrendKpi));
+  const canvas=document.getElementById('main-chart'), nd=document.getElementById('no-data');
+  document.getElementById('t-chart-title').textContent=k.name;
+  document.getElementById('t-chart-cat').textContent=k.cat;
+  if(!pts.length){ canvas.style.display='none'; nd.style.display='flex'; updateStats([]); return; }
+  canvas.style.display='block'; nd.style.display='none';
+  const col=COLOR_MAP[k.color]||COLOR_MAP.teal;
+  if(mainChart){ mainChart.destroy(); mainChart=null; }
+  const isArea=activeChartType==='area';
+  mainChart=new Chart(canvas.getContext('2d'),{
+    type:activeChartType==='bar'?'bar':'line',
+    data:{ labels:pts.map(p=>p.date), datasets:[{ label:k.name, data:pts.map(p=>p.num),
+      borderColor:col.line, backgroundColor:activeChartType==='bar'?col.fill.replace('.12','.6'):col.fill,
+      borderWidth:activeChartType==='bar'?0:2.5, pointRadius:activeChartType==='bar'?0:4,
+      pointHoverRadius:6, pointBackgroundColor:col.line, tension:0.35, fill:isArea||activeChartType==='bar' }]},
+    options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#0D1B3E', titleColor:'#9FE1CB', bodyColor:'#fff', padding:10, cornerRadius:8,
+        callbacks:{ title:i=>i[0].label, label:i=>{ const n=pts[i.dataIndex]?.note; return ' '+i.raw+(n?' · '+n:''); } } } },
+      scales:{ x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:11},color:'#5F5E5A',maxRotation:45}},
+               y:{grid:{color:'rgba(0,0,0,.06)'},ticks:{font:{size:11},color:'#5F5E5A'},beginAtZero:false} } }
+  });
+  updateStats(pts);
+}
+
+function updateStats(pts){
+  if(!pts.length){ ['s-last','s-max','s-min','s-avg'].forEach(i=>document.getElementById(i).textContent='—'); ['s-max-d','s-min-d'].forEach(i=>document.getElementById(i).textContent=''); document.getElementById('s-trend').innerHTML='—'; document.getElementById('s-count').textContent='0'; document.getElementById('s-bench').innerHTML=''; return; }
+  const k=KPI_DEFS.find(x=>x.id===activeTrendKpi);
+  const vals=pts.map(p=>p.num);
+  const mx=Math.max(...vals), mn=Math.min(...vals);
+  const mxP=pts.find(p=>p.num===mx), mnP=pts.find(p=>p.num===mn);
+  const avg=vals.reduce((a,b)=>a+b,0)/vals.length, last=pts[pts.length-1];
+  document.getElementById('s-last').textContent=last.raw;
+  document.getElementById('s-max').textContent=mxP.raw; document.getElementById('s-max-d').textContent=mxP.date;
+  document.getElementById('s-min').textContent=mnP.raw; document.getElementById('s-min-d').textContent=mnP.date;
+  const af=avg%1===0?avg.toFixed(0):avg.toFixed(1);
+  document.getElementById('s-avg').textContent=last.raw.includes('%')?af+'%':last.raw.includes('$')?'$'+af:af;
+  document.getElementById('s-count').textContent=pts.length;
+  let th='—';
+  if(vals.length>=2){ const f=vals[0],l=vals[vals.length-1]; const p=f!==0?((l-f)/Math.abs(f)*100).toFixed(1):0;
+    th=l>f?`<span class="tp tp-up"><i class="ti ti-trending-up"></i> +${p}%</span>`:l<f?`<span class="tp tp-dn"><i class="ti ti-trending-down"></i> ${p}%</span>`:`<span class="tp tp-fl">Sin cambio</span>`; }
+  document.getElementById('s-trend').innerHTML=th;
+  document.getElementById('s-bench').innerHTML=`<strong>Benchmark:</strong> ${k.bench}<br><strong>Fórmula:</strong> ${k.formula}`;
+}
+
+document.querySelectorAll('.ct-btn').forEach(b=>{ b.onclick=()=>{ activeChartType=b.dataset.chart; document.querySelectorAll('.ct-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderMainChart(); }; });
+
+function renderRadarChart(){
+  const canvas=document.getElementById('radar-chart'); if(!canvas) return;
+  const cats=['Retención y Lealtad','Eficiencia Comercial','Operaciones y Cobranza','Riesgo y Rentabilidad'];
+  const lbs=['Retención','Comercial','Operaciones','Riesgo'];
+  const scores=cats.map(cat=>{ const ks=KPI_DEFS.filter(k=>k.cat===cat); const wd=ks.filter(k=>{ const d=kpiData(k.id); return d.status&&d.status!=='info'; }); if(!wd.length) return 0; return Math.round(wd.reduce((a,k)=>a+(kpiData(k.id).status==='good'?100:kpiData(k.id).status==='warn'?50:15),0)/wd.length); });
+  if(radarChart){ radarChart.destroy(); radarChart=null; }
+  radarChart=new Chart(canvas.getContext('2d'),{ type:'radar', data:{ labels:lbs, datasets:[{ label:'APF MX', data:scores, borderColor:'#0E7C6B', backgroundColor:'rgba(14,124,107,.15)', borderWidth:2, pointBackgroundColor:'#0E7C6B', pointRadius:4 }]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales:{ r:{ min:0, max:100, ticks:{display:false}, grid:{color:'rgba(0,0,0,.08)'}, pointLabels:{font:{size:11},color:'#1A1A1A'} } } } });
+}
+
+function renderStatusChart(){
+  const canvas=document.getElementById('status-chart'); if(!canvas) return;
+  const labels=[],vals=[],bgs=[];
+  KPI_DEFS.forEach(k=>{ const d=kpiData(k.id); if(d.status&&d.status!=='info'){ labels.push('KPI '+k.num); vals.push(d.status==='good'?100:d.status==='warn'?55:20); bgs.push(d.status==='good'?'rgba(59,109,17,.7)':d.status==='warn'?'rgba(186,117,23,.7)':'rgba(163,45,45,.7)'); } });
+  if(statusChart){ statusChart.destroy(); statusChart=null; }
+  if(!labels.length){ canvas.style.display='none'; return; }
+  canvas.style.display='block';
+  statusChart=new Chart(canvas.getContext('2d'),{ type:'bar', data:{ labels, datasets:[{ data:vals, backgroundColor:bgs, borderRadius:5, borderSkipped:false }]}, options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{ legend:{display:false}, tooltip:{callbacks:{label:i=>i.raw>=80?'✅ En meta':i.raw>=50?'⚠️ Atención':'🔴 Crítico'}} }, scales:{ x:{max:100,grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10}}}, y:{grid:{display:false},ticks:{font:{size:11},color:'#5F5E5A'}} } } });
+}
+
+function renderSparklines(){
+  const grid=document.getElementById('spark-grid'); if(!grid) return;
+  grid.innerHTML=''; Object.values(sparkCharts).forEach(c=>{ try{c.destroy();}catch(e){} });
+  KPI_DEFS.forEach(k=>{
+    const d=kpiData(k.id), pts=parseNums(kpiHist(k.id)), col=COLOR_MAP[k.color]||COLOR_MAP.teal;
+    const isActive=k.id===activeTrendKpi;
+    let trendIco='';
+    if(pts.length>=2){ const f=pts[0].num,l=pts[pts.length-1].num; trendIco=l>f?`<span class="sp-trend" style="color:var(--green)"><i class="ti ti-trending-up"></i></span>`:l<f?`<span class="sp-trend" style="color:var(--red)"><i class="ti ti-trending-down"></i></span>`:''; }
+    const card=document.createElement('div'); card.className='spark-c'+(isActive?' active-sp':'');
+    card.innerHTML=`<div class="sp-top"><div class="sp-name">${k.name}</div><div class="sp-right"><div class="sp-val">${d.valor||'—'}</div>${trendIco}</div></div>${pts.length?`<div class="sp-canvas"><canvas id="sp-${k.id}" height="36"></canvas></div>`:`<div class="sp-nd">Sin datos</div>`}`;
+    card.onclick=()=>{ activeTrendKpi=k.id; document.getElementById('t-sel').value=k.id; renderMainChart(); renderSparklines(); document.getElementById('panel-tendencias').scrollIntoView({behavior:'smooth'}); };
+    grid.appendChild(card);
+    if(pts.length){ const ctx=document.getElementById('sp-'+k.id)?.getContext('2d'); if(ctx) sparkCharts[k.id]=new Chart(ctx,{ type:'line', data:{ labels:pts.map(p=>p.date), datasets:[{ data:pts.map(p=>p.num), borderColor:col.line, borderWidth:1.5, pointRadius:0, tension:0.4, fill:true, backgroundColor:col.fill }]}, options:{ responsive:false, animation:false, plugins:{legend:{display:false},tooltip:{enabled:false}}, scales:{x:{display:false},y:{display:false}} } }); }
+  });
+}
+
+function renderTrends(){ buildTrendSel(); renderMainChart(); renderRadarChart(); renderStatusChart(); renderSparklines(); }
+
+// ═══════════════════════════════════════════════════════════════
+//  KEYBOARD
+// ═══════════════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeModal(); closeNv(); } });
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+updateBannerVisibility();
+renderDashboard();
+if(SCRIPT_URL){ syncFromSheets(true); } // auto-sync silencioso si ya hay URL guardada
+</script>
+</body>
+</html>
