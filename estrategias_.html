@@ -1252,11 +1252,6 @@ function collectAllState(){
   return { calRows, postRows, scriptRows, negRows };
 }
 
-// Google Apps Script bloquea POST con Content-Type:application/json por CORS.
-// Solución: enviar con mode:'no-cors' y body como text/plain.
-// El script lo recibe como postData.contents y parsea el JSON internamente.
-// Para LEER usamos un <script> tag (JSONP) que sí está permitido cross-origin.
-
 async function saveToSheets(){
   const url = document.getElementById('gas-url').value.trim();
   if(!url){ setSyncStatus('⚠ Pega primero la URL de tu Apps Script', 'err'); return; }
@@ -1264,93 +1259,61 @@ async function saveToSheets(){
   setSyncStatus('⏳ Guardando…', 'busy');
   try{
     const payload = collectAllState();
-    // no-cors: no podemos leer la respuesta, pero el script SÍ la recibe y guarda.
-    // Mandamos action dentro del body como texto plano para evitar el preflight CORS.
-    await fetch(url, {
-      method : 'POST',
-      mode   : 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body   : JSON.stringify({ action:'save', data: payload })
+    const res = await fetch(url, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'save', data: payload })
     });
-    // Con no-cors no podemos leer la respuesta (es "opaque"), así que asumimos éxito
-    // si fetch no lanzó excepción, y mostramos el timestamp.
-    const ts = new Date().toLocaleString('es-MX');
-    setSyncStatus('✅ Datos enviados correctamente', 'ok');
-    setSyncLast(ts);
-    try{ localStorage.setItem('sync_last', ts); }catch(e){}
+    const json = await res.json();
+    if(json.status === 'ok'){
+      const ts = new Date().toLocaleString('es-MX');
+      setSyncStatus('✅ Guardado correctamente', 'ok');
+      setSyncLast(ts);
+      try{ localStorage.setItem('sync_last', ts); }catch(e){}
+    } else {
+      setSyncStatus('❌ Error: ' + (json.message||'desconocido'), 'err');
+    }
   } catch(e){
-    setSyncStatus('❌ Error al enviar. Verifica la URL.', 'err');
+    setSyncStatus('❌ No se pudo conectar. Verifica la URL.', 'err');
     console.error(e);
   }
   setBtns(false);
 }
 
-// Para CARGAR usamos JSONP: inyectamos un <script src="url?callback=fn"> que
-// Google Apps Script devuelve como fn({...}) — esto sí funciona cross-origin.
-function loadFromSheets(){
+async function loadFromSheets(){
   const url = document.getElementById('gas-url').value.trim();
   if(!url){ setSyncStatus('⚠ Pega primero la URL de tu Apps Script', 'err'); return; }
   setBtns(true);
   setSyncStatus('⏳ Cargando datos…', 'busy');
-
-  // Nombre único para el callback para evitar colisiones
-  const cbName = '__gasCallback_' + Date.now();
-
-  const timeout = setTimeout(()=>{
-    setSyncStatus('❌ Tiempo de espera agotado. Verifica la URL.', 'err');
-    setBtns(false);
-    delete window[cbName];
-    const old = document.getElementById('gas-jsonp-script');
-    if(old) old.remove();
-  }, 15000);
-
-  window[cbName] = function(json){
-    clearTimeout(timeout);
-    delete window[cbName];
-    const tag = document.getElementById('gas-jsonp-script');
-    if(tag) tag.remove();
-    try{
-      if(json.status === 'ok'){
-        const d = json.data;
-        if(d.calTasks){ saveJSON('cal_tasks', d.calTasks); STATE.calTasks = d.calTasks; }
-        if(d.posts)   { saveJSON('posts', d.posts);       STATE.posts    = d.posts; }
-        if(d.scripts) { saveJSON('scripts', d.scripts);   STATE.scripts  = d.scripts; }
-        if(d.negocios){ saveJSON(CUSTOM_NEGOCIOS_KEY, d.negocios); }
-        renderCalendar();
-        ['jul','ago','sep'].forEach(m=>{
-          updateWeekProgress(m,0); updateWeekProgress(m,1);
-          updateWeekProgress(m,2); updateWeekProgress(m,3);
-          if(m==='jul') updateWeekProgress(m,4);
-        });
-        ['jul','ago','sep'].forEach(m=>renderPostMonth(m));
-        renderScripts();
-        // reload custom negocios: clear grid first
-        document.querySelectorAll('.neg-card-custom').forEach(el=>el.remove());
-        loadCustomNegocios();
-        const ts = new Date().toLocaleString('es-MX');
-        setSyncStatus('✅ Datos cargados', 'ok');
-        setSyncLast(ts);
-        try{ localStorage.setItem('sync_last', ts); }catch(e){}
-      } else {
-        setSyncStatus('❌ Error: ' + (json.message||'desconocido'), 'err');
-      }
-    } catch(err){
-      setSyncStatus('❌ Error al procesar respuesta', 'err');
-      console.error(err);
+  try{
+    const res = await fetch(url + '?action=load');
+    const json = await res.json();
+    if(json.status === 'ok'){
+      const d = json.data;
+      // Restore cal tasks
+      if(d.calTasks){ saveJSON('cal_tasks', d.calTasks); STATE.calTasks = d.calTasks; }
+      // Restore posts
+      if(d.posts){ saveJSON('posts', d.posts); STATE.posts = d.posts; }
+      // Restore scripts
+      if(d.scripts){ saveJSON('scripts', d.scripts); STATE.scripts = d.scripts; }
+      // Restore negocios
+      if(d.negocios){ saveJSON(CUSTOM_NEGOCIOS_KEY, d.negocios); }
+      // Re-render
+      renderCalendar();
+      ['jul','ago','sep'].forEach(m=>renderPostMonth(m));
+      renderScripts();
+      loadCustomNegocios();
+      const ts = new Date().toLocaleString('es-MX');
+      setSyncStatus('✅ Datos cargados', 'ok');
+      setSyncLast(ts);
+    } else {
+      setSyncStatus('❌ Error al cargar: ' + (json.message||''), 'err');
     }
-    setBtns(false);
-  };
-
-  const script = document.createElement('script');
-  script.id  = 'gas-jsonp-script';
-  script.src = url + '?action=load&callback=' + cbName;
-  script.onerror = ()=>{
-    clearTimeout(timeout);
+  } catch(e){
     setSyncStatus('❌ No se pudo conectar. Verifica la URL.', 'err');
-    setBtns(false);
-    delete window[cbName];
-  };
-  document.head.appendChild(script);
+    console.error(e);
+  }
+  setBtns(false);
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
