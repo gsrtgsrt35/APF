@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CRM Agente APF X10</title>
+<link rel="icon" type="image/jpeg" href="./assets/APFlogo.jpg" />
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -285,33 +286,6 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
 .btn-objecion{height:38px;padding:0 16px;border-radius:8px;font-size:12px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;border:1.5px solid #7AAEF0;background:transparent;color:#2A6AC0;display:none;align-items:center;gap:7px;transition:all .15s}
 .btn-objecion:hover{background:#EBF4FF;border-color:#2A6AC0}
 .btn-objecion.visible{display:flex}{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
-/* ── 4P & SCORING ── */
-.eval-section{grid-column:1/-1;border-radius:10px;overflow:hidden;border:1.5px solid var(--gray-200);margin-top:4px}
-.eval-section-header{padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
-.eval-section-title{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}
-.eval-result{font-size:12px;font-weight:700;padding:3px 10px;border-radius:12px}
-.eval-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 14px}
-.eval-item{display:flex;flex-direction:column;gap:4px}
-.eval-item label{font-size:10px;font-weight:600;color:var(--gray-600);letter-spacing:.3px;line-height:1.4}
-.eval-item select{border:1.5px solid var(--gray-200);border-radius:7px;padding:6px 10px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;color:var(--navy);outline:none;background:#fff;cursor:pointer;transition:border-color .15s}
-.eval-item select:focus{border-color:var(--navy-light)}
-.eval-footer{padding:10px 14px;border-top:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between}
-.eval-footer-label{font-size:11px;font-weight:600;color:var(--gray-600)}
-.eval-footer-value{font-size:18px;font-weight:800}
-/* 4P colors */
-.section-4p .eval-section-header{background:linear-gradient(135deg,var(--navy),#1A3560)}
-.section-4p .eval-section-title{color:var(--gold-light)}
-.section-4p .eval-result{background:rgba(201,168,76,.2);color:var(--gold-light)}
-.section-4p .eval-footer{background:#F7F9FC}
-.section-4p .eval-footer-value{color:var(--navy)}
-/* Scoring colors */
-.section-scoring .eval-section-header{background:linear-gradient(135deg,#0B2A1A,#1A4A2E)}
-.section-scoring .eval-section-title{color:#7DDBA8}
-.section-scoring .eval-result{background:rgba(125,219,168,.2);color:#7DDBA8}
-.section-scoring .eval-grid{grid-template-columns:1fr 1fr}
-.section-scoring .eval-footer{background:#F7FDFB}
-.section-scoring .eval-footer-value{color:#1B7A3E}
-
 /* ── EMAIL BIENVENIDA ── */
 .btn-bienvenida{height:38px;padding:0 16px;border-radius:8px;font-size:12px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;border:1.5px solid var(--s-firmado);background:transparent;color:var(--s-firmado);display:none;align-items:center;gap:7px;transition:all .15s;letter-spacing:.2px}
 .btn-bienvenida:hover{background:#E8F5E9;border-color:#145E30}
@@ -489,8 +463,8 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
     </div>
   </div>
   <div class="header-right">
-    <div class="campaign-badge">🎯 Protege lo más importante</div>
-    <div class="meta-chip">Meta Q: <span>50 pólizas · 25 sep</span></div>
+    <div class="campaign-badge">🎯 Vacaciones de fin de año.</div>
+    <div class="meta-chip">Meta 3 Q: <span>50 pól</span></div>
     <div id="sync-indicator" class="sync-indicator sync-idle" title="Click para sincronizar o configurar" onclick="getGsUrl()?manualSync():openConfig()">
       <span class="sync-dot"></span>
       <span class="sync-label" id="sync-label">Sin conectar</span>
@@ -575,6 +549,8 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
           <option value="GMM">GMM</option>
           <option value="Vida">Vida</option>
           <option value="Hogar">Hogar</option>
+          <option value="Daños">Daños</option>
+          <option value="Inversiones">Inversiones</option>
         </select>
       </div>
       <div class="toolbar-right">
@@ -725,6 +701,8 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
             <option value="GMM">GMM</option>
             <option value="Vida">Vida</option>
             <option value="Hogar">Hogar</option>
+            <option value="Daños">Daños</option>
+            <option value="Inversiones">Inversiones</option>
           </select>
         </div>
         <div class="form-group">
@@ -734,7 +712,7 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
             <option value="Comerciante">Comerciante</option>
             <option value="Empleado">Empleado</option>
             <option value="Familia">Familia</option>
-            <option value="Persona (25-50)">Persona (25-50)</option>
+            <option value="Individual">Individual</option>
           </select>
         </div>
         <div class="form-group">
@@ -760,88 +738,6 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
         <div class="form-group full">
           <label>Notas / Observaciones</label>
           <textarea id="f-notes" placeholder="Objeción principal, contexto, avance…"></textarea>
-        </div>
-
-        <!-- SECCIÓN 4P -->
-        <div class="eval-section section-4p form-group full">
-          <div class="eval-section-header">
-            <span class="eval-section-title">📊 Evaluación 4P</span>
-            <span class="eval-result" id="4p-result-badge">Total: 20 / 20</span>
-          </div>
-          <div class="eval-grid">
-            <div class="eval-item">
-              <label>A) Potencial — ¿Tiene capacidad económica, metas futuras o patrimonio creciente?</label>
-              <select id="f-4p-a" onchange="calc4P()">
-                <option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option><option value="0">0</option>
-              </select>
-            </div>
-            <div class="eval-item">
-              <label>B) Profundidad — ¿Conozco bien su situación financiera, familiar, patrimonial o empresarial?</label>
-              <select id="f-4p-b" onchange="calc4P()">
-                <option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option><option value="0">0</option>
-              </select>
-            </div>
-            <div class="eval-item">
-              <label>C) Proximidad — ¿Tengo una relación activa, confianza y apertura con el cliente?</label>
-              <select id="f-4p-c" onchange="calc4P()">
-                <option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option><option value="0">0</option>
-              </select>
-            </div>
-            <div class="eval-item">
-              <label>D) Posibilidad de expansión — ¿Hay oportunidades reales de ahorro, protección, retiro, inversión o referidos?</label>
-              <select id="f-4p-d" onchange="calc4P()">
-                <option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option><option value="0">0</option>
-              </select>
-            </div>
-          </div>
-          <div class="eval-footer">
-            <span class="eval-footer-label">Resultado 4P:</span>
-            <span class="eval-footer-value" id="4p-total">20</span>
-          </div>
-        </div>
-
-        <!-- SECCIÓN SCORING -->
-        <div class="eval-section section-scoring form-group full">
-          <div class="eval-section-header">
-            <span class="eval-section-title">🎯 Scoring comercial</span>
-            <span class="eval-result" id="scoring-result-badge">Score: 100 / 100</span>
-          </div>
-          <div class="eval-grid">
-            <div class="eval-item">
-              <label>Dolor identificado</label>
-              <select id="f-sc-1" onchange="calcScoring()">
-                <option value="20">20</option><option value="16">16</option><option value="12">12</option><option value="8">8</option><option value="4">4</option><option value="0">0</option>
-              </select>
-            </div>
-            <div class="eval-item">
-              <label>Decisor involucrado</label>
-              <select id="f-sc-2" onchange="calcScoring()">
-                <option value="20">20</option><option value="16">16</option><option value="12">12</option><option value="8">8</option><option value="4">4</option><option value="0">0</option>
-              </select>
-            </div>
-            <div class="eval-item">
-              <label>Capacidad financiera</label>
-              <select id="f-sc-3" onchange="calcScoring()">
-                <option value="20">20</option><option value="16">16</option><option value="12">12</option><option value="8">8</option><option value="4">4</option><option value="0">0</option>
-              </select>
-            </div>
-            <div class="eval-item">
-              <label>Urgencia</label>
-              <select id="f-sc-4" onchange="calcScoring()">
-                <option value="20">20</option><option value="16">16</option><option value="12">12</option><option value="8">8</option><option value="4">4</option><option value="0">0</option>
-              </select>
-            </div>
-            <div class="eval-item" style="grid-column:1/-1">
-              <label>Próximo paso confirmado</label>
-              <select id="f-sc-5" onchange="calcScoring()">
-                <option value="20">20</option><option value="16">16</option><option value="12">12</option><option value="8">8</option><option value="4">4</option><option value="0">0</option>
-              </select>
-            </div>
-          </div>
-          <div class="eval-footer">
-            <span class="eval-footer-label">Score comercial:</span>
-            <span class="eval-footer-value" id="scoring-total">100</span>
-          </div>
         </div>
 
         <!-- SIN PRESIÓN PANEL — visible solo si estado = En reactivación / ghosting clasificado interesado -->
@@ -1321,7 +1217,6 @@ function openModal(id){
     document.getElementById('f-nextcontact').value=p.nextContact||'';
     document.getElementById('f-agente').value=p.agente||'';
     document.getElementById('f-subagente').value=p.subagente||'';
-    load4PScoring(p);
     document.getElementById('f-notes').value=p.notes||'';
     const sel=document.getElementById('f-products');
     Array.from(sel.options).forEach(o=>{o.selected=(p.products||[]).includes(o.value)});
@@ -1342,7 +1237,6 @@ function openModal(id){
     document.getElementById('f-lastcontact').value=todayStr();
     document.getElementById('f-nextcontact').value='';
     Array.from(document.getElementById('f-products').options).forEach(o=>{o.selected=false});
-    reset4PScoring();
     deleteBtn.style.display='none';
     document.getElementById('btn-sinpresion').classList.remove('visible');
     document.getElementById('btn-objecion').classList.remove('visible');
@@ -1562,40 +1456,6 @@ function copyObjMsg(btn, encoded){
   });
 }
 
-// ── 4P & SCORING ──
-function calc4P(){
-  const vals = ['f-4p-a','f-4p-b','f-4p-c','f-4p-d'].map(id=>parseInt(document.getElementById(id).value)||0);
-  const total = vals.reduce((s,v)=>s+v,0);
-  document.getElementById('4p-total').textContent = total;
-  document.getElementById('4p-result-badge').textContent = `Total: ${total} / 20`;
-}
-
-function calcScoring(){
-  const vals = ['f-sc-1','f-sc-2','f-sc-3','f-sc-4','f-sc-5'].map(id=>parseInt(document.getElementById(id).value)||0);
-  const total = vals.reduce((s,v)=>s+v,0);
-  document.getElementById('scoring-total').textContent = total;
-  document.getElementById('scoring-result-badge').textContent = `Score: ${total} / 100`;
-}
-
-function reset4PScoring(){
-  ['f-4p-a','f-4p-b','f-4p-c','f-4p-d'].forEach(id=>{ document.getElementById(id).value='5'; });
-  ['f-sc-1','f-sc-2','f-sc-3','f-sc-4','f-sc-5'].forEach(id=>{ document.getElementById(id).value='20'; });
-  calc4P(); calcScoring();
-}
-
-function load4PScoring(p){
-  document.getElementById('f-4p-a').value = p['4p_a'] ?? 5;
-  document.getElementById('f-4p-b').value = p['4p_b'] ?? 5;
-  document.getElementById('f-4p-c').value = p['4p_c'] ?? 5;
-  document.getElementById('f-4p-d').value = p['4p_d'] ?? 5;
-  document.getElementById('f-sc-1').value = p['sc_1'] ?? 20;
-  document.getElementById('f-sc-2').value = p['sc_2'] ?? 20;
-  document.getElementById('f-sc-3').value = p['sc_3'] ?? 20;
-  document.getElementById('f-sc-4').value = p['sc_4'] ?? 20;
-  document.getElementById('f-sc-5').value = p['sc_5'] ?? 20;
-  calc4P(); calcScoring();
-}
-
 function handleOverlayClick(e){if(e.target===document.getElementById('modal-overlay'))closeModal()}
 
 // ── MENSAJE SIN PRESIÓN (API) ──
@@ -1682,16 +1542,7 @@ function saveProspect(){
     nextContact:document.getElementById('f-nextcontact').value,
     agente:document.getElementById('f-agente').value.trim(),
     subagente:document.getElementById('f-subagente').value.trim(),
-    notes:document.getElementById('f-notes').value.trim(),
-    '4p_a':parseInt(document.getElementById('f-4p-a').value)||0,
-    '4p_b':parseInt(document.getElementById('f-4p-b').value)||0,
-    '4p_c':parseInt(document.getElementById('f-4p-c').value)||0,
-    '4p_d':parseInt(document.getElementById('f-4p-d').value)||0,
-    sc_1:parseInt(document.getElementById('f-sc-1').value)||0,
-    sc_2:parseInt(document.getElementById('f-sc-2').value)||0,
-    sc_3:parseInt(document.getElementById('f-sc-3').value)||0,
-    sc_4:parseInt(document.getElementById('f-sc-4').value)||0,
-    sc_5:parseInt(document.getElementById('f-sc-5').value)||0,
+    notes:document.getElementById('f-notes').value.trim()
   };
   if(editingId){
     const idx=ps.findIndex(p=>p.id===editingId);
@@ -1723,12 +1574,8 @@ function doReset(){localStorage.removeItem(STORAGE_KEY);closeConfirm();renderTab
 
 function exportCSV(){
   const ps=getProspects();
-  const h=['Nombre','Edad','Estado','Productos','Prima MXN','Canal','Perfil','Agente asignado','Subagente','Último contacto','Seguimiento','Notas','4P-Potencial','4P-Profundidad','4P-Proximidad','4P-Expansión','4P-Total','SC-Dolor','SC-Decisor','SC-Capacidad','SC-Urgencia','SC-Próximo paso','Score Total'];
-  const rows=ps.map(p=>{
-    const total4p=(p['4p_a']||0)+(p['4p_b']||0)+(p['4p_c']||0)+(p['4p_d']||0);
-    const totalSc=(p.sc_1||0)+(p.sc_2||0)+(p.sc_3||0)+(p.sc_4||0)+(p.sc_5||0);
-    return[p.name,p.age||'',p.status,(p.products||[]).join('|'),p.prima||'',p.channel||'',p.profile||'',p.agente||'',p.subagente||'',p.lastContact||'',p.nextContact||'',(p.notes||'').replace(/,/g,';').replace(/\n/g,' '),p['4p_a']??5,p['4p_b']??5,p['4p_c']??5,p['4p_d']??5,total4p,p.sc_1??20,p.sc_2??20,p.sc_3??20,p.sc_4??20,p.sc_5??20,totalSc];
-  });
+  const h=['Nombre','Edad','Estado','Productos','Prima MXN','Canal','Perfil','Agente asignado','Subagente','Último contacto','Seguimiento','Notas'];
+  const rows=ps.map(p=>[p.name,p.age||'',p.status,(p.products||[]).join('|'),p.prima||'',p.channel||'',p.profile||'',p.agente||'',p.subagente||'',p.lastContact||'',p.nextContact||'',(p.notes||'').replace(/,/g,';').replace(/\n/g,' ')]);
   const csv=[h,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
   const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
@@ -1943,7 +1790,7 @@ async function generatePropuesta(){
     <div class="np-loading"><div class="spin"></div><span>Analizando notas y generando los 3 entregables… esto toma unos segundos.</span></div>
   </div>`;
 
-  const prompt = `Eres Fernando, agente de seguros Chubb con 10 años de experiencia en Ciudad de México. Eres consultor, no vendedor.
+  const prompt = `Eres Fernando, agente de seguros con 10 años de experiencia en Ciudad de México. Eres consultor, no vendedor.
 
 PROSPECTO: ${p.name}${p.age?' ('+p.age+' años)':''}
 PERFIL: ${profile}
@@ -1956,7 +1803,7 @@ NOTAS CRUDAS DE LA CITA:
 Genera exactamente este JSON (sin markdown, sin texto extra):
 {
   "email": "string — email de seguimiento profesional con: saludo personalizado, resumen de los puntos clave acordados en la cita (máx 3 bullets), los próximos 2 pasos concretos con fechas tentativas, cierre cálido consultivo. Firma como Fernando, Agente APF MX. Máx 200 palabras.",
-  "propuesta": "string — propuesta ejecutiva de UNA PÁGINA con estas secciones claramente marcadas con saltos de línea:\n\nPERFIL DE RIESGO\n[2-3 líneas sobre la situación y necesidad específica del prospecto]\n\nCOBERTURA CHUBB RECOMENDADA\n[Producto(s) específico(s) con las coberturas clave que aplican a su caso]\n\nPOR QUÉ APLICA ESPECÍFICAMENTE A ${p.name.toUpperCase()}\n[3 razones concretas y personalizadas basadas en las notas]\n\nINVERSIÓN ESTIMADA\n[Prima estimada y formato de pago]\n\nPRÓXIMO PASO\n[El paso acordado]",
+  "propuesta": "string — propuesta ejecutiva de UNA PÁGINA con estas secciones claramente marcadas con saltos de línea:\n\nPERFIL DE RIESGO\n[2-3 líneas sobre la situación y necesidad específica del prospecto]\n\nCOBERTURA RECOMENDADA\n[Producto(s) específico(s) con las coberturas clave que aplican a su caso]\n\nPOR QUÉ APLICA ESPECÍFICAMENTE A ${p.name.toUpperCase()}\n[3 razones concretas y personalizadas basadas en las notas]\n\nINVERSIÓN ESTIMADA\n[Prima estimada y formato de pago]\n\nPRÓXIMO PASO\n[El paso acordado]",
   "escenarios": [
     {
       "num": 1,
@@ -1974,7 +1821,7 @@ Genera exactamente este JSON (sin markdown, sin texto extra):
       "num": 3,
       "tipo": "Objeción de precio o comparación",
       "situacion": "El prospecto dice: [escenario donde cuestionan el precio o mencionan que vieron algo más barato]",
-      "respuesta": "Respuesta que reencuadra el valor, menciona una cobertura específica de Chubb que la competencia no incluye, y propone comparación justa. 2-3 oraciones."
+      "respuesta": "Respuesta que reencuadra el valor, menciona una cobertura específica de seguros que la competencia no incluye, y propone comparación justa. 2-3 oraciones."
     }
   ]
 }`;
@@ -2013,7 +1860,7 @@ Genera exactamente este JSON (sin markdown, sin texto extra):
         <div class="np-del-header">
           <div class="np-del-header-left">
             <span class="np-del-icon">📄</span>
-            <div><div class="np-del-title">Propuesta ejecutiva</div><div class="np-del-sub">Perfil de riesgo · Cobertura Chubb · Próximo paso</div></div>
+            <div><div class="np-del-title">Propuesta ejecutiva</div><div class="np-del-sub">Perfil de riesgo · Cobertura APF MX · Próximo paso</div></div>
           </div>
           <button class="np-del-copy" onclick="copyNpSection('propuesta',this)">📋 Copiar propuesta</button>
         </div>
