@@ -1693,65 +1693,19 @@ function saveProspect(){
     sc_4:parseInt(document.getElementById('f-sc-4').value)||0,
     sc_5:parseInt(document.getElementById('f-sc-5').value)||0,
   };
-
-  // Etiquetas legibles para el histórico
-  const FIELD_LABELS = {
-    name:'Nombre', age:'Edad', status:'Estado', channel:'Canal',
-    products:'Productos', profile:'Perfil', prima:'Prima estimada',
-    lastContact:'Último contacto', nextContact:'Seguimiento',
-    agente:'Agente asignado', subagente:'Subagente', notes:'Notas',
-    '4p_a':'4P - Potencial', '4p_b':'4P - Profundidad',
-    '4p_c':'4P - Proximidad', '4p_d':'4P - Expansión',
-    sc_1:'Scoring - Dolor', sc_2:'Scoring - Decisor',
-    sc_3:'Scoring - Capacidad', sc_4:'Scoring - Urgencia',
-    sc_5:'Scoring - Próximo paso'
-  };
-
-  let changes = [];
-  const now = new Date().toISOString();
-
   if(editingId){
     const idx=ps.findIndex(p=>p.id===editingId);
-    if(idx>-1){
-      const old = ps[idx];
-      // Detectar campos modificados
-      Object.keys(rec).forEach(field => {
-        const oldVal = Array.isArray(old[field]) ? old[field].join('|') : (old[field] ?? '');
-        const newVal = Array.isArray(rec[field]) ? rec[field].join('|') : (rec[field] ?? '');
-        if(String(oldVal) !== String(newVal)){
-          changes.push({
-            prospectId: editingId,
-            prospectName: old.name,
-            field: FIELD_LABELS[field] || field,
-            oldValue: oldVal,
-            newValue: newVal,
-            timestamp: now
-          });
-        }
-      });
-      ps[idx]={...ps[idx],...rec,updatedAt:now};
-    }
+    if(idx>-1){ps[idx]={...ps[idx],...rec,updatedAt:new Date().toISOString()}}
     showToast('✅ Prospecto actualizado');
   } else {
-    const newId = uid();
-    ps.unshift({id:newId,...rec,createdAt:now,updatedAt:now});
-    // Registrar creación como un único movimiento
-    changes.push({
-      prospectId: newId,
-      prospectName: rec.name,
-      field: 'Prospecto',
-      oldValue: '',
-      newValue: 'Creado',
-      timestamp: now
-    });
+    ps.unshift({id:uid(),...rec,createdAt:new Date().toISOString()});
     showToast('✅ Prospecto agregado');
   }
-
   saveData(ps);closeModal();
   renderTable();
   if(currentTab==='kanban')renderKanban();
   if(currentTab==='ghost')renderGhostInline();
-  autoSync(changes);
+  autoSync();
 }
 
 function deleteProspect(){
@@ -2275,11 +2229,11 @@ async function fetchFromSheets(url){
 }
 
 // Escribe todos los prospectos a Google Sheets
-async function pushToSheets(url, prospects, changes=[]){
+async function pushToSheets(url, prospects){
   const res  = await fetch(url, {
     method: 'POST',
-    body: JSON.stringify({ action:'sync', prospects, changes }),
-    headers: { 'Content-Type': 'text/plain' }
+    body: JSON.stringify({ action:'sync', prospects }),
+    headers: { 'Content-Type': 'text/plain' } // Apps Script requiere text/plain para CORS
   });
   const data = await res.json();
   if(!data.ok) throw new Error(data.error || 'Error al sincronizar');
@@ -2287,15 +2241,16 @@ async function pushToSheets(url, prospects, changes=[]){
 }
 
 // Sincronización automática — se llama después de cada guardado
-function autoSync(changes=[]){
+function autoSync(){
   const url = getGsUrl();
-  if(!url) return;
+  if(!url) return; // No configurado, sin sync
 
+  // Debounce: espera 1.5s para no spamear en ediciones rápidas
   if(syncTimeout) clearTimeout(syncTimeout);
   syncTimeout = setTimeout(async ()=>{
     setSyncState('busy','Sincronizando…');
     try {
-      await pushToSheets(url, getProspects(), changes);
+      await pushToSheets(url, getProspects());
       setSyncState('ok','Sincronizado');
       lastSyncTime = new Date();
     } catch(err){
