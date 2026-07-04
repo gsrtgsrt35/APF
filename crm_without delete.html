@@ -1670,16 +1670,6 @@ function copySinPresion(){
     .then(()=>showToast('📋 Mensaje copiado — listo para pegar en '+(document.getElementById('f-channel').value||'WhatsApp')));
 }
 
-// Timestamp en zona horaria de Ciudad de México (América/Mexico_City)
-function cdmxTimestamp(){
-  return new Date().toLocaleString('sv-SE', {
-    timeZone: 'America/Mexico_City',
-    year:'numeric', month:'2-digit', day:'2-digit',
-    hour:'2-digit', minute:'2-digit', second:'2-digit',
-    hour12: false
-  }).replace('T',' ');
-}
-
 function saveProspect(){
   const name=document.getElementById('f-name').value.trim();
   const status=document.getElementById('f-status').value;
@@ -1722,7 +1712,7 @@ function saveProspect(){
   };
 
   let changes = [];
-  const now = cdmxTimestamp();
+  const now = new Date().toISOString();
 
   if(editingId){
     const idx=ps.findIndex(p=>p.id===editingId);
@@ -1778,7 +1768,7 @@ function deleteProspect(){
     field:        'Prospecto',
     oldValue:     prospect.status || '',
     newValue:     'Eliminado',
-    timestamp:    cdmxTimestamp()
+    timestamp:    new Date().toISOString()
   }] : [];
   saveData(ps.filter(p=>p.id!==editingId));
   closeModal();renderTable();
