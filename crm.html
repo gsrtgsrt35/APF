@@ -1760,11 +1760,21 @@ function saveProspect(){
 
 function deleteProspect(){
   if(!editingId)return;
-  saveData(getProspects().filter(p=>p.id!==editingId));
+  const ps = getProspects();
+  const prospect = ps.find(p=>p.id===editingId);
+  const changes = prospect ? [{
+    prospectId:   prospect.id,
+    prospectName: prospect.name,
+    field:        'Prospecto',
+    oldValue:     prospect.status || '',
+    newValue:     'Eliminado',
+    timestamp:    new Date().toISOString()
+  }] : [];
+  saveData(ps.filter(p=>p.id!==editingId));
   closeModal();renderTable();
   if(currentTab==='kanban')renderKanban();
   showToast('🗑 Prospecto eliminado');
-  autoSync();
+  autoSync(changes);
 }
 
 function confirmReset(){document.getElementById('confirm-overlay').classList.add('open')}
