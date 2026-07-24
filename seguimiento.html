@@ -363,6 +363,96 @@
   .save-status.err{color:var(--red);}
   .save-status.loading{color:var(--blue-dark);}
 
+  /* ---------- CARGAR DATOS EXISTENTES ---------- */
+  .load-btn{
+    background:#fff;
+    color:var(--blue-dark);
+    border:1.5px solid var(--blue);
+    font-family:'Poppins',sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    letter-spacing:.2px;
+    border-radius:9px;
+    padding:8px 14px;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:background .15s;
+  }
+  .load-btn:hover{background:var(--blue-pale);}
+  .load-btn:disabled{opacity:.6;cursor:wait;}
+  .load-status{
+    font-size:12.5px;
+    font-weight:600;
+    margin:-14px 4px 14px;
+    min-height:16px;
+  }
+  .load-status.ok{color:var(--green);}
+  .load-status.err{color:var(--red);}
+  .load-status.loading{color:var(--blue-dark);}
+
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(20,30,40,.45);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    padding:20px;
+  }
+  .modal-box{
+    background:#fff;
+    border-radius:16px;
+    padding:22px 24px;
+    max-width:440px;
+    width:100%;
+    max-height:70vh;
+    overflow-y:auto;
+    box-shadow:0 12px 40px rgba(0,0,0,.25);
+  }
+  .modal-box h3{
+    font-family:'Poppins',sans-serif;
+    font-size:15.5px;
+    margin:0 0 6px;
+    color:var(--gray-ink);
+  }
+  .modal-box .modal-sub{
+    font-size:12px;
+    color:var(--gray-mid);
+    margin-bottom:14px;
+  }
+  .period-option{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    width:100%;
+    text-align:left;
+    background:var(--blue-pale);
+    border:1.5px solid transparent;
+    border-radius:10px;
+    padding:10px 14px;
+    margin-bottom:8px;
+    cursor:pointer;
+    font-family:inherit;
+    font-size:13px;
+    color:var(--gray-ink);
+    transition:border-color .15s, background .15s;
+  }
+  .period-option:hover{border-color:var(--blue);background:#dcedf8;}
+  .period-option .pr{font-weight:700;color:var(--blue-dark);}
+  .period-option .pn{font-size:11.5px;color:var(--gray-mid);}
+  .modal-close{
+    margin-top:8px;
+    background:none;
+    border:none;
+    color:var(--gray-mid);
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    padding:6px 0;
+  }
+  .modal-close:hover{color:var(--red);}
+
   @media print{
     body{background:#fff;padding:0;}
     .add-row-btn, .row-del{display:none;}
@@ -401,7 +491,12 @@
       <label>Agente</label>
       <input type="text" id="agenteNombre" placeholder="Nombre del agente">
     </div>
+    <div class="field" style="justify-content:flex-end;">
+      <label>&nbsp;</label>
+      <button class="load-btn" id="loadBtn" onclick="cargarDatosExistentes()">📂 Cargar datos existentes</button>
+    </div>
   </div>
+  <div id="loadStatus" class="load-status"></div>
 
   <!-- SEMANAS -->
   <div class="section-title"><span class="dot"></span><h2>Seguimiento de metas · 5 semanas</h2></div>
@@ -499,6 +594,16 @@
   </div>
 
   <div class="footer-note">APF MX · Formato de seguimiento de indicadores para agentes</div>
+</div>
+
+<!-- MODAL: SELECCIÓN DE PERIODO -->
+<div id="periodModal" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <h3>Periodos encontrados</h3>
+    <div class="modal-sub" id="periodModalAgente"></div>
+    <div id="periodOptionsList"></div>
+    <button class="modal-close" onclick="closePeriodModal()">Cancelar</button>
+  </div>
 </div>
 
 <script>
@@ -690,7 +795,7 @@ document.addEventListener('input', (e)=>{
    1. Pega aquí la URL de tu Google Apps Script Web App (termina en /exec).
    2. Sigue las instrucciones que te di en el chat para crearla.
    ===================================================================== */
-const GOOGLE_SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwwUan7ViNO-qd3eNKEd0-vKefn6faA1-qU-rKO3fq3qfWW_Q3npQiVGekL7QG21h8/exec"; // <-- MODIFICA ESTA LÍNEA
+const GOOGLE_SHEETS_WEB_APP_URL = "PEGA_AQUI_TU_URL_DE_APPS_SCRIPT"; // <-- MODIFICA ESTA LÍNEA
 /* ===================================================================== */
 
 function sanitizeSheetName(str){
@@ -807,6 +912,178 @@ async function guardarEnGoogleSheets(){
   } finally {
     btn.disabled = false;
   }
+}
+
+/* =====================================================================
+   CARGAR DATOS EXISTENTES
+   ===================================================================== */
+function setLoadStatus(msg, type){
+  const el = document.getElementById('loadStatus');
+  el.textContent = msg;
+  el.className = 'load-status' + (type ? ' ' + type : '');
+}
+
+async function cargarDatosExistentes(){
+  const btn = document.getElementById('loadBtn');
+  const agente = document.getElementById('agenteNombre').value.trim();
+  const de = document.getElementById('periodoDe').value;
+  const a = document.getElementById('periodoA').value;
+
+  if(!GOOGLE_SHEETS_WEB_APP_URL || GOOGLE_SHEETS_WEB_APP_URL.indexOf('PEGA_AQUI') !== -1){
+    setLoadStatus('Falta configurar la URL de Google Apps Script (busca GOOGLE_SHEETS_WEB_APP_URL en el código).', 'err');
+    return;
+  }
+  if(!agente){
+    setLoadStatus('Escribe el nombre del agente para poder buscar sus datos.', 'err');
+    return;
+  }
+
+  btn.disabled = true;
+  setLoadStatus('Buscando datos guardados…', 'loading');
+
+  try{
+    // Si ya hay un periodo completo capturado, se intenta cargar directo esa pestaña
+    if(de && a){
+      const candidateSheetName = sanitizeSheetName(`${agente} (${de} a ${a})`);
+      const direct = await fetchFromSheets({ action:'get', sheetName: candidateSheetName });
+      if(direct.status === 'ok' && direct.data){
+        populateForm(direct.data);
+        setLoadStatus(`Se cargaron los datos de "${candidateSheetName}".`, 'ok');
+        btn.disabled = false;
+        return;
+      }
+    }
+
+    // Si no hay periodo, o no se encontró esa pestaña exacta, se busca por agente
+    const list = await fetchFromSheets({ action:'list', agente: agente });
+    const results = (list && list.results) ? list.results : [];
+
+    if(results.length === 0){
+      setLoadStatus('No se encontraron datos.', 'err');
+    } else if(results.length === 1){
+      const full = await fetchFromSheets({ action:'get', sheetName: results[0].sheetName });
+      if(full.status === 'ok' && full.data){
+        populateForm(full.data);
+        setLoadStatus(`Se cargaron los datos de "${results[0].sheetName}".`, 'ok');
+      } else {
+        setLoadStatus('No se encontraron datos.', 'err');
+      }
+    } else {
+      showPeriodPicker(agente, results);
+      setLoadStatus(`Se encontraron ${results.length} periodos para este agente. Elige uno.`, 'ok');
+    }
+  } catch(err){
+    setLoadStatus('Error al buscar datos: ' + err.message, 'err');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function fetchFromSheets(params){
+  const url = new URL(GOOGLE_SHEETS_WEB_APP_URL);
+  Object.keys(params).forEach(k => url.searchParams.set(k, params[k]));
+  const response = await fetch(url.toString(), { method: 'GET' });
+  return await response.json();
+}
+
+function showPeriodPicker(agente, results){
+  document.getElementById('periodModalAgente').textContent = `Agente: ${agente}`;
+  const list = document.getElementById('periodOptionsList');
+  list.innerHTML = '';
+  results.forEach(r=>{
+    const btn = document.createElement('button');
+    btn.className = 'period-option';
+    btn.innerHTML = `<span class="pr">${r.periodoDe || '—'} a ${r.periodoA || '—'}</span><span class="pn">${r.noProyecto ? 'Proyecto ' + r.noProyecto : ''}</span>`;
+    btn.onclick = async ()=>{
+      setLoadStatus('Cargando periodo seleccionado…', 'loading');
+      const full = await fetchFromSheets({ action:'get', sheetName: r.sheetName });
+      if(full.status === 'ok' && full.data){
+        populateForm(full.data);
+        setLoadStatus(`Se cargaron los datos de "${r.sheetName}".`, 'ok');
+      } else {
+        setLoadStatus('No se encontraron datos.', 'err');
+      }
+      closePeriodModal();
+    };
+    list.appendChild(btn);
+  });
+  document.getElementById('periodModal').style.display = 'flex';
+}
+
+function closePeriodModal(){
+  document.getElementById('periodModal').style.display = 'none';
+}
+
+function populateForm(data){
+  document.getElementById('agenteNombre').value = data.agente || '';
+  document.getElementById('periodoDe').value = data.periodoDe || '';
+  document.getElementById('periodoA').value = data.periodoA || '';
+  document.getElementById('noProyecto').value = data.noProyecto || '';
+
+  // Semanas
+  (data.semanas || []).forEach(semana=>{
+    const card = document.querySelector(`.week-card[data-week="${semana.semana}"]`);
+    if(!card) return;
+    (semana.metrics || []).forEach(m=>{
+      const metricKey = METRICS.find(mm=>mm.label === m.label);
+      if(!metricKey) return;
+      const inputs = card.querySelectorAll(`input[data-metric="${metricKey.key}"]`);
+      const vals = [m.L, m.M1, m.M2, m.J, m.V];
+      inputs.forEach((inp, idx)=>{ inp.value = vals[idx] || ''; });
+    });
+    recalcWeek(card);
+  });
+
+  // Clientes: limpiar filas actuales y recrear
+  document.getElementById('clientesBody').innerHTML = '';
+  clienteRowCount = 0;
+  if((data.clientes || []).length === 0){
+    addClienteRow();
+  } else {
+    data.clientes.forEach(c=>{
+      addClienteRow();
+      const rows = document.querySelectorAll('#clientesBody tr');
+      const tr = rows[rows.length - 1];
+      const inputs = tr.querySelectorAll('input');
+      inputs[0].value = c.nombre || '';
+      inputs[1].value = c.aportacion || '';
+      inputs[2].value = c.planPlazo || '';
+      inputs[3].value = c.comision || '';
+    });
+  }
+  recalcClientes();
+
+  // Oportunidades: limpiar filas actuales y recrear
+  document.getElementById('oportunidadesBody').innerHTML = '';
+  oportunidadRowCount = 0;
+  if((data.oportunidades || []).length === 0){
+    addOportunidadRow();
+  } else {
+    data.oportunidades.forEach(o=>{
+      addOportunidadRow();
+      const rows = document.querySelectorAll('#oportunidadesBody tr');
+      const tr = rows[rows.length - 1];
+      const inputs = tr.querySelectorAll('input');
+      const select = tr.querySelector('select');
+      inputs[0].value = o.nombre || '';
+      if(select) select.value = o.plan || '';
+      inputs[1].value = o.plazo || '';
+      inputs[2].value = o.aportacion || '';
+      inputs[3].value = o.accion || '';
+    });
+  }
+  recalcOportunidades();
+
+  // Avance de metas (solo las metas, logro/faltante se recalculan solos)
+  (data.avance || []).forEach(a=>{
+    if(a.indicador === 'Referido') document.getElementById('metaReferido').value = a.meta;
+    if(a.indicador === 'Oportunidades') document.getElementById('metaOportunidades').value = a.meta;
+    if(a.indicador === 'No. de negocios') document.getElementById('metaNegocios').value = a.meta;
+    if(a.indicador === 'Primas') document.getElementById('metaPrimas').value = a.meta;
+  });
+
+  recalcAvance();
+  updateSheetNamePreview();
 }
 
 /* ---------- INIT ---------- */
