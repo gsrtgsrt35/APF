@@ -213,13 +213,7 @@ section{ padding:100px 0; }
 .why__point p{ color:#666; font-size:0.94rem; }
 
 /* ---------- Áreas de asesoría ---------- */
-.benefits__intro{ display:flex; justify-content:center; gap:14px; margin-bottom:40px; flex-wrap:wrap; }
-.benefits__tab{
-  padding:10px 22px; border-radius:999px; font-size:0.9rem; font-weight:600; color:var(--gris-oscuro);
-  background:var(--gris-claro);
-}
-.benefits__tab--azul{ background:var(--azul); color:var(--blanco); }
-.benefits__grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:22px; }
+.benefits__grid{ display:grid; grid-template-columns:repeat(5, 1fr); gap:22px; }
 .benefit-card{
   background:var(--blanco); border:1px solid rgba(0,0,0,0.06); border-radius:var(--radio);
   padding:34px 18px; text-align:center; box-shadow:var(--sombra-suave);
@@ -227,8 +221,7 @@ section{ padding:100px 0; }
 }
 .benefit-card:hover{ transform:translateY(-6px); box-shadow:var(--sombra); border-color:var(--azul); }
 .benefit-card i{ font-size:2rem; color:var(--azul); margin-bottom:16px; }
-.benefit-card h3{ font-size:0.94rem; margin-bottom:4px; }
-.benefit-card span{ font-size:0.74rem; color:#999; text-transform:uppercase; letter-spacing:0.04em; }
+.benefit-card h3{ font-size:0.94rem; }
 
 /* ---------- Agencia / stats ---------- */
 .agency{ background: linear-gradient(135deg, var(--gris-oscuro) 0%, #333 100%); }
@@ -489,67 +482,28 @@ input.invalid, select.invalid, textarea.invalid{ border-color:#e05252; }
     <div class="section__head" data-aos="fade-up">
       <span class="eyebrow">En qué te ayudamos</span>
       <h2>Áreas donde te damos asesoría</h2>
-      <p>Somos una consultoría en finanzas: además de seguros, te acompañamos en las decisiones financieras del día a día y de largo plazo.</p>
-    </div>
-    <div class="benefits__intro">
-      <span class="benefits__tab benefits__tab--azul">Seguros</span>
-      <span class="benefits__tab">Finanzas Personales y Empresariales</span>
+      <p>Cada persona tiene una situación distinta; por eso cubrimos varios frentes.</p>
     </div>
     <div class="benefits__grid">
       <div class="benefit-card" data-aos="fade-up" data-aos-delay="0">
         <i class="fa-solid fa-car-side"></i>
         <h3>Seguro de Auto</h3>
-        <span>Seguros</span>
       </div>
       <div class="benefit-card" data-aos="fade-up" data-aos-delay="50">
         <i class="fa-solid fa-heart-pulse"></i>
         <h3>Gastos Médicos</h3>
-        <span>Seguros</span>
       </div>
       <div class="benefit-card" data-aos="fade-up" data-aos-delay="100">
         <i class="fa-solid fa-house-flag"></i>
         <h3>Daños Personales y Empresariales</h3>
-        <span>Seguros</span>
       </div>
       <div class="benefit-card" data-aos="fade-up" data-aos-delay="150">
         <i class="fa-solid fa-heart-circle-check"></i>
         <h3>Vida Puro y Dotal</h3>
-        <span>Seguros</span>
       </div>
       <div class="benefit-card" data-aos="fade-up" data-aos-delay="200">
-        <i class="fa-solid fa-shield-halved"></i>
-        <h3>Plan Personal de Retiro (Seguro)</h3>
-        <span>Seguros</span>
-      </div>
-      <div class="benefit-card" data-aos="fade-up" data-aos-delay="250">
-        <i class="fa-solid fa-table-list"></i>
-        <h3>Presupuesto</h3>
-        <span>Finanzas</span>
-      </div>
-      <div class="benefit-card" data-aos="fade-up" data-aos-delay="300">
-        <i class="fa-solid fa-piggy-bank"></i>
-        <h3>Ahorro</h3>
-        <span>Finanzas</span>
-      </div>
-      <div class="benefit-card" data-aos="fade-up" data-aos-delay="350">
-        <i class="fa-solid fa-credit-card"></i>
-        <h3>Crédito</h3>
-        <span>Finanzas</span>
-      </div>
-      <div class="benefit-card" data-aos="fade-up" data-aos-delay="400">
-        <i class="fa-solid fa-chart-line"></i>
-        <h3>Inversiones</h3>
-        <span>Finanzas</span>
-      </div>
-      <div class="benefit-card" data-aos="fade-up" data-aos-delay="450">
         <i class="fa-solid fa-umbrella-beach"></i>
-        <h3>Planes para el Retiro</h3>
-        <span>Finanzas</span>
-      </div>
-      <div class="benefit-card" data-aos="fade-up" data-aos-delay="500">
-        <i class="fa-solid fa-building-columns"></i>
-        <h3>Consultoría Empresarial</h3>
-        <span>Finanzas</span>
+        <h3>Plan Personal de Retiro</h3>
       </div>
     </div>
   </div>
@@ -684,21 +638,11 @@ input.invalid, select.invalid, textarea.invalid{ border-color:#e05252; }
         <label for="interes">¿En qué te podemos ayudar?</label>
         <select id="interes" name="interes" required>
           <option value="">Selecciona una opción</option>
-          <optgroup label="Seguros">
-            <option value="Seguro de Auto">Seguro de Auto</option>
-            <option value="Gastos Médicos">Gastos Médicos</option>
-            <option value="Daños Personales o Empresariales">Daños Personales o Empresariales</option>
-            <option value="Vida Puro o Dotal">Vida Puro o Dotal</option>
-            <option value="Plan Personal de Retiro (Seguro)">Plan Personal de Retiro (Seguro)</option>
-          </optgroup>
-          <optgroup label="Finanzas Personales y Empresariales">
-            <option value="Presupuesto">Presupuesto</option>
-            <option value="Ahorro">Ahorro</option>
-            <option value="Crédito">Crédito</option>
-            <option value="Inversiones">Inversiones</option>
-            <option value="Planes para el Retiro">Planes para el Retiro</option>
-            <option value="Consultoría Empresarial">Consultoría Empresarial</option>
-          </optgroup>
+          <option value="Seguro de Auto">Seguro de Auto</option>
+          <option value="Gastos Médicos">Gastos Médicos</option>
+          <option value="Daños Personales o Empresariales">Daños Personales o Empresariales</option>
+          <option value="Vida Puro o Dotal">Vida Puro o Dotal</option>
+          <option value="Plan Personal de Retiro">Plan Personal de Retiro</option>
           <option value="Aún no lo sé">Aún no lo sé</option>
         </select>
         <span class="form__error"></span>
