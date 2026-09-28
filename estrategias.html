@@ -224,9 +224,6 @@
   /* ── SYNC PANEL ── */
   .sync-bar{position:fixed;bottom:0;left:0;right:0;background:var(--navy);border-top:3px solid var(--gold);padding:10px 28px;display:flex;align-items:center;gap:14px;z-index:500;flex-wrap:wrap;}
   .sync-label{color:var(--slate-light);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;white-space:nowrap;}
-  .sync-url-wrap{flex:1;min-width:200px;display:flex;gap:6px;align-items:center;}
-  .sync-url-input{flex:1;padding:6px 10px;border-radius:5px;border:1px solid var(--slate);background:#0d1f38;color:white;font-size:0.75rem;font-family:'JetBrains Mono',monospace;}
-  .sync-url-input::placeholder{color:var(--slate);}
   .btn-sync{background:var(--gold);color:var(--navy);border:none;padding:8px 18px;border-radius:6px;font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity 0.2s;flex-shrink:0;}
   .btn-sync:hover{opacity:0.85;}
   .btn-sync:disabled{opacity:0.45;cursor:not-allowed;}
@@ -349,13 +346,10 @@
 </nav>
 
 <!-- ===== SYNC BAR ===== -->
+<!-- URL de Google Apps Script configurada en el código (GAS_SCRIPT_URL) -->
+<input type="hidden" id="gas-url" value="">
 <div class="sync-bar">
   <span class="sync-label">☁️ Google Sheets</span>
-  <div class="sync-url-wrap">
-    <input class="sync-url-input" id="gas-url" type="text"
-      placeholder="Pega aquí tu URL de Google Apps Script…"
-      oninput="saveGasUrl(this.value)">
-  </div>
   <button class="btn-sync btn-sync-load" onclick="loadFromSheets()" id="btn-load">⬇ Cargar</button>
   <button class="btn-sync" onclick="saveToSheets()" id="btn-save">⬆ Guardar en Sheets</button>
   <span class="sync-status" id="sync-status"></span>
@@ -1439,13 +1433,17 @@ function loadCustomNegocios(){
 }
 
 // ─── GOOGLE SHEETS SYNC ──────────────────────────────────────────────────────
-const GAS_URL_KEY = 'gas_url';
+// ─── GOOGLE SHEETS URL ────────────────────────────────────────────────────────
+// ► Pega aquí tu URL de Google Apps Script (entre las comillas):
+const GAS_SCRIPT_URL = '';
+// ─────────────────────────────────────────────────────────────────────────────
 
-function saveGasUrl(val){
-  try{ localStorage.setItem(GAS_URL_KEY, val.trim()); }catch(e){}
-}
+function saveGasUrl(val){ /* no-op: URL está en el código */ }
 function loadGasUrl(){
-  try{ return localStorage.getItem(GAS_URL_KEY)||''; }catch(e){ return ''; }
+  // Prioridad: constante en código > atributo del input oculto
+  if(GAS_SCRIPT_URL && GAS_SCRIPT_URL.trim()) return GAS_SCRIPT_URL.trim();
+  const el = document.getElementById('gas-url');
+  return el ? el.value.trim() : '';
 }
 
 function setSyncStatus(msg, type){
@@ -1630,10 +1628,10 @@ function loadFromSheets(){
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 function init(){
-  // Restore GAS URL
-  const savedUrl = loadGasUrl();
-  const urlInput = document.getElementById('gas-url');
-  if(urlInput && savedUrl) urlInput.value = savedUrl;
+  // URL viene de GAS_SCRIPT_URL en el código; verificar que esté configurada
+  if(!GAS_SCRIPT_URL || !GAS_SCRIPT_URL.trim()){
+    setSyncStatus('⚠ Configura GAS_SCRIPT_URL en el código', 'err');
+  }
   try{ const ls = localStorage.getItem('sync_last'); if(ls) setSyncLast(ls); }catch(e){}
 
   loadCustomNegocios();
@@ -1889,7 +1887,6 @@ const _rawLoad = (k)=>{ try{ const v=localStorage.getItem(k); return v?JSON.pars
 
 window.saveJSON = function(k,v){ _rawSave((window.USER_PREFIX||'')+k, v); };
 window.loadJSON = function(k){ return _rawLoad((window.USER_PREFIX||'')+k); };
-window.loadGasUrl = function(){ try{ return localStorage.getItem('gas_url')||''; }catch(e){ return ''; } };
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
