@@ -1435,7 +1435,7 @@ function loadCustomNegocios(){
 // ─── GOOGLE SHEETS SYNC ──────────────────────────────────────────────────────
 // ─── GOOGLE SHEETS URL ────────────────────────────────────────────────────────
 // ► Pega aquí tu URL de Google Apps Script (entre las comillas):
-const GAS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxzmuqJwCNWK4psXroXagpDmVpsKjrrd9XcK7NmbDZKY9vs-CK9GB100zdgHVSI1A69rQ/exec';
+const GAS_SCRIPT_URL = '';
 // ─────────────────────────────────────────────────────────────────────────────
 
 function saveGasUrl(val){ /* no-op: URL está en el código */ }
@@ -1530,8 +1530,8 @@ function collectAllState(){
 // Para LEER usamos un <script> tag (JSONP) que sí está permitido cross-origin.
 
 async function saveToSheets(){
-  const url = document.getElementById('gas-url').value.trim();
-  if(!url){ setSyncStatus('⚠ Pega primero la URL de tu Apps Script', 'err'); return; }
+  const url = loadGasUrl();
+  if(!url){ setSyncStatus('⚠ GAS_SCRIPT_URL no configurada en el código', 'err'); return; }
   setBtns(true);
   setSyncStatus('⏳ Guardando…', 'busy');
   try{
@@ -1560,8 +1560,8 @@ async function saveToSheets(){
 // Para CARGAR usamos JSONP: inyectamos un <script src="url?callback=fn"> que
 // Google Apps Script devuelve como fn({...}) — esto sí funciona cross-origin.
 function loadFromSheets(){
-  const url = document.getElementById('gas-url').value.trim();
-  if(!url){ setSyncStatus('⚠ Pega primero la URL de tu Apps Script', 'err'); return; }
+  const url = loadGasUrl();
+  if(!url){ setSyncStatus('⚠ GAS_SCRIPT_URL no configurada en el código', 'err'); return; }
   setBtns(true);
   setSyncStatus('⏳ Cargando datos…', 'busy');
 
