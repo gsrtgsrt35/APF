@@ -1149,7 +1149,7 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
 <div class="toast" id="toast"></div>
 
 <script>
-const STORAGE_KEY = 'crm_apf_x10_v6';
+const STORAGE_KEY = 'crm_apf_x10_v2';
 
 const STATUS_CLASS = {
   'Firmado':'s-firmado','En comité':'s-comite','Reunión agendada':'s-reunion',
@@ -2369,7 +2369,12 @@ function copyAllPropuesta(){
 const GS_URL_KEY   = 'crm_apf_gs_url';
 const MAKE_URL_KEY = 'crm_apf_make_url';
 
-function getMakeUrl(){ return localStorage.getItem(MAKE_URL_KEY) || ''; }
+// ── CONFIGURACIÓN — edita solo estas dos líneas ──────────────────
+const GS_URL_DEFAULT   = 'https://script.google.com/macros/s/AKfycbzBrKna8GIGf01oCa8L-Qdj-hdY3ab0topWAEgtxSx94SHNBFwqyvxy1cY1_HBn08iz0w/exec';   // Apps Script Web App URL
+const MAKE_URL_DEFAULT = 'https://hook.us2.make.com/o9e3rb1y08ca39o4jlolmt3vlqn4u7sf';    // Make.com Webhook URL
+// ────────────────────────────────────────────────────────────────
+
+function getMakeUrl(){ return localStorage.getItem(MAKE_URL_KEY) || MAKE_URL_DEFAULT || ''; }
 function setMakeUrl(url){ localStorage.setItem(MAKE_URL_KEY, url); }
 
 // ── FUNCIÓN CENTRAL DE IA ────────────────────────────────────────
@@ -2418,7 +2423,7 @@ async function callAI(prompt, maxTokens = 1000){
 let syncTimeout = null;
 let lastSyncTime = null;
 
-function getGsUrl(){ return localStorage.getItem(GS_URL_KEY) || ''; }
+function getGsUrl(){ return localStorage.getItem(GS_URL_KEY) || GS_URL_DEFAULT || ''; }
 function setGsUrl(url){ localStorage.setItem(GS_URL_KEY, url); }
 
 // Estado visual del indicador
