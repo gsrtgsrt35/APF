@@ -474,6 +474,16 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
 .login-btn:disabled{opacity:.5;cursor:not-allowed}
 .login-error{background:#FFEBEE;color:#C62828;border-radius:8px;padding:10px 14px;font-size:12px;font-weight:600;margin-top:14px;display:none;text-align:center}
 .login-error.visible{display:block}
+.login-conn{font-size:11px;font-weight:600;text-align:center;margin-top:16px;padding:7px 10px;border-radius:8px}
+.login-conn.ok{background:#E8F5E9;color:#1B7A3E}
+.login-conn.bad{background:#FFF3E0;color:#B05A00}
+.login-config-toggle{text-align:center;margin-top:10px;font-size:12px}
+.login-config-toggle a{color:var(--navy-light);font-weight:600;text-decoration:none}
+.login-config-toggle a:hover{text-decoration:underline}
+.login-config{display:none;margin-top:10px}
+.login-config input{width:100%;border:1.5px solid var(--gray-200);border-radius:10px;padding:10px 12px;font-size:12px;font-family:'Inter',sans-serif;outline:none}
+.login-config input:focus{border-color:var(--navy-light)}
+.login-config button{width:100%;margin-top:8px;height:38px;border-radius:8px;border:none;background:var(--navy);color:#fff;font-size:12px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer}
 .login-loading{text-align:center;color:var(--gray-400);font-size:13px;margin-top:12px;display:none}
 .login-loading.visible{display:flex;align-items:center;justify-content:center;gap:8px}
 
@@ -583,6 +593,12 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
       <div class="login-loading" id="login-loading">
         <div class="spin"></div>
         <span>Verificando credenciales…</span>
+      </div>
+      <div class="login-conn" id="login-conn"></div>
+      <div class="login-config-toggle"><a href="#" onclick="toggleLoginConfig();return false">⚙️ Configurar conexión</a></div>
+      <div class="login-config" id="login-config">
+        <input type="url" id="login-config-url" placeholder="https://script.google.com/macros/s/…/exec">
+        <button onclick="saveLoginConfig()">Guardar URL en este navegador</button>
       </div>
     </div>
   </div>
@@ -2658,6 +2674,20 @@ function getSession(){ try{ return JSON.parse(sessionStorage.getItem(SESSION_KEY
 function setSession(u){ sessionStorage.setItem(SESSION_KEY, JSON.stringify(u)); }
 function clearSession(){ sessionStorage.removeItem(SESSION_KEY); }
 
+// Mensajes del login: cada uno identifica una causa distinta
+function loginErr(code, extra){ const e=new Error(code); e.code=code; e.extra=extra; return e; }
+
+function loginErrorText(err){
+  switch(err && err.code){
+    case 'NO_URL':    return '⚙️ Este navegador no tiene la URL de Google Sheets. Pulsa "Configurar conexión" aquí abajo y pégala (o ponla en el código del HTML).';
+    case 'NETWORK':   return '🌐 No se pudo contactar a Google Sheets. Revisa tu internet y que la URL del Web App sea la correcta.';
+    case 'NOT_JSON':  return '⚠️ Google respondió con una página en lugar de datos. En Apps Script implementa el Web App con "Quién tiene acceso: Cualquier persona".';
+    case 'BAD_CREDS': return 'Usuario o contraseña incorrectos';
+    case 'SERVER':    return '⚠️ El script de Google respondió: "' + err.extra + '". Si dice "Acción no reconocida", publica la última versión del script (Implementar → Administrar implementaciones → Nueva versión).';
+    default:          return 'Error inesperado al iniciar sesión: ' + (err && err.message);
+  }
+}
+
 async function doLogin(){
   const username = document.getElementById('login-user').value.trim();
   const password = document.getElementById('login-pass').value;
@@ -2676,39 +2706,74 @@ async function doLogin(){
 
   try {
     const gsUrl = getGsUrl();
-    if(!gsUrl){
-      // Sin Sheets configurado — modo demo: usuario "admin" / "admin"
-      if(username === 'admin' && password === 'admin'){
-        loginSuccess({ username:'admin', displayName:'Administrador' });
-      } else {
-        throw new Error('Credenciales incorrectas');
-      }
-      return;
-    }
+    if(!gsUrl) throw loginErr('NO_URL');
 
-    // Buscar usuario en Google Sheets hoja "usuarios"
-    const res  = await fetch(gsUrl, {
-      method: 'POST',
-      body: JSON.stringify({ action:'login', user:username, pass:password }),
-      headers: { 'Content-Type': 'text/plain' }
-    });
-    const data = await res.json();
+    let res;
+    try {
+      res = await fetch(gsUrl, {
+        method: 'POST',
+        body: JSON.stringify({ action:'login', user:username, pass:password }),
+        headers: { 'Content-Type': 'text/plain' }
+      });
+    } catch(e){ throw loginErr('NETWORK'); }
+
+    const raw = await res.text();
+    let data;
+    try { data = JSON.parse(raw); } catch(e){ throw loginErr('NOT_JSON'); }
 
     if(data.ok && data.user){
       loginSuccess({ username: data.user.username, displayName: data.user.displayName || data.user.username, password });
-    } else {
-      throw new Error('Credenciales incorrectas');
+      return;
     }
+    if(data.error === 'Credenciales incorrectas') throw loginErr('BAD_CREDS');
+    throw loginErr('SERVER', data.error || 'sin detalle');
 
   } catch(err){
-    errEl.textContent = err.message === 'Credenciales incorrectas'
-      ? 'Usuario o contraseña incorrectos'
-      : 'Error de conexión. Verifica tu internet.';
+    errEl.textContent = loginErrorText(err);
     errEl.classList.add('visible');
+    console.error('Login error:', err.code || '', err.extra || '', err);
   } finally {
     loadEl.classList.remove('visible');
     btn.disabled = false;
   }
+}
+
+// ── Estado de la conexión en la pantalla de login ──
+function gsUrlSource(){
+  const ls = localStorage.getItem(GS_URL_KEY) || '';
+  if(ls.indexOf('https://') === 0) return 'navegador';
+  if((GS_URL_DEFAULT || '').indexOf('https://') === 0) return 'codigo';
+  return 'ninguna';
+}
+
+function refreshLoginConn(){
+  const el = document.getElementById('login-conn');
+  if(!el) return;
+  const s = gsUrlSource();
+  el.className = 'login-conn ' + (s === 'ninguna' ? 'bad' : 'ok');
+  el.textContent = s === 'codigo'   ? '🟢 Google Sheets: URL leída del código del HTML'
+                 : s === 'navegador'? '🟢 Google Sheets: URL guardada en este navegador'
+                 :                    '🔴 Sin URL de Google Sheets en este navegador';
+}
+
+function toggleLoginConfig(){
+  const box = document.getElementById('login-config');
+  const open = box.style.display === 'block';
+  box.style.display = open ? 'none' : 'block';
+  if(!open) document.getElementById('login-config-url').value = getGsUrl();
+}
+
+function saveLoginConfig(){
+  const u = document.getElementById('login-config-url').value.trim();
+  const errEl = document.getElementById('login-error');
+  if(u.indexOf('https://script.google.com') !== 0){
+    errEl.textContent = 'La URL debe empezar con https://script.google.com/…';
+    errEl.classList.add('visible'); return;
+  }
+  setGsUrl(u);
+  errEl.classList.remove('visible');
+  document.getElementById('login-config').style.display = 'none';
+  refreshLoginConn();
 }
 
 function loginSuccess(user){
@@ -2756,12 +2821,14 @@ function doLogout(force){
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
   document.getElementById('login-error').classList.remove('visible');
+  refreshLoginConn();
 }
 
 // ── ARRANQUE ─────────────────────────────────────────────────────
 (function init(){
   const session = getSession();
-  if(session && (!getGsUrl() || session.password)){
+  refreshLoginConn();
+  if(session && session.password && getGsUrl()){
     // Sesión activa — ir directo al CRM
     loginSuccess(session);
   } else {
