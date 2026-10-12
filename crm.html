@@ -2370,11 +2370,11 @@ const GS_URL_KEY   = 'crm_apf_gs_url';
 const MAKE_URL_KEY = 'crm_apf_make_url';
 
 // ── CONFIGURACIÓN — edita solo estas dos líneas ──────────────────
-const GS_URL_DEFAULT   = 'https://script.google.com/macros/s/AKfycbzBrKna8GIGf01oCa8L-Qdj-hdY3ab0topWAEgtxSx94SHNBFwqyvxy1cY1_HBn08iz0w/exec';   // Apps Script Web App URL
-const MAKE_URL_DEFAULT = 'https://hook.us2.make.com/o9e3rb1y08ca39o4jlolmt3vlqn4u7sf';    // Make.com Webhook URL
+const GS_URL_DEFAULT   = 'TU_URL_GOOGLE_SHEETS_AQUI';   // Apps Script Web App URL
+const MAKE_URL_DEFAULT = 'TU_URL_MAKE_WEBHOOK_AQUI';    // Make.com Webhook URL
 // ────────────────────────────────────────────────────────────────
 
-function getMakeUrl(){ return localStorage.getItem(MAKE_URL_KEY) || MAKE_URL_DEFAULT || ''; }
+function getMakeUrl(){ const u = localStorage.getItem(MAKE_URL_KEY) || MAKE_URL_DEFAULT || ''; return u.indexOf('https://')===0 ? u : ''; }
 function setMakeUrl(url){ localStorage.setItem(MAKE_URL_KEY, url); }
 
 // ── FUNCIÓN CENTRAL DE IA ────────────────────────────────────────
@@ -2423,7 +2423,7 @@ async function callAI(prompt, maxTokens = 1000){
 let syncTimeout = null;
 let lastSyncTime = null;
 
-function getGsUrl(){ return localStorage.getItem(GS_URL_KEY) || GS_URL_DEFAULT || ''; }
+function getGsUrl(){ const u = localStorage.getItem(GS_URL_KEY) || GS_URL_DEFAULT || ''; return u.indexOf('https://')===0 ? u : ''; }
 function setGsUrl(url){ localStorage.setItem(GS_URL_KEY, url); }
 
 // Estado visual del indicador
@@ -2509,8 +2509,19 @@ async function saveConfigAndSync(){
 }
 
 // Lee todos los prospectos desde Google Sheets
+// Credenciales del usuario en sesión (el servidor las valida en cada petición)
+function authBody(){
+  if(!currentUser || !currentUser.password) throw new Error('SESSION_EXPIRED');
+  return { user: currentUser.username, pass: currentUser.password };
+}
+
+// Lee SOLO los prospectos del usuario logueado (el filtro lo aplica el servidor)
 async function fetchFromSheets(url){
-  const res  = await fetch(url, { method:'GET' });
+  const res  = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify({ action:'load', ...authBody() }),
+    headers: { 'Content-Type': 'text/plain' }
+  });
   const data = await res.json();
   if(!data.ok) throw new Error(data.error || 'Error en el script');
   return data.prospects || [];
@@ -2520,7 +2531,7 @@ async function fetchFromSheets(url){
 async function pushToSheets(url, prospects, changes=[]){
   const res  = await fetch(url, {
     method: 'POST',
-    body: JSON.stringify({ action:'sync', prospects, changes }),
+    body: JSON.stringify({ action:'sync', ...authBody(), prospects, changes }),
     headers: { 'Content-Type': 'text/plain' }
   });
   const data = await res.json();
@@ -2529,22 +2540,69 @@ async function pushToSheets(url, prospects, changes=[]){
 }
 
 // Sincronización automática — se llama después de cada guardado
+let syncDirty = false;      // hay cambios locales que aún no llegan a Sheets
+let syncVersion = 0;
+let pendingChanges = [];    // movimientos del histórico aún no enviados
+
 function autoSync(changes=[]){
   const url = getGsUrl();
   if(!url) return;
 
+  syncDirty = true;
+  syncVersion++;
+  pendingChanges = pendingChanges.concat(changes);
+
   if(syncTimeout) clearTimeout(syncTimeout);
   syncTimeout = setTimeout(async ()=>{
+    const version = syncVersion;
+    const batch   = pendingChanges.slice();
     setSyncState('busy','Sincronizando…');
     try {
-      await pushToSheets(url, getProspects(), changes);
+      await pushToSheets(url, getProspects(), batch);
+      pendingChanges = pendingChanges.slice(batch.length);
+      if(version === syncVersion) syncDirty = false;
       setSyncState('ok','Sincronizado');
       lastSyncTime = new Date();
     } catch(err){
+      if(handleAuthError(err)) return;
       setSyncState('error','Error sync');
       console.error('AutoSync error:', err);
     }
   }, 1500);
+}
+
+// Si hay cambios sin enviar, primero se envían (no se sobreescriben con lo del servidor)
+async function pullOrPush(url){
+  if(syncDirty){
+    const batch = pendingChanges.slice();
+    await pushToSheets(url, getProspects(), batch);
+    pendingChanges = pendingChanges.slice(batch.length);
+    syncDirty = false;
+    return;
+  }
+  const loaded = await fetchFromSheets(url);
+  if(loaded.length === 0 && getProspects().length > 0){
+    await pushToSheets(url, getProspects());   // primera vez de este usuario: sube lo local
+  } else {
+    saveData(loaded);                          // el servidor manda: solo SUS prospectos
+  }
+}
+
+function rerenderAll(){
+  renderTable();
+  if(currentTab==='kanban') renderKanban();
+  if(currentTab==='agenda') renderAgenda();
+  if(currentTab==='ghost')  renderGhostInline();
+}
+
+// Credenciales rechazadas por el servidor → volver al login sin perder datos locales
+function handleAuthError(err){
+  if(err && /No autorizado|SESSION_EXPIRED/.test(err.message)){
+    showToast('🔒 Sesión no válida — ingresa de nuevo');
+    doLogout(true);
+    return true;
+  }
+  return false;
 }
 
 // Sincronización manual — desde el indicador o botón
@@ -2554,19 +2612,13 @@ async function manualSync(){
 
   setSyncState('busy','Sincronizando…');
   try {
-    const loaded = await fetchFromSheets(url);
-    if(loaded && loaded.length > 0){
-      saveData(loaded);
-      renderTable();
-      if(currentTab==='kanban') renderKanban();
-      if(currentTab==='agenda') renderAgenda();
-    } else {
-      await pushToSheets(url, getProspects());
-    }
+    await pullOrPush(url);
+    rerenderAll();
     setSyncState('ok','Sincronizado');
     lastSyncTime = new Date();
     showToast('🔄 Sincronizado con Google Sheets');
   } catch(err){
+    if(handleAuthError(err)) return;
     setSyncState('error','Error sync');
     showToast('❌ Error al sincronizar — verifica tu conexión');
     console.error('ManualSync error:', err);
@@ -2582,15 +2634,13 @@ function initSyncState(){
     setTimeout(async ()=>{
       setSyncState('busy','Cargando…');
       try{
-        const loaded = await fetchFromSheets(url);
-        if(loaded && loaded.length > 0){
-          saveData(loaded);
-          renderTable();
-          updateDashboard();
-        }
+        await pullOrPush(url);
+        rerenderAll();
+        updateDashboard();
         setSyncState('ok','Sincronizado');
         lastSyncTime = new Date();
       } catch(e){
+        if(handleAuthError(e)) return;
         setSyncState('error','Sin conexión');
       }
     }, 800);
@@ -2601,23 +2651,13 @@ function initSyncState(){
 
 // ── LOGIN & MULTI-USUARIO ────────────────────────────────────────
 const SESSION_KEY = 'crm_apf_session';
+const DATA_OWNER_KEY = 'crm_apf_data_owner';
 
 let currentUser = null; // { username, displayName }
 
 function getSession(){ try{ return JSON.parse(sessionStorage.getItem(SESSION_KEY)); }catch{ return null; } }
 function setSession(u){ sessionStorage.setItem(SESSION_KEY, JSON.stringify(u)); }
 function clearSession(){ sessionStorage.removeItem(SESSION_KEY); }
-
-// Filtra prospectos según el usuario logueado
-// Si el usuario tiene prospectos con su usuario asignado, muestra solo esos.
-// Si no tiene ninguno asignado, muestra todos (compatibilidad hacia atrás).
-function getProspectsForUser(){
-  const all = getProspects();
-  if(!currentUser) return all;
-  const mine = all.filter(p => !p.agente || p.agente.trim() === '' ||
-    p.agente.toLowerCase() === currentUser.username.toLowerCase());
-  return mine.length > 0 ? mine : all;
-}
 
 async function doLogin(){
   const username = document.getElementById('login-user').value.trim();
@@ -2648,12 +2688,15 @@ async function doLogin(){
     }
 
     // Buscar usuario en Google Sheets hoja "usuarios"
-    const res  = await fetch(gsUrl + '?action=login&user=' +
-      encodeURIComponent(username) + '&pass=' + encodeURIComponent(password));
+    const res  = await fetch(gsUrl, {
+      method: 'POST',
+      body: JSON.stringify({ action:'login', user:username, pass:password }),
+      headers: { 'Content-Type': 'text/plain' }
+    });
     const data = await res.json();
 
     if(data.ok && data.user){
-      loginSuccess({ username: data.user.username, displayName: data.user.displayName || data.user.username });
+      loginSuccess({ username: data.user.username, displayName: data.user.displayName || data.user.username, password });
     } else {
       throw new Error('Credenciales incorrectas');
     }
@@ -2685,15 +2728,27 @@ function loginSuccess(user){
   document.getElementById('user-avatar').textContent =
     user.displayName.charAt(0).toUpperCase();
 
-  // Inicializar CRM
-  if(!loadData()) saveData(getDefaults());
+  // Datos locales: nunca mostrar los de otro usuario del mismo navegador
+  const owner = localStorage.getItem(DATA_OWNER_KEY);
+  if(owner && owner !== user.username.toLowerCase()) localStorage.removeItem(STORAGE_KEY);
+  localStorage.setItem(DATA_OWNER_KEY, user.username.toLowerCase());
+
+  // Con Sheets conectado, el usuario nuevo empieza vacío (no se siembra el prospecto demo)
+  if(!loadData()) saveData(getGsUrl() ? [] : getDefaults());
   renderTable();
   updateDashboard();
   initSyncState();
   initQuarterChip();
 }
 
-function doLogout(){
+function doLogout(force){
+  if(!force && syncDirty && !confirm('Tienes cambios sin sincronizar con Google Sheets. Si sales ahora se perderán. ¿Salir de todos modos?')) return;
+  if(syncTimeout) clearTimeout(syncTimeout);
+  if(!force && getGsUrl()){            // los datos viven en Sheets; no dejarlos en este navegador
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(DATA_OWNER_KEY);
+    syncDirty = false; pendingChanges = [];
+  }
   clearSession();
   currentUser = null;
   document.getElementById('main-header').style.display  = 'none';
@@ -2707,7 +2762,7 @@ function doLogout(){
 // ── ARRANQUE ─────────────────────────────────────────────────────
 (function init(){
   const session = getSession();
-  if(session){
+  if(session && (!getGsUrl() || session.password)){
     // Sesión activa — ir directo al CRM
     loginSuccess(session);
   } else {
