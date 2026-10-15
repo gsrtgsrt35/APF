@@ -566,6 +566,7 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
 .config-status.ok{background:#E8F5E9;color:#1B7A3E;display:block}
 .config-status.err{background:#FFEBEE;color:#C62828;display:block}
 </style>
+<script src="config.js"></script>
 </head>
 <body>
 
@@ -2034,10 +2035,10 @@ function exportCSV(){
   showToast('📥 CSV exportado');
 }
 
-function showToast(msg){
+function showToast(msg, ms){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),3000);
+  setTimeout(()=>t.classList.remove('show'), ms || 3000);
 }
 
 
@@ -2384,12 +2385,14 @@ function copyAllPropuesta(){
 const GS_URL_KEY   = 'crm_apf_gs_url';
 const MAKE_URL_KEY = 'crm_apf_make_url';
 
-// ── CONFIGURACIÓN — edita solo estas dos líneas ──────────────────
-const GS_URL_DEFAULT   = 'TU_URL_GOOGLE_SHEETS_AQUI';   // Apps Script Web App URL
-const MAKE_URL_DEFAULT = 'TU_URL_MAKE_WEBHOOK_AQUI';    // Make.com Webhook URL
-// ────────────────────────────────────────────────────────────────
+// ── CONFIGURACIÓN — se lee del archivo config.js (junto a este HTML) ──
+const APF_CFG          = (typeof window !== 'undefined' && window.APF_CONFIG) || {};
+const GS_URL_DEFAULT   = String(APF_CFG.GS_URL   || '');
+const MAKE_URL_DEFAULT = String(APF_CFG.MAKE_URL || '');
+function isHttps(u){ return typeof u === 'string' && u.indexOf('https://') === 0; }
 
-function getMakeUrl(){ const u = localStorage.getItem(MAKE_URL_KEY) || MAKE_URL_DEFAULT || ''; return u.indexOf('https://')===0 ? u : ''; }
+// config.js manda; si no tiene URL válida se usa la guardada en este navegador
+function getMakeUrl(){ const l = localStorage.getItem(MAKE_URL_KEY); return isHttps(MAKE_URL_DEFAULT) ? MAKE_URL_DEFAULT : (isHttps(l) ? l : ''); }
 function setMakeUrl(url){ localStorage.setItem(MAKE_URL_KEY, url); }
 
 // ── FUNCIÓN CENTRAL DE IA ────────────────────────────────────────
@@ -2438,15 +2441,16 @@ async function callAI(prompt, maxTokens = 1000){
 let syncTimeout = null;
 let lastSyncTime = null;
 
-function getGsUrl(){ const u = localStorage.getItem(GS_URL_KEY) || GS_URL_DEFAULT || ''; return u.indexOf('https://')===0 ? u : ''; }
+function getGsUrl(){ const l = localStorage.getItem(GS_URL_KEY); return isHttps(GS_URL_DEFAULT) ? GS_URL_DEFAULT : (isHttps(l) ? l : ''); }
 function setGsUrl(url){ localStorage.setItem(GS_URL_KEY, url); }
 
 // Estado visual del indicador
-function setSyncState(state, label){
+function setSyncState(state, label, detail){
   const ind = document.getElementById('sync-indicator');
   const lbl = document.getElementById('sync-label');
   if(!ind) return;
   ind.className = 'sync-indicator sync-' + state;
+  ind.title = detail || 'Click para sincronizar o configurar';
   lbl.textContent = label;
 }
 
@@ -2517,8 +2521,9 @@ async function saveConfigAndSync(){
     }
   } catch(err){
     statusEl.className='config-status err';
-    statusEl.textContent='❌ No se pudo conectar con Google Sheets. Verifica la URL del Apps Script.';
-    setSyncState('error','Error de conexión');
+    const why = describeSyncError(err);
+    statusEl.textContent='❌ No se pudo conectar con Google Sheets: ' + why;
+    setSyncState('error','Error de conexión', why);
     console.error('GS Config error:', err);
   }
 }
@@ -2530,28 +2535,42 @@ function authBody(){
   return { user: currentUser.username, pass: currentUser.password };
 }
 
+// Llamada única al script de Google. Cada fallo lleva un código que dice QUÉ pasó.
+function scriptErr(code, extra){
+  const e = new Error(code + (extra ? ': ' + extra : '')); e.code = code; e.extra = extra; return e;
+}
+
+async function callScript(url, payload){
+  let res;
+  try {
+    res = await fetch(url, { method:'POST', body: JSON.stringify(payload), headers:{ 'Content-Type':'text/plain' } });
+  } catch(e){ throw scriptErr('NETWORK'); }
+  const raw = await res.text();
+  let data;
+  try { data = JSON.parse(raw); } catch(e){ throw scriptErr('NOT_JSON'); }
+  if(!data.ok) throw scriptErr('SERVER', data.error || 'sin detalle');
+  return data;
+}
+
 // Lee SOLO los prospectos del usuario logueado (el filtro lo aplica el servidor)
 async function fetchFromSheets(url){
-  const res  = await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify({ action:'load', ...authBody() }),
-    headers: { 'Content-Type': 'text/plain' }
-  });
-  const data = await res.json();
-  if(!data.ok) throw new Error(data.error || 'Error en el script');
+  const data = await callScript(url, { action:'load', ...authBody() });
   return data.prospects || [];
 }
 
-// Escribe todos los prospectos a Google Sheets
+// Escribe los prospectos del usuario (y los movimientos del histórico) en Google Sheets
 async function pushToSheets(url, prospects, changes=[]){
-  const res  = await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify({ action:'sync', ...authBody(), prospects, changes }),
-    headers: { 'Content-Type': 'text/plain' }
-  });
-  const data = await res.json();
-  if(!data.ok) throw new Error(data.error || 'Error al sincronizar');
-  return data;
+  return callScript(url, { action:'sync', ...authBody(), prospects, changes });
+}
+
+// Texto claro para el usuario según la causa del fallo
+function describeSyncError(err){
+  switch(err && err.code){
+    case 'NETWORK':  return 'No se pudo contactar a Google (sin internet, URL incorrecta, o el script pide autorización/permisos)';
+    case 'NOT_JSON': return 'Google respondió una página en vez de datos (el Web App debe estar implementado con acceso "Cualquier persona")';
+    case 'SERVER':   return 'El script respondió: "' + err.extra + '"';
+    default:         return (err && err.message) || 'Error desconocido';
+  }
 }
 
 // Sincronización automática — se llama después de cada guardado
@@ -2580,7 +2599,9 @@ function autoSync(changes=[]){
       lastSyncTime = new Date();
     } catch(err){
       if(handleAuthError(err)) return;
-      setSyncState('error','Error sync');
+      const why = describeSyncError(err);
+      setSyncState('error','Error sync', why);
+      showToast('❌ No se guardó en Google Sheets: ' + why + '. Tus cambios siguen en este navegador; pulsa el indicador para reintentar.', 9000);
       console.error('AutoSync error:', err);
     }
   }, 1500);
@@ -2634,8 +2655,9 @@ async function manualSync(){
     showToast('🔄 Sincronizado con Google Sheets');
   } catch(err){
     if(handleAuthError(err)) return;
-    setSyncState('error','Error sync');
-    showToast('❌ Error al sincronizar — verifica tu conexión');
+    const why = describeSyncError(err);
+    setSyncState('error','Error sync', why);
+    showToast('❌ No se pudo sincronizar: ' + why, 9000);
     console.error('ManualSync error:', err);
   }
 }
@@ -2656,7 +2678,9 @@ function initSyncState(){
         lastSyncTime = new Date();
       } catch(e){
         if(handleAuthError(e)) return;
-        setSyncState('error','Sin conexión');
+        const why = describeSyncError(e);
+        setSyncState('error','Sin conexión', why);
+        showToast('❌ No se pudo cargar desde Google Sheets: ' + why, 9000);
       }
     }, 800);
   } else {
@@ -2679,7 +2703,7 @@ function loginErr(code, extra){ const e=new Error(code); e.code=code; e.extra=ex
 
 function loginErrorText(err){
   switch(err && err.code){
-    case 'NO_URL':    return '⚙️ Este navegador no tiene la URL de Google Sheets. Pulsa "Configurar conexión" aquí abajo y pégala (o ponla en el código del HTML).';
+    case 'NO_URL':    return '⚙️ Este navegador no tiene la URL de Google Sheets. Revisa que config.js esté en la misma carpeta que el HTML y tenga tu URL, o pulsa "Configurar conexión" y pégala.';
     case 'NETWORK':   return '🌐 No se pudo contactar a Google Sheets. Revisa tu internet y que la URL del Web App sea la correcta.';
     case 'NOT_JSON':  return '⚠️ Google respondió con una página en lugar de datos. En Apps Script implementa el Web App con "Quién tiene acceso: Cualquier persona".';
     case 'BAD_CREDS': return 'Usuario o contraseña incorrectos';
@@ -2740,9 +2764,8 @@ async function doLogin(){
 
 // ── Estado de la conexión en la pantalla de login ──
 function gsUrlSource(){
-  const ls = localStorage.getItem(GS_URL_KEY) || '';
-  if(ls.indexOf('https://') === 0) return 'navegador';
-  if((GS_URL_DEFAULT || '').indexOf('https://') === 0) return 'codigo';
+  if(isHttps(GS_URL_DEFAULT)) return 'config';
+  if(isHttps(localStorage.getItem(GS_URL_KEY))) return 'navegador';
   return 'ninguna';
 }
 
@@ -2751,9 +2774,9 @@ function refreshLoginConn(){
   if(!el) return;
   const s = gsUrlSource();
   el.className = 'login-conn ' + (s === 'ninguna' ? 'bad' : 'ok');
-  el.textContent = s === 'codigo'   ? '🟢 Google Sheets: URL leída del código del HTML'
-                 : s === 'navegador'? '🟢 Google Sheets: URL guardada en este navegador'
-                 :                    '🔴 Sin URL de Google Sheets en este navegador';
+  el.textContent = s === 'config'    ? '🟢 Google Sheets: URL leída de config.js'
+                 : s === 'navegador' ? '🟢 Google Sheets: URL guardada en este navegador'
+                 :                     '🔴 Sin URL de Google Sheets — revisa que config.js esté junto al HTML y tenga tu URL';
 }
 
 function toggleLoginConfig(){
