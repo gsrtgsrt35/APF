@@ -477,6 +477,7 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
 .login-conn{font-size:11px;font-weight:600;text-align:center;margin-top:16px;padding:7px 10px;border-radius:8px}
 .login-conn.ok{background:#E8F5E9;color:#1B7A3E}
 .login-conn.bad{background:#FFF3E0;color:#B05A00}
+.login-ver{text-align:center;font-size:10px;color:var(--gray-400);margin-top:8px;letter-spacing:.5px}
 .login-config-toggle{text-align:center;margin-top:10px;font-size:12px}
 .login-config-toggle a{color:var(--navy-light);font-weight:600;text-decoration:none}
 .login-config-toggle a:hover{text-decoration:underline}
@@ -596,6 +597,7 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
         <span>Verificando credenciales…</span>
       </div>
       <div class="login-conn" id="login-conn"></div>
+      <div class="login-ver" id="login-ver"></div>
       <div class="login-config-toggle"><a href="#" onclick="toggleLoginConfig();return false">⚙️ Configurar conexión</a></div>
       <div class="login-config" id="login-config">
         <input type="url" id="login-config-url" placeholder="https://script.google.com/macros/s/…/exec">
@@ -1153,11 +1155,11 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
 <div class="confirm-overlay" id="confirm-overlay">
   <div class="confirm-box">
     <div class="confirm-icon">⚠️</div>
-    <h3>¿Borrar todos los datos?</h3>
-    <p>Esta acción eliminará todos los prospectos permanentemente.</p>
+    <h3 id="confirm-title">¿Borrar todos los datos?</h3>
+    <p id="confirm-text">Esta acción eliminará todos los prospectos permanentemente.</p>
     <div class="confirm-btns">
       <button class="btn btn-outline" onclick="closeConfirm()">Cancelar</button>
-      <button class="btn btn-danger-outline" onclick="doReset()">Sí, borrar todo</button>
+      <button class="btn btn-danger-outline" id="confirm-ok" onclick="doReset()">Sí, borrar todo</button>
     </div>
   </div>
 </div>
@@ -1951,6 +1953,7 @@ function saveProspect(){
   };
 
   let changes = [];
+  let savedId = editingId;
   const now = cdmxTimestamp();
 
   if(editingId){
@@ -1977,6 +1980,7 @@ function saveProspect(){
     showToast('✅ Prospecto actualizado');
   } else {
     const newId = uid();
+    savedId = newId;
     ps.unshift({id:newId,...rec,createdAt:now,updatedAt:now});
     // Registrar creación como un único movimiento
     changes.push({
@@ -1994,11 +1998,12 @@ function saveProspect(){
   renderTable();
   if(currentTab==='kanban')renderKanban();
   if(currentTab==='ghost')renderGhostInline();
-  autoSync(changes);
+  queueSync({ up:[savedId], changes });
 }
 
 function deleteProspect(){
   if(!editingId)return;
+  const delId = editingId;
   const ps = getProspects();
   const prospect = ps.find(p=>p.id===editingId);
   const changes = prospect ? [{
@@ -2013,12 +2018,32 @@ function deleteProspect(){
   closeModal();renderTable();
   if(currentTab==='kanban')renderKanban();
   showToast('🗑 Prospecto eliminado');
-  autoSync(changes);
+  queueSync({ del:[delId], changes });
 }
 
-function confirmReset(){document.getElementById('confirm-overlay').classList.add('open')}
+function confirmReset(){
+  const gs = !!getGsUrl();
+  document.getElementById('confirm-title').textContent = gs ? '¿Recargar desde Google Sheets?' : '¿Borrar todos los datos?';
+  document.getElementById('confirm-text').textContent = gs
+    ? 'Se descarta la copia de este navegador y se vuelven a cargar tus prospectos desde Google Sheets. No se borra nada en Google Sheets.' + (hasPending() ? ' ⚠️ Hay cambios sin subir que se perderán.' : '')
+    : 'Esta acción eliminará todos los prospectos permanentemente.';
+  document.getElementById('confirm-ok').textContent = gs ? 'Sí, recargar' : 'Sí, borrar todo';
+  document.getElementById('confirm-overlay').classList.add('open');
+}
 function closeConfirm(){document.getElementById('confirm-overlay').classList.remove('open')}
-function doReset(){localStorage.removeItem(STORAGE_KEY);closeConfirm();renderTable();showToast('🔄 Datos restablecidos')}
+function doReset(){
+  closeConfirm();
+  localStorage.removeItem(STORAGE_KEY);
+  if(getGsUrl()){                       // con Sheets: solo vacía la copia local y la recarga
+    localStorage.removeItem(PENDING_KEY);
+    saveData([]); renderTable();
+    showToast('🔄 Recargando desde Google Sheets…');
+    manualSync();
+  } else {
+    renderTable();
+    showToast('🔄 Datos restablecidos');
+  }
+}
 
 function exportCSV(){
   const ps=getProspects();
@@ -2450,7 +2475,7 @@ function setSyncState(state, label, detail){
   const lbl = document.getElementById('sync-label');
   if(!ind) return;
   ind.className = 'sync-indicator sync-' + state;
-  ind.title = detail || 'Click para sincronizar o configurar';
+  ind.title = detail || (scriptVersion ? 'CRM ' + CRM_VERSION + ' · script v' + scriptVersion + ' — clic para sincronizar' : 'Click para sincronizar o configurar');
   lbl.textContent = label;
 }
 
@@ -2500,25 +2525,16 @@ async function saveConfigAndSync(){
   setGsUrl(url);
   setSyncState('busy','Conectando…');
 
+  scriptVersionOk = false;
   try {
-    const loaded = await fetchFromSheets(url);
-    if(loaded && loaded.length > 0){
-      saveData(loaded);
-      renderTable();
-      if(currentTab==='kanban') renderKanban();
-      statusEl.className='config-status ok';
-      statusEl.textContent=`✅ Conexión exitosa. ${loaded.length} prospectos cargados desde Google Sheets.`;
-      setSyncState('ok','Sincronizado');
-      lastSyncTime = new Date();
-      showToast(`✅ ${loaded.length} prospectos cargados desde Google Sheets`);
-    } else {
-      await pushToSheets(url, getProspects());
-      statusEl.className='config-status ok';
-      statusEl.textContent='✅ Conexión exitosa. Datos locales enviados a Google Sheets.';
-      setSyncState('ok','Sincronizado');
-      lastSyncTime = new Date();
-      showToast('✅ Datos enviados a Google Sheets');
-    }
+    await syncNow(url);
+    rerenderAll();
+    const n = getProspects().length;
+    statusEl.className='config-status ok';
+    statusEl.textContent='✅ Conexión exitosa. ' + n + ' prospecto' + (n===1?'':'s') + ' sincronizado' + (n===1?'':'s') + ' con Google Sheets.';
+    setSyncState('ok','Sincronizado');
+    lastSyncTime = new Date();
+    showToast('✅ Conectado a Google Sheets');
   } catch(err){
     statusEl.className='config-status err';
     const why = describeSyncError(err);
@@ -2559,8 +2575,8 @@ async function fetchFromSheets(url){
 }
 
 // Escribe los prospectos del usuario (y los movimientos del histórico) en Google Sheets
-async function pushToSheets(url, prospects, changes=[]){
-  return callScript(url, { action:'sync', ...authBody(), prospects, changes });
+async function pushToSheets(url, prospects, deleted=[], changes=[]){
+  return callScript(url, { action:'sync', ...authBody(), prospects, deleted, changes });
 }
 
 // Texto claro para el usuario según la causa del fallo
@@ -2569,59 +2585,117 @@ function describeSyncError(err){
     case 'NETWORK':  return 'No se pudo contactar a Google (sin internet, URL incorrecta, o el script pide autorización/permisos)';
     case 'NOT_JSON': return 'Google respondió una página en vez de datos (el Web App debe estar implementado con acceso "Cualquier persona")';
     case 'SERVER':   return 'El script respondió: "' + err.extra + '"';
+    case 'OLD_SCRIPT': return 'El script de Google es una versión anterior y por seguridad NO se guardó nada (podría borrar tus registros). Pega el apf_crm_script.gs más reciente y publícalo como "Nueva versión"';
     default:         return (err && err.message) || 'Error desconocido';
   }
 }
 
 // Sincronización automática — se llama después de cada guardado
-let syncDirty = false;      // hay cambios locales que aún no llegan a Sheets
-let syncVersion = 0;
-let pendingChanges = [];    // movimientos del histórico aún no enviados
+// ── COLA DE CAMBIOS PENDIENTES (persistente) ─────────────────────
+// Guarda QUÉ falta por subir (no la lista completa). Sobrevive a recargas y a fallos de red.
+let scriptVersion   = null;     // versión del script de Google (se confirma con "ping")
+let scriptVersionOk = false;
+let flushChain      = Promise.resolve();
 
-function autoSync(changes=[]){
-  const url = getGsUrl();
-  if(!url) return;
+function emptyPending(){ return { seq:0, up:{}, del:[], changes:[] }; }
+function getPending(){
+  try { const p = JSON.parse(localStorage.getItem(PENDING_KEY)); if(p && p.up && p.del && p.changes) return p; } catch(e){}
+  return emptyPending();
+}
+function setPending(p){ localStorage.setItem(PENDING_KEY, JSON.stringify(p)); }
+function hasPending(){ const p = getPending(); return Object.keys(p.up).length > 0 || p.del.length > 0 || p.changes.length > 0; }
 
-  syncDirty = true;
-  syncVersion++;
-  pendingChanges = pendingChanges.concat(changes);
-
-  if(syncTimeout) clearTimeout(syncTimeout);
-  syncTimeout = setTimeout(async ()=>{
-    const version = syncVersion;
-    const batch   = pendingChanges.slice();
-    setSyncState('busy','Sincronizando…');
-    try {
-      await pushToSheets(url, getProspects(), batch);
-      pendingChanges = pendingChanges.slice(batch.length);
-      if(version === syncVersion) syncDirty = false;
-      setSyncState('ok','Sincronizado');
-      lastSyncTime = new Date();
-    } catch(err){
-      if(handleAuthError(err)) return;
-      const why = describeSyncError(err);
-      setSyncState('error','Error sync', why);
-      showToast('❌ No se guardó en Google Sheets: ' + why + '. Tus cambios siguen en este navegador; pulsa el indicador para reintentar.', 9000);
-      console.error('AutoSync error:', err);
-    }
-  }, 1500);
+function markPending({ up=[], del=[], changes=[] }){
+  const p = getPending();
+  up.forEach(id => { p.seq++; p.up[id] = p.seq; p.del = p.del.filter(x => x !== id); });
+  del.forEach(id => { delete p.up[id]; if(p.del.indexOf(id) < 0) p.del.push(id); });
+  p.changes = p.changes.concat(changes);
+  setPending(p);
 }
 
-// Si hay cambios sin enviar, primero se envían (no se sobreescriben con lo del servidor)
-async function pullOrPush(url){
-  if(syncDirty){
-    const batch = pendingChanges.slice();
-    await pushToSheets(url, getProspects(), batch);
-    pendingChanges = pendingChanges.slice(batch.length);
-    syncDirty = false;
-    return;
+// Con un script anterior a la v6 NO se guarda nada: ese script reemplazaba toda la hoja
+async function ensureScriptVersion(url){
+  if(scriptVersionOk) return;
+  let data;
+  try { data = await callScript(url, { action:'ping', ...authBody() }); }
+  catch(e){
+    if(e.code === 'SERVER' && /Acción no reconocida/.test(e.extra || '')) throw scriptErr('OLD_SCRIPT');
+    throw e;
   }
-  const loaded = await fetchFromSheets(url);
-  if(loaded.length === 0 && getProspects().length > 0){
-    await pushToSheets(url, getProspects());   // primera vez de este usuario: sube lo local
-  } else {
-    saveData(loaded);                          // el servidor manda: solo SUS prospectos
+  if(!data.version || data.version < REQUIRED_SCRIPT_VERSION) throw scriptErr('OLD_SCRIPT');
+  scriptVersion = data.version; scriptVersionOk = true;
+}
+
+// Sube SOLO lo pendiente. Las subidas se ponen en fila para no duplicar movimientos del histórico.
+function flushPending(url){
+  const run = flushChain.then(() => doFlush(url));
+  flushChain = run.catch(() => {});
+  return run;
+}
+async function doFlush(url){
+  await ensureScriptVersion(url);
+  const p = getPending();
+  const ids = Object.keys(p.up);
+  if(!ids.length && !p.del.length && !p.changes.length) return;
+  const upserts = getProspects().filter(x => Object.prototype.hasOwnProperty.call(p.up, x.id));
+  await pushToSheets(url, upserts, p.del, p.changes);
+  const cur = getPending();                          // pudo cambiar mientras se enviaba
+  ids.forEach(id => { if(cur.up[id] === p.up[id]) delete cur.up[id]; });
+  cur.del     = cur.del.filter(id => p.del.indexOf(id) < 0);
+  cur.changes = cur.changes.slice(p.changes.length);
+  setPending(cur);
+}
+
+// Se llama al guardar/eliminar: anota el cambio y programa la subida
+function queueSync(op){
+  markPending(op);
+  const url = getGsUrl();
+  if(!url) return;
+  if(syncTimeout) clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(runFlush, 1500);
+}
+
+async function runFlush(){
+  const url = getGsUrl();
+  if(!url) return;
+  setSyncState('busy','Sincronizando…');
+  try {
+    await flushPending(url);
+    setSyncState('ok','Sincronizado');
+    lastSyncTime = new Date();
+  } catch(err){
+    if(handleAuthError(err)) return;
+    const why = describeSyncError(err);
+    setSyncState('error','Error sync', why);
+    showToast('❌ No se guardó en Google Sheets: ' + why + '. Tus cambios siguen en este navegador (no se pierde nada); pulsa el indicador para reintentar.', 9000);
+    console.error('AutoSync error:', err);
   }
+}
+
+// Fusión: nunca se descarta un registro local. Lo que solo existe aquí se sube.
+function mergeProspects(server, local){
+  const p = getPending();
+  const byId = new Map();
+  server.forEach(s => byId.set(s.id, s));
+  const toUpload = [];
+  local.forEach(l => {
+    if(p.del.indexOf(l.id) >= 0) return;
+    if(Object.prototype.hasOwnProperty.call(p.up, l.id)){ byId.set(l.id, l); return; }
+    if(!byId.has(l.id)){ byId.set(l.id, l); toUpload.push(l.id); }
+  });
+  p.del.forEach(id => byId.delete(id));
+  const merged = Array.from(byId.values())
+    .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+  return { merged, toUpload };
+}
+
+// Sincronización completa: 1) sube lo pendiente  2) trae lo del servidor  3) fusiona
+async function syncNow(url){
+  await flushPending(url);
+  const server = await fetchFromSheets(url);
+  const { merged, toUpload } = mergeProspects(server, getProspects());
+  saveData(merged);
+  if(toUpload.length){ markPending({ up: toUpload }); await flushPending(url); }
 }
 
 function rerenderAll(){
@@ -2648,7 +2722,7 @@ async function manualSync(){
 
   setSyncState('busy','Sincronizando…');
   try {
-    await pullOrPush(url);
+    await syncNow(url);
     rerenderAll();
     setSyncState('ok','Sincronizado');
     lastSyncTime = new Date();
@@ -2671,7 +2745,7 @@ function initSyncState(){
     setTimeout(async ()=>{
       setSyncState('busy','Cargando…');
       try{
-        await pullOrPush(url);
+        await syncNow(url);
         rerenderAll();
         updateDashboard();
         setSyncState('ok','Sincronizado');
@@ -2691,6 +2765,9 @@ function initSyncState(){
 // ── LOGIN & MULTI-USUARIO ────────────────────────────────────────
 const SESSION_KEY = 'crm_apf_session';
 const DATA_OWNER_KEY = 'crm_apf_data_owner';
+const PENDING_KEY    = 'crm_apf_pending';
+const CRM_VERSION    = 'v7';
+const REQUIRED_SCRIPT_VERSION = 6;
 
 let currentUser = null; // { username, displayName }
 
@@ -2772,6 +2849,8 @@ function gsUrlSource(){
 function refreshLoginConn(){
   const el = document.getElementById('login-conn');
   if(!el) return;
+  const ver = document.getElementById('login-ver');
+  if(ver) ver.textContent = 'CRM ' + CRM_VERSION;
   const s = gsUrlSource();
   el.className = 'login-conn ' + (s === 'ninguna' ? 'bad' : 'ok');
   el.textContent = s === 'config'    ? '🟢 Google Sheets: URL leída de config.js'
@@ -2817,7 +2896,7 @@ function loginSuccess(user){
 
   // Datos locales: nunca mostrar los de otro usuario del mismo navegador
   const owner = localStorage.getItem(DATA_OWNER_KEY);
-  if(owner && owner !== user.username.toLowerCase()) localStorage.removeItem(STORAGE_KEY);
+  if(owner && owner !== user.username.toLowerCase()){ localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(PENDING_KEY); }
   localStorage.setItem(DATA_OWNER_KEY, user.username.toLowerCase());
 
   // Con Sheets conectado, el usuario nuevo empieza vacío (no se siembra el prospecto demo)
@@ -2829,13 +2908,14 @@ function loginSuccess(user){
 }
 
 function doLogout(force){
-  if(!force && syncDirty && !confirm('Tienes cambios sin sincronizar con Google Sheets. Si sales ahora se perderán. ¿Salir de todos modos?')) return;
+  const pending = hasPending();
+  if(!force && pending && !confirm('Hay cambios que aún no se guardan en Google Sheets. Si cierras sesión se conservan en este navegador y se subirán la próxima vez que entres con este mismo usuario. ¿Cerrar sesión?')) return;
   if(syncTimeout) clearTimeout(syncTimeout);
-  if(!force && getGsUrl()){            // los datos viven en Sheets; no dejarlos en este navegador
+  if(!force && !pending && getGsUrl()){   // todo está en Sheets: no dejar datos en este navegador
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(DATA_OWNER_KEY);
-    syncDirty = false; pendingChanges = [];
   }
+  scriptVersionOk = false;
   clearSession();
   currentUser = null;
   document.getElementById('main-header').style.display  = 'none';
