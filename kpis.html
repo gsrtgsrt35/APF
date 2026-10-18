@@ -71,14 +71,7 @@ body{font-family:'Inter',sans-serif;background:var(--gray-bg);color:var(--black)
 .toast-err{background:#3d1a1a;color:#F7C1C1;border:1px solid #A32D2D}
 .toast-info{background:#1a2a3d;color:var(--teal-m);border:1px solid var(--blue)}
 
-/* SETUP BANNER */
-.setup-banner{background:linear-gradient(135deg,var(--navy),#107BCD);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:22px}
-.setup-banner.hidden{display:none}
-.setup-banner h3{color:#fff;font-size:14px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:8px}
-.setup-banner p{color:var(--teal-m);font-size:12px;line-height:1.7;margin-bottom:10px}
-.setup-row{display:flex;gap:8px;flex-wrap:wrap}
-.setup-input{padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:12px;font-family:'Inter',sans-serif;outline:none;flex:1;min-width:260px}
-.setup-input::placeholder{color:rgba(255,255,255,.4)}.setup-input:focus{border-color:var(--teal-m)}
+
 
 /* EXEC CARDS */
 .exec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:22px}
@@ -274,16 +267,6 @@ body{font-family:'Inter',sans-serif;background:var(--gray-bg);color:var(--black)
 <div class="main">
 
   <!-- Setup banner -->
-  <div class="setup-banner" id="setup-banner">
-    <h3><i class="ti ti-brand-google" aria-hidden="true"></i> Conectar con Google Sheets</h3>
-    <p>Pega la URL de tu Google Apps Script Web App para activar la sincronización bidireccional.<br>
-    Todo se guardará en tu Google Sheet con histórico completo por KPI.</p>
-    <div class="setup-row">
-      <input class="setup-input" id="script-url-input" type="url" placeholder="https://script.google.com/macros/s/XXXXX/exec">
-      <button class="btn btn-teal" id="btn-connect"><i class="ti ti-plug"></i> Conectar</button>
-    </div>
-  </div>
-
   <!-- Exec cards -->
   <div class="sec-lbl"><i class="ti ti-dashboard"></i> Dashboard ejecutivo</div>
   <div class="exec-grid" id="exec-grid"></div>
@@ -513,7 +496,10 @@ function getCurrentQuarter(){
 }
 const CQ = getCurrentQuarter(); // quarter activo al cargar
 const Q3_GOAL = 50; // meta de pólizas (aplica al trimestre activo)
-const LS_KEY  = 'apf_script_url';
+// ── URL de tu Google Apps Script Web App ─────────────────────
+// Pega aquí tu URL y ya no necesitas configurar nada más
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5Rm0hD3UPWOYac-mRpza4b8PvhMTdGQFdjtLw_4wIaIjaIEYQDBmzglbgC3vwF8nD/exec';
+// ─────────────────────────────────────────────────────────────
 const COLOR_MAP = {
   teal:  {line:'#107BCD',fill:'rgba(16,123,205,.12)'},
   amber: {line:'#BA7517',fill:'rgba(186,117,23,.12)'},
@@ -523,7 +509,6 @@ const COLOR_MAP = {
 };
 
 // ── State ─────────────────────────────────────────────────────
-let SCRIPT_URL  = localStorage.getItem(LS_KEY) || '';
 let DB          = {};          // { kpi_id: { valor, status, notes, historia:[] } }
 let Q3_DATA     = { placed:0, meta:50 };
 let activeFilter= 'all', searchQ='', activeTab='dashboard';
@@ -729,41 +714,7 @@ async function saveQ3(placed){
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  SETUP / CONEXIÓN
-// ═══════════════════════════════════════════════════════════════
-function updateBannerVisibility(){
-  const banner = document.getElementById('setup-banner');
-  SCRIPT_URL ? banner.classList.add('hidden') : banner.classList.remove('hidden');
-}
-
-document.getElementById('btn-connect').onclick = async()=>{
-  const url = document.getElementById('script-url-input').value.trim();
-  if(!url.startsWith('https://script.google.com')){ toast('URL inválida. Debe ser de script.google.com','err'); return; }
-  const btn = document.getElementById('btn-connect');
-  btn.disabled = true;
-  setLoading(true,'Inicializando hojas de Google Sheets…');
-  try{
-    SCRIPT_URL = url;
-    // Test rápido de conectividad
-    const test = await gsGet({action:'init'});
-    if(!test.ok) throw new Error(test.error || 'El script respondió con error');
-    localStorage.setItem(LS_KEY, url);
-    updateBannerVisibility();
-    toast('Hojas inicializadas. Cargando datos…','ok');
-    await syncFromSheets(true);
-    toast('¡Conectado! Datos cargados desde Sheets ✓','ok');
-  } catch(e){
-    SCRIPT_URL = '';
-    toast('Error al conectar: '+e.message,'err',8000);
-    setSyncDot('error');
-  } finally{
-    btn.disabled = false;
-    setLoading(false);
-  }
-};
-
-document.getElementById('script-url-input').value = SCRIPT_URL;
+// ── La URL está hardcodeada arriba — no se necesita configuración ──
 
 // ═══════════════════════════════════════════════════════════════
 //  TAB NAVIGATION
@@ -1082,9 +1033,8 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeModal(); clo
 // ═══════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════
-updateBannerVisibility();
 renderDashboard();
-if(SCRIPT_URL){ syncFromSheets(true); } // auto-sync silencioso si ya hay URL guardada
+syncFromSheets(true); // sincroniza automáticamente al cargar
 </script>
 </body>
 </html>
