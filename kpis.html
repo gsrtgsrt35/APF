@@ -568,24 +568,11 @@ function setSyncDot(state){ // 'ok'|'syncing'|'error'|'idle'
 
 // ═══════════════════════════════════════════════════════════════
 //  GOOGLE SHEETS API
-// ═══════════════════════════════════════════════════════════════
-async function gsGet(params){
-  if(!SCRIPT_URL) throw new Error('URL no configurada');
-  const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString();
-  const r = await fetch(url, { redirect:'follow' });
-  if(!r.ok) throw new Error('HTTP '+r.status);
-  const text = await r.text();
-  try{ return JSON.parse(text); }
-  catch(e){ throw new Error('Respuesta inválida del servidor: '+text.slice(0,120)); }
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  GOOGLE SHEETS API — Comunicación CORS-safe
 //
-//  LECTURAS  → GET simple (Apps Script responde con CORS OK)
-//  ESCRITURAS → POST con FormData + mode:'no-cors'
-//               (no-cors no devuelve body, así que guardamos
-//                localmente y sincronizamos después)
+//  Tanto lecturas como escrituras van por GET con parámetros
+//  en la URL. Apps Script responde con CORS en doGet, lo que
+//  permite leer la respuesta y confirmar el guardado.
+//  Las escrituras envían el payload JSON en el parámetro "body".
 // ═══════════════════════════════════════════════════════════════
 
 async function gsGet(params){
@@ -598,16 +585,22 @@ async function gsGet(params){
   catch(e){ throw new Error('Respuesta inválida: ' + text.slice(0,150)); }
 }
 
-// POST con FormData evita el preflight CORS.
-// mode:'no-cors' significa que no podemos leer la respuesta,
-// pero el servidor SÍ recibe y procesa la petición.
+// Escrituras también via GET — Apps Script lee e.parameter.body
 async function gsWrite(payload){
   if(!SCRIPT_URL) throw new Error('URL no configurada');
-  const fd = new FormData();
-  fd.append('payload', JSON.stringify(payload));
-  await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', body: fd });
-  // Con no-cors la respuesta es opaca — confiamos en que llegó
-  // y actualizamos DB local inmediatamente.
+  const params = new URLSearchParams({
+    action: payload.action,
+    body:   JSON.stringify(payload)
+  });
+  const url = SCRIPT_URL + '?' + params.toString();
+  const r = await fetch(url, { redirect:'follow' });
+  if(!r.ok) throw new Error('HTTP ' + r.status);
+  const text = await r.text();
+  try{
+    const res = JSON.parse(text);
+    if(!res.ok) throw new Error(res.error || 'Error en Apps Script');
+    return res;
+  } catch(e){ throw new Error('Respuesta inválida: ' + text.slice(0,150)); }
 }
 
 // Cola de escrituras pendientes (por si hay error de red)
@@ -625,15 +618,22 @@ async function flushQueue(){
   const batch = [...writeQueue];
   writeQueue = [];
   setSyncDot('syncing');
-  try{
-    await gsWrite({ action:'bulk_write', items: batch });
-    setSyncDot('ok');
-  } catch(e){
-    // Reintentar en 5s
-    writeQueue = [...batch, ...writeQueue];
+  const failed = [];
+  for(const item of batch){
+    try{
+      await gsWrite(item);
+    } catch(e){
+      console.error('[APF Write] error en item:', item.action, e.message);
+      failed.push(item);
+    }
+  }
+  if(failed.length){
+    writeQueue = [...failed, ...writeQueue];
     setSyncDot('error');
-    setTimeout(flushQueue, 5000);
-    console.warn('[APF Write] reintento en 5s:', e.message);
+    toast(`Error guardando ${failed.length} cambio(s) en Sheets. Reintentando…`, 'err', 5000);
+    setTimeout(flushQueue, 6000);
+  } else {
+    setSyncDot('ok');
   }
 }
 
@@ -693,7 +693,7 @@ async function saveKpiToSheets(kpiId, valor, status, notes, fields){
   }
   DB[kpiId] = { valor, status, notes, historia: hist, fields };
 
-  // 2. Enviar a Sheets en background (no-cors, sin bloquear UI)
+  // 2. Enviar a Sheets en background via GET
   queueWrite({ action:'save_kpi', kpi_id:kpiId, nombre:k.name,
     categoria:k.cat, valor, status, notes });
   if(valor && valor!=='—' && valor!==oldVal){
