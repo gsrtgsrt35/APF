@@ -498,7 +498,7 @@ const CQ = getCurrentQuarter(); // quarter activo al cargar
 const Q3_GOAL = 50; // meta de pólizas (aplica al trimestre activo)
 // ── URL de tu Google Apps Script Web App ─────────────────────
 // Pega aquí tu URL y ya no necesitas configurar nada más
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5Rm0hD3UPWOYac-mRpza4b8PvhMTdGQFdjtLw_4wIaIjaIEYQDBmzglbgC3vwF8nD/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/PEGA_TU_URL_AQUI/exec';
 // ─────────────────────────────────────────────────────────────
 const COLOR_MAP = {
   teal:  {line:'#107BCD',fill:'rgba(16,123,205,.12)'},
@@ -570,15 +570,19 @@ async function gsGet(params){
   catch(e){ throw new Error('Respuesta inválida: ' + text.slice(0,150)); }
 }
 
-// Escrituras también via GET — Apps Script lee e.parameter.body
+// Escrituras via POST con x-www-form-urlencoded
+// Apps Script lo lee limpiamente en e.parameter.payload (doPost)
 async function gsWrite(payload){
   if(!SCRIPT_URL) throw new Error('URL no configurada');
-  const params = new URLSearchParams({
-    action: payload.action,
-    body:   JSON.stringify(payload)
+  // Limpiar campo interno antes de enviar
+  const { _ts, ...clean } = payload;
+  const body = new URLSearchParams({ payload: JSON.stringify(clean) });
+  const r = await fetch(SCRIPT_URL, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body:    body.toString(),
+    redirect:'follow'
   });
-  const url = SCRIPT_URL + '?' + params.toString();
-  const r = await fetch(url, { redirect:'follow' });
   if(!r.ok) throw new Error('HTTP ' + r.status);
   const text = await r.text();
   try{
