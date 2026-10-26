@@ -527,8 +527,8 @@
     </div>
   </div>
 
-  <!-- OPORTUNIDADES -->
-  <div class="section-title"><span class="dot"></span><h2>Oportunidades</h2></div>
+  <!-- NEGOCIOS (antes Oportunidades) -->
+  <div class="section-title"><span class="dot"></span><h2>Negocios</h2></div>
   <div class="table-card">
     <table class="data-table" id="oportunidadesTable">
       <thead>
@@ -537,7 +537,8 @@
           <th>Nombre</th>
           <th>Plan</th>
           <th>Plazo</th>
-          <th>Aportación</th>
+          <th>Monto</th>
+          <th>Monto Anual</th>
           <th>Acción</th>
           <th style="width:34px;"></th>
         </tr>
@@ -546,7 +547,7 @@
     </table>
     <button class="add-row-btn" onclick="addOportunidadRow()">+ Agregar oportunidad</button>
     <div class="table-foot">
-      <div class="total-pill"><span class="lbl">Total aportación</span><span class="val" id="oportunidadesAportTotal">$0.00</span></div>
+      <div class="total-pill"><span class="lbl">Total Monto Anual</span><span class="val" id="oportunidadesAportTotal">$0.00</span></div>
     </div>
   </div>
 
@@ -575,12 +576,6 @@
           <td><input class="meta-input" type="number" id="metaNegocios" value="15"></td>
           <td class="logro-val" id="logroNegocios">0</td>
           <td class="faltante-val" id="faltanteNegocios">0</td>
-        </tr>
-        <tr>
-          <td>Primas</td>
-          <td><input class="meta-input" type="number" id="metaPrimas" value="20000"></td>
-          <td class="logro-val" id="logroPrimas">$0.00</td>
-          <td class="faltante-val" id="faltantePrimas">$0.00</td>
         </tr>
       </tbody>
     </table>
@@ -701,10 +696,15 @@ function addOportunidadRow(){
         <option value="">Selecciona…</option>
         <option value="Crea Inversion">Crea Inversión</option>
         <option value="Crea Futuro">Crea Futuro</option>
+        <option value="GMM">GMM</option>
+        <option value="Daños">Daños</option>
+        <option value="Auto">Auto</option>
+        <option value="Vida">Vida</option>
       </select>
     </td>
     <td><input type="text" placeholder="Plazo"></td>
     <td><input type="number" class="oportunidad-aport" min="0" placeholder="0.00"></td>
+    <td class="linea-total" style="text-align:right;font-weight:600;color:var(--blue-dark);">$0.00</td>
     <td><input type="text" placeholder="Acción"></td>
     <td><button class="row-del" onclick="delRow(this,'oportunidades')" title="Eliminar">✕</button></td>
   `;
@@ -712,10 +712,20 @@ function addOportunidadRow(){
   renumber('oportunidadesBody');
   recalcOportunidades();
 }
+// Monto Anual por línea = Monto × 12; el total de la sección es la suma de todas las líneas
+function recalcNegociosLineas(){
+  let total = 0;
+  document.querySelectorAll('#oportunidadesBody tr').forEach(tr=>{
+    const monto = parseNum(tr.querySelector('.oportunidad-aport').value);
+    const linea = monto * 12;
+    tr.querySelector('.linea-total').textContent = toCurrency(linea);
+    total += linea;
+  });
+  return total;
+}
 function recalcOportunidades(){
-  let aport = 0;
-  document.querySelectorAll('.oportunidad-aport').forEach(i=>aport+=parseNum(i.value));
-  document.getElementById('oportunidadesAportTotal').textContent = toCurrency(aport);
+  const total = recalcNegociosLineas();
+  document.getElementById('oportunidadesAportTotal').textContent = toCurrency(total);
   recalcAvance();
 }
 
@@ -759,20 +769,10 @@ function recalcAvance(){
   const metaReferido = parseNum(document.getElementById('metaReferido').value);
   const metaOportunidades = parseNum(document.getElementById('metaOportunidades').value);
   const metaNegocios = parseNum(document.getElementById('metaNegocios').value);
-  const metaPrimas = parseNum(document.getElementById('metaPrimas').value);
 
   setFaltante('faltanteReferido', metaReferido - logroReferido);
   setFaltante('faltanteOportunidades', metaOportunidades - logroOportunidadesMetas);
   setFaltante('faltanteNegocios', metaNegocios - logroNegocios);
-
-  let logroPrimas = 0;
-  document.querySelectorAll('.oportunidad-aport').forEach(i=>logroPrimas+=parseNum(i.value));
-  document.getElementById('logroPrimas').textContent = toCurrency(logroPrimas);
-  const faltantePrimas = metaPrimas - logroPrimas;
-  const faltantePrimasEl = document.getElementById('faltantePrimas');
-  faltantePrimasEl.textContent = toCurrency(faltantePrimas);
-  faltantePrimasEl.classList.remove('ok','pending');
-  faltantePrimasEl.classList.add(faltantePrimas <= 0 ? 'ok' : 'pending');
 }
 
 /* ---------- EVENTS ---------- */
@@ -786,7 +786,7 @@ document.addEventListener('input', (e)=>{
   if(e.target.classList.contains('oportunidad-aport')){
     recalcOportunidades();
   }
-  if(e.target.id==='metaReferido' || e.target.id==='metaOportunidades' || e.target.id==='metaNegocios' || e.target.id==='metaPrimas'){
+  if(e.target.id==='metaReferido' || e.target.id==='metaOportunidades' || e.target.id==='metaNegocios'){
     recalcAvance();
   }
 });
@@ -852,6 +852,7 @@ function gatherAllData(){
       plan: select ? select.value : '',
       plazo: inputs[1].value,
       aportacion: parseNum(inputs[2].value),
+      montoAnual: parseNum(inputs[2].value) * 12,
       accion: inputs[3].value
     });
   });
@@ -859,8 +860,7 @@ function gatherAllData(){
   const avance = [
     { indicador: 'Referido', meta: parseNum(document.getElementById('metaReferido').value), logro: parseNum(document.getElementById('logroReferido').textContent), faltante: document.getElementById('faltanteReferido').textContent },
     { indicador: 'Oportunidades', meta: parseNum(document.getElementById('metaOportunidades').value), logro: parseNum(document.getElementById('logroOportunidades').textContent), faltante: document.getElementById('faltanteOportunidades').textContent },
-    { indicador: 'No. de negocios', meta: parseNum(document.getElementById('metaNegocios').value), logro: parseNum(document.getElementById('logroNegocios').textContent), faltante: document.getElementById('faltanteNegocios').textContent },
-    { indicador: 'Primas', meta: parseNum(document.getElementById('metaPrimas').value), logro: document.getElementById('logroPrimas').textContent, faltante: document.getElementById('faltantePrimas').textContent }
+    { indicador: 'No. de negocios', meta: parseNum(document.getElementById('metaNegocios').value), logro: parseNum(document.getElementById('logroNegocios').textContent), faltante: document.getElementById('faltanteNegocios').textContent }
   ];
 
   return {
@@ -1027,7 +1027,7 @@ function populateForm(data){
     const card = document.querySelector(`.week-card[data-week="${semana.semana}"]`);
     if(!card) return;
     (semana.metrics || []).forEach(m=>{
-      const metricKey = METRICS.find(mm=>mm.label === m.label);
+      const metricKey = METRICS.find(mm=>mm.label === m.label || (mm.key === 'oportunidades' && m.label === 'Negocios'));
       if(!metricKey) return;
       const inputs = card.querySelectorAll(`input[data-metric="${metricKey.key}"]`);
       const vals = [m.L, m.M1, m.M2, m.J, m.V];
@@ -1079,9 +1079,8 @@ function populateForm(data){
   // Avance de metas (solo las metas, logro/faltante se recalculan solos)
   (data.avance || []).forEach(a=>{
     if(a.indicador === 'Referido') document.getElementById('metaReferido').value = a.meta;
-    if(a.indicador === 'Oportunidades') document.getElementById('metaOportunidades').value = a.meta;
+    if(a.indicador === 'Negocios' || a.indicador === 'Oportunidades') document.getElementById('metaOportunidades').value = a.meta;
     if(a.indicador === 'No. de negocios') document.getElementById('metaNegocios').value = a.meta;
-    if(a.indicador === 'Primas') document.getElementById('metaPrimas').value = a.meta;
   });
 
   recalcAvance();
