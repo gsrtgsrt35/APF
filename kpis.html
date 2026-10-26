@@ -498,7 +498,7 @@ const CQ = getCurrentQuarter(); // quarter activo al cargar
 const Q3_GOAL = 50; // meta de pólizas (aplica al trimestre activo)
 // ── URL de tu Google Apps Script Web App ─────────────────────
 // Pega aquí tu URL y ya no necesitas configurar nada más
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5Rm0hD3UPWOYac-mRpza4b8PvhMTdGQFdjtLw_4wIaIjaIEYQDBmzglbgC3vwF8nD/exec;
+const SCRIPT_URL = 'https://script.google.com/macros/s/PEGA_TU_URL_AQUI/exec';
 // ─────────────────────────────────────────────────────────────
 const COLOR_MAP = {
   teal:  {line:'#107BCD',fill:'rgba(16,123,205,.12)'},
@@ -566,6 +566,11 @@ async function gsGet(params){
   const r = await fetch(url, { redirect:'follow' });
   if(!r.ok) throw new Error('HTTP ' + r.status);
   const text = await r.text();
+  // Apps Script a veces devuelve HTML de error en lugar de JSON
+  if(text.trim().startsWith('<')){
+    console.error('[APF] Apps Script devolvió HTML:', text.slice(0,200));
+    throw new Error('Apps Script devolvió HTML. Verifica que la Web App esté desplegada correctamente y con acceso "Cualquier usuario".');
+  }
   try{ return JSON.parse(text); }
   catch(e){ throw new Error('Respuesta inválida: ' + text.slice(0,150)); }
 }
@@ -635,36 +640,58 @@ async function initSheets(){
 
 // ── Sync: leer todo desde Sheets ─────────────────────────────
 async function syncFromSheets(silent=false){
-  if(!SCRIPT_URL){ if(!silent) toast('Conecta Google Sheets primero','err'); return; }
+  if(!SCRIPT_URL){
+    toast('URL de Google Sheets no configurada en el HTML','err',6000);
+    renderDashboard();
+    return;
+  }
   setSyncDot('syncing');
-  if(!silent) setLoading(true,'Leyendo datos de Google Sheets…');
+  setLoading(true, 'Leyendo datos de Google Sheets…');
   try{
+    // 1. Estado actual de todos los KPIs
     const resKpis = await gsGet({action:'read_all'});
-    if(!resKpis.ok) throw new Error(resKpis.error||'Error leyendo KPIs');
+    if(!resKpis.ok) throw new Error(resKpis.error||'Error en read_all');
 
-    const histPromises = KPI_DEFS.map(k=>gsGet({action:'read_history', kpi_id:k.id}));
-    const histResults  = await Promise.all(histPromises);
-    const resQ3        = await gsGet({action:'read_q3'});
+    // 2. Q3
+    const resQ3 = await gsGet({action:'read_q3'});
 
+    // 3. Historial — secuencial para no saturar Apps Script
+    const histMap = {};
+    for(const k of KPI_DEFS){
+      try{
+        const r = await gsGet({action:'read_history', kpi_id:k.id});
+        histMap[k.id] = (r.history||[]).sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp));
+      } catch(e){
+        console.warn('[APF] historial fallido para', k.id, e.message);
+        histMap[k.id] = [];
+      }
+    }
+
+    // 4. Construir DB local
     DB = {};
-    KPI_DEFS.forEach((k,i)=>{
-      const sr   = (resKpis.kpis||{})[k.id] || {};
-      const hist = (histResults[i].history||[]).sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp));
-      DB[k.id]   = { valor:sr.valor||'—', status:sr.status||'info', notes:sr.notes||'', historia:hist };
+    KPI_DEFS.forEach(k=>{
+      const sr = (resKpis.kpis||{})[k.id] || {};
+      DB[k.id] = {
+        valor:   sr.valor  || '—',
+        status:  sr.status || 'info',
+        notes:   sr.notes  || '',
+        historia: histMap[k.id] || []
+      };
     });
 
-    if(resQ3.ok) Q3_DATA = {placed:resQ3.placed||0, meta:resQ3.meta||50};
+    if(resQ3.ok) Q3_DATA = {placed: resQ3.placed||0, meta: resQ3.meta||50};
 
     setSyncDot('ok');
     if(!silent) toast('Sincronizado con Google Sheets ✓','ok');
-    renderDashboard();
-    if(activeTab==='tendencias') renderTrends();
   } catch(e){
     setSyncDot('error');
-    toast('Error de sincronización: '+e.message,'err',7000);
+    toast('Error al leer Sheets: '+e.message,'err',8000);
     console.error('[APF Sync]', e);
   } finally{
     setLoading(false);
+    // Siempre renderizar — con datos de Sheets o con DB vacío
+    renderDashboard();
+    if(activeTab==='tendencias') renderTrends();
   }
 }
 
@@ -1037,8 +1064,9 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeModal(); clo
 // ═══════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════
-renderDashboard();
-syncFromSheets(true); // sincroniza automáticamente al cargar
+// syncFromSheets siempre llama renderDashboard() en su bloque finally
+// tanto si Sheets responde bien como si falla — la lista nunca queda vacía
+syncFromSheets(false);
 </script>
 </body>
 </html>
